@@ -1,0 +1,15 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+/** Server-only Gemini client — NEVER import in client components */
+function getGeminiClient(): GoogleGenerativeAI {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GEMINI_API_KEY is not configured");
+  }
+  return new GoogleGenerativeAI(apiKey);
+}
+
+export function getGeminiModel(modelName: string = "gemini-2.0-flash") {
+  const client = getGeminiClient();
+  return client.getGenerativeModel({ model: modelName });
+}
