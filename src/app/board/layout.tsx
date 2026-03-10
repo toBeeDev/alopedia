@@ -1,6 +1,13 @@
+import type { Metadata } from "next";
 import FloatingMenu from "@/components/layout/FloatingMenu";
 import Footer from "@/components/layout/Footer";
 import type { ReactElement, ReactNode } from "react";
+
+export const metadata: Metadata = {
+  title: "커뮤니티",
+  description:
+    "약물, 시술 후기를 익명으로 공유하고 실질적인 탈모 관리 정보를 나눠보세요.",
+};
 
 interface BoardLayoutProps {
   children: ReactNode;
