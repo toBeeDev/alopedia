@@ -3,6 +3,8 @@ import FloatingMenu from "@/components/layout/FloatingMenu";
 import Footer from "@/components/layout/Footer";
 import type { ReactElement, ReactNode } from "react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "커뮤니티",
   description:
