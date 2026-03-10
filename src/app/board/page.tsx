@@ -10,8 +10,13 @@ import {
   TrendingUp,
   Megaphone,
   Lock,
+  Plus,
+  X,
+  MoreVertical,
+  Pencil,
+  Trash2,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import { COPY } from "@/constants/copy";
 import { getGradeConfig } from "@/constants/gradeConfig";
@@ -29,11 +34,19 @@ const BOARD_TABS = [
   COPY.BOARD_NAME.lounge,
 ] as const;
 
+const BOARD_KEY_MAP: Record<string, string> = {
+  [COPY.BOARD_NAME.medication_review]: "medication_review",
+  [COPY.BOARD_NAME.procedure_review]: "procedure_review",
+  [COPY.BOARD_NAME.qna]: "qna",
+  [COPY.BOARD_NAME.lounge]: "lounge",
+};
+
 interface BoardPost {
   id: string;
   type: "review" | "scan";
   tab: string;
   nickname: string;
+  userId?: string;
   timeAgo: string;
   title: string;
   body: string;
@@ -272,12 +285,77 @@ function NoticeCard({ notice }: { notice: NoticePost }): ReactElement {
   );
 }
 
+function PostMenu({
+  onEdit,
+  onDelete,
+}: {
+  onEdit: () => void;
+  onDelete: () => void;
+}): ReactElement {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex h-7 w-7 items-center justify-center rounded-full hover:bg-[#F5F5F7]"
+        aria-label="더보기"
+      >
+        <MoreVertical className="h-4 w-4 text-[#9DA0AE]" />
+      </button>
+      <AnimatePresence>
+        {open && (
+          <>
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setOpen(false)}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="absolute right-0 top-8 z-50 w-28 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-[#EEEFF2]"
+            >
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  onEdit();
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2.5 text-xs text-[#323338] hover:bg-[#F5F5F7]"
+              >
+                <Pencil className="h-3.5 w-3.5" />
+                수정
+              </button>
+              <button
+                onClick={() => {
+                  setOpen(false);
+                  onDelete();
+                }}
+                className="flex w-full items-center gap-2 px-3 py-2.5 text-xs text-red-500 hover:bg-red-50"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                삭제
+              </button>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
 function ReviewCard({
   post,
   blurred,
+  isOwner,
+  onEdit,
+  onDelete,
 }: {
   post: BoardPost;
   blurred: boolean;
+  isOwner: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
 }): ReactElement {
   return (
     <motion.article
@@ -296,17 +374,20 @@ function ReviewCard({
             <p className="text-[11px] text-[#9DA0AE]">{post.timeAgo}</p>
           </div>
         </div>
-        {post.grade !== null && (() => {
-          const gc = getGradeConfig(post.grade);
-          return (
-            <span
-              className="inline-flex items-center gap-1 rounded-full py-1 pl-1 pr-2.5 text-[11px] font-bold text-white"
-              style={{ backgroundColor: gc.color }}
-            >
-              <EagleIcon grade={post.grade} size={18} /> {gc.eagleLabel}
-            </span>
-          );
-        })()}
+        <div className="flex items-center gap-2">
+          {post.grade !== null && (() => {
+            const gc = getGradeConfig(post.grade);
+            return (
+              <span
+                className="inline-flex items-center gap-1 rounded-full py-1 pl-1 pr-2.5 text-[11px] font-bold text-white"
+                style={{ backgroundColor: gc.color }}
+              >
+                <EagleIcon grade={post.grade} size={18} /> {gc.eagleLabel}
+              </span>
+            );
+          })()}
+          {isOwner && <PostMenu onEdit={onEdit} onDelete={onDelete} />}
+        </div>
       </div>
 
       <h3 className="mb-1.5 text-sm font-bold text-[#323338]">{post.title}</h3>
@@ -336,12 +417,27 @@ function ReviewCard({
 function ScanCard({
   post,
   blurred,
+  isOwner,
+  onEdit,
+  onDelete,
 }: {
   post: BoardPost;
   blurred: boolean;
+  isOwner: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
 }): ReactElement {
   const scan = SCAN_DETAILS[post.id];
-  if (!scan) return <ReviewCard post={post} blurred={blurred} />;
+  if (!scan)
+    return (
+      <ReviewCard
+        post={post}
+        blurred={blurred}
+        isOwner={isOwner}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
+    );
 
   const gc = getGradeConfig(scan.grade);
 
@@ -368,7 +464,10 @@ function ScanCard({
               <p className="text-[11px] text-[#9DA0AE]">{post.timeAgo}</p>
             </div>
           </div>
-          <TrendBadge trend={scan.trend} />
+          <div className="flex items-center gap-2">
+            <TrendBadge trend={scan.trend} />
+            {isOwner && <PostMenu onEdit={onEdit} onDelete={onDelete} />}
+          </div>
         </div>
         <h3 className="text-sm font-bold text-[#323338]">{post.title}</h3>
       </div>
@@ -397,39 +496,24 @@ function ScanCard({
           {post.body}
         </p>
 
-        <div className={`space-y-2 ${blurred ? "select-none blur-[6px]" : ""}`}>
-          <div className="rounded-xl bg-[#F5F5F7] p-3">
-            <p className="mb-0.5 text-[11px] font-semibold text-[#323338]">
-              헤어라인
-            </p>
-            <p className="text-xs leading-relaxed text-[#676879]">
-              {scan.hairline}
-            </p>
-          </div>
-          <div className="rounded-xl bg-[#F5F5F7] p-3">
-            <p className="mb-0.5 text-[11px] font-semibold text-[#323338]">
-              모발 밀도
-            </p>
-            <p className="text-xs leading-relaxed text-[#676879]">
-              {scan.density}
-            </p>
-          </div>
-          <div className="rounded-xl bg-[#F5F5F7] p-3">
-            <p className="mb-0.5 text-[11px] font-semibold text-[#323338]">
-              모발 굵기
-            </p>
-            <p className="text-xs leading-relaxed text-[#676879]">
-              {scan.thickness}
-            </p>
-          </div>
-          <div className="rounded-xl bg-[#F5F5F7] p-3">
-            <p className="mb-0.5 text-[11px] font-semibold text-[#323338]">
-              두피 상태
-            </p>
-            <p className="text-xs leading-relaxed text-[#676879]">
-              {scan.scalpCondition}
-            </p>
-          </div>
+        <div
+          className={`space-y-2 ${blurred ? "select-none blur-[6px]" : ""}`}
+        >
+          {(
+            [
+              ["헤어라인", scan.hairline],
+              ["모발 밀도", scan.density],
+              ["모발 굵기", scan.thickness],
+              ["두피 상태", scan.scalpCondition],
+            ] as const
+          ).map(([label, value]) => (
+            <div key={label} className="rounded-xl bg-[#F5F5F7] p-3">
+              <p className="mb-0.5 text-[11px] font-semibold text-[#323338]">
+                {label}
+              </p>
+              <p className="text-xs leading-relaxed text-[#676879]">{value}</p>
+            </div>
+          ))}
         </div>
 
         <div
@@ -460,6 +544,233 @@ function ScanCard({
   );
 }
 
+/* ── Write Post Modal ── */
+
+function WritePostModal({
+  onClose,
+  onSubmit,
+  initial,
+}: {
+  onClose: () => void;
+  onSubmit: (data: {
+    board: string;
+    title: string;
+    content: string;
+    deletePin: string;
+  }) => void;
+  initial?: { board: string; title: string; content: string };
+}): ReactElement {
+  const isEdit = !!initial;
+  const [board, setBoard] = useState(initial?.board ?? "lounge");
+  const [title, setTitle] = useState(initial?.title ?? "");
+  const [content, setContent] = useState(initial?.content ?? "");
+  const [deletePin, setDeletePin] = useState("");
+  const [error, setError] = useState("");
+
+  function handleSubmit(): void {
+    if (title.trim().length < 2) {
+      setError("제목은 2자 이상 입력해주세요.");
+      return;
+    }
+    if (content.trim().length < 10) {
+      setError("내용은 10자 이상 입력해주세요.");
+      return;
+    }
+    if (!isEdit && (!/^\d{4}$/.test(deletePin))) {
+      setError("삭제 비밀번호는 숫자 4자리로 입력해주세요.");
+      return;
+    }
+    onSubmit({ board, title, content, deletePin });
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 sm:items-center"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ y: 100 }}
+        animate={{ y: 0 }}
+        exit={{ y: 100 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-full max-w-lg rounded-t-2xl bg-white p-6 shadow-xl sm:rounded-2xl"
+      >
+        <div className="mb-5 flex items-center justify-between">
+          <h2 className="text-base font-bold text-[#323338]">
+            {isEdit ? "글 수정" : "글쓰기"}
+          </h2>
+          <button
+            onClick={onClose}
+            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F5F5F7]"
+          >
+            <X className="h-5 w-5 text-[#9DA0AE]" />
+          </button>
+        </div>
+
+        {/* Board select */}
+        <div className="mb-4 flex gap-2 overflow-x-auto">
+          {Object.entries(COPY.BOARD_NAME).map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setBoard(key)}
+              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                board === key
+                  ? "bg-[#6161FF] text-white"
+                  : "bg-[#F5F5F7] text-[#676879]"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {/* Title */}
+        <input
+          type="text"
+          placeholder="제목을 입력해주세요"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          maxLength={100}
+          className="mb-3 w-full rounded-xl border border-[#EEEFF2] px-4 py-3 text-sm text-[#323338] outline-none placeholder:text-[#B0B3BE] focus:border-[#6161FF]"
+        />
+
+        {/* Content */}
+        <textarea
+          placeholder="내용을 입력해주세요 (10자 이상)"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          maxLength={5000}
+          rows={6}
+          className="mb-3 w-full resize-none rounded-xl border border-[#EEEFF2] px-4 py-3 text-sm leading-relaxed text-[#323338] outline-none placeholder:text-[#B0B3BE] focus:border-[#6161FF]"
+        />
+
+        {/* Delete PIN (only for new posts) */}
+        {!isEdit && (
+          <div className="mb-4">
+            <label className="mb-1.5 block text-xs font-medium text-[#676879]">
+              삭제 비밀번호 (숫자 4자리)
+            </label>
+            <input
+              type="password"
+              inputMode="numeric"
+              placeholder="••••"
+              value={deletePin}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                setDeletePin(v);
+              }}
+              maxLength={4}
+              className="w-32 rounded-xl border border-[#EEEFF2] px-4 py-3 text-center text-sm tracking-[0.3em] text-[#323338] outline-none placeholder:text-[#B0B3BE] focus:border-[#6161FF]"
+            />
+          </div>
+        )}
+
+        {error && (
+          <p className="mb-3 text-xs text-red-500">{error}</p>
+        )}
+
+        <div className="flex justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="rounded-full px-5 py-2.5 text-sm font-medium text-[#676879] hover:bg-[#F5F5F7]"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="rounded-full bg-[#6161FF] px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#6161FF]/25 transition-all hover:bg-[#4338ca] active:scale-95"
+          >
+            {isEdit ? "수정하기" : "등록하기"}
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
+/* ── Delete PIN Confirm Modal ── */
+
+function DeletePinModal({
+  onClose,
+  onConfirm,
+}: {
+  onClose: () => void;
+  onConfirm: (pin: string) => void;
+}): ReactElement {
+  const [pin, setPin] = useState("");
+  const [error, setError] = useState("");
+
+  function handleConfirm(): void {
+    if (!/^\d{4}$/.test(pin)) {
+      setError("숫자 4자리를 입력해주세요.");
+      return;
+    }
+    onConfirm(pin);
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9 }}
+        animate={{ scale: 1 }}
+        exit={{ scale: 0.9 }}
+        onClick={(e) => e.stopPropagation()}
+        className="w-80 rounded-2xl bg-white p-6 shadow-xl"
+      >
+        <h3 className="mb-1 text-base font-bold text-[#323338]">
+          게시글 삭제
+        </h3>
+        <p className="mb-4 text-sm text-[#676879]">
+          작성 시 설정한 비밀번호 4자리를 입력해주세요.
+        </p>
+
+        <input
+          type="password"
+          inputMode="numeric"
+          placeholder="••••"
+          value={pin}
+          onChange={(e) => {
+            const v = e.target.value.replace(/\D/g, "").slice(0, 4);
+            setPin(v);
+            setError("");
+          }}
+          maxLength={4}
+          className="mb-3 w-full rounded-xl border border-[#EEEFF2] px-4 py-3 text-center text-lg tracking-[0.5em] text-[#323338] outline-none placeholder:text-[#B0B3BE] focus:border-[#6161FF]"
+          autoFocus
+        />
+
+        {error && (
+          <p className="mb-3 text-center text-xs text-red-500">{error}</p>
+        )}
+
+        <div className="flex gap-2">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-full py-2.5 text-sm font-medium text-[#676879] hover:bg-[#F5F5F7]"
+          >
+            취소
+          </button>
+          <button
+            onClick={handleConfirm}
+            className="flex-1 rounded-full bg-red-500 py-2.5 text-sm font-semibold text-white hover:bg-red-600 active:scale-95"
+          >
+            삭제
+          </button>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 /* ── Page ── */
 
 export default function BoardPage(): ReactElement {
@@ -467,10 +778,56 @@ export default function BoardPage(): ReactElement {
   const [activeTab, setActiveTab] = useState<string>(TAB_ALL);
   const isGuest = !user;
 
+  const [showWrite, setShowWrite] = useState(false);
+  const [editTarget, setEditTarget] = useState<BoardPost | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<BoardPost | null>(null);
+
   const filteredPosts =
     activeTab === TAB_ALL
       ? BOARD_POSTS
       : BOARD_POSTS.filter((p) => p.tab === activeTab);
+
+  function handleWrite(data: {
+    board: string;
+    title: string;
+    content: string;
+    deletePin: string;
+  }): void {
+    // TODO: Call API when connected to real data
+    fetch("/api/board/posts", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(() => {
+      setShowWrite(false);
+    });
+  }
+
+  function handleEdit(data: {
+    board: string;
+    title: string;
+    content: string;
+  }): void {
+    if (!editTarget) return;
+    fetch(`/api/board/posts/${editTarget.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    }).then(() => {
+      setEditTarget(null);
+    });
+  }
+
+  function handleDelete(pin: string): void {
+    if (!deleteTarget) return;
+    fetch(`/api/board/posts/${deleteTarget.id}`, {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ deletePin: pin }),
+    }).then(() => {
+      setDeleteTarget(null);
+    });
+  }
 
   return (
     <div className="min-h-screen bg-[#F9FAFB] pb-24">
@@ -493,7 +850,7 @@ export default function BoardPage(): ReactElement {
         </motion.div>
 
         {/* Tab chips */}
-        <div className="mb-6 flex gap-2 overflow-x-auto scrollbar-hide">
+        <div className="mb-6 flex gap-2 overflow-x-auto scrollbar-none">
           {BOARD_TABS.map((tab) => (
             <button
               key={tab}
@@ -520,13 +877,21 @@ export default function BoardPage(): ReactElement {
           >
             <NoticeCard notice={NOTICE} />
 
-            {filteredPosts.map((post) =>
-              post.type === "scan" ? (
-                <ScanCard key={post.id} post={post} blurred={isGuest} />
+            {filteredPosts.map((post) => {
+              const isOwner = !!user && post.userId === user.id;
+              const cardProps = {
+                post,
+                blurred: isGuest,
+                isOwner,
+                onEdit: () => setEditTarget(post),
+                onDelete: () => setDeleteTarget(post),
+              };
+              return post.type === "scan" ? (
+                <ScanCard key={post.id} {...cardProps} />
               ) : (
-                <ReviewCard key={post.id} post={post} blurred={isGuest} />
-              ),
-            )}
+                <ReviewCard key={post.id} {...cardProps} />
+              );
+            })}
           </motion.div>
 
           {/* Guest login CTA overlay */}
@@ -553,6 +918,47 @@ export default function BoardPage(): ReactElement {
           )}
         </div>
       </PageContainer>
+
+      {/* FAB: Write button */}
+      {!isGuest && (
+        <motion.button
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          onClick={() => setShowWrite(true)}
+          className="fixed bottom-24 right-5 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-[#6161FF] text-white shadow-lg shadow-[#6161FF]/30 transition-transform hover:scale-105 active:scale-95 lg:bottom-8 lg:right-8"
+          aria-label="글쓰기"
+        >
+          <Plus className="h-6 w-6" strokeWidth={2.5} />
+        </motion.button>
+      )}
+
+      {/* Modals */}
+      <AnimatePresence>
+        {showWrite && (
+          <WritePostModal
+            onClose={() => setShowWrite(false)}
+            onSubmit={handleWrite}
+          />
+        )}
+        {editTarget && (
+          <WritePostModal
+            onClose={() => setEditTarget(null)}
+            onSubmit={handleEdit}
+            initial={{
+              board:
+                BOARD_KEY_MAP[editTarget.tab] ?? "lounge",
+              title: editTarget.title,
+              content: editTarget.body,
+            }}
+          />
+        )}
+        {deleteTarget && (
+          <DeletePinModal
+            onClose={() => setDeleteTarget(null)}
+            onConfirm={handleDelete}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

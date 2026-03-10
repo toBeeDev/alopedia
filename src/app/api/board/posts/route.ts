@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit/memory";
+import { hashPin, isValidPin } from "@/lib/utils/pin";
 import type { BoardType } from "@/types/database";
 
 const VALID_BOARDS: BoardType[] = [
@@ -74,12 +75,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const body = await request.json();
-  const { board, title, content, tags, scanId } = body as {
+  const { board, title, content, tags, scanId, deletePin } = body as {
     board: string;
     title: string;
     content: string;
     tags?: string[];
     scanId?: string;
+    deletePin: string;
   };
 
   // Validation
@@ -101,6 +103,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 400 },
     );
   }
+  if (!deletePin || !isValidPin(deletePin)) {
+    return NextResponse.json(
+      { error: "삭제 비밀번호는 숫자 4자리로 입력해주세요." },
+      { status: 400 },
+    );
+  }
 
   const { data: post, error } = await supabase
     .from("posts")
@@ -111,6 +119,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       content: content.trim(),
       tags: tags ?? [],
       scan_id: scanId ?? null,
+      delete_pin: hashPin(deletePin),
     })
     .select()
     .single();
