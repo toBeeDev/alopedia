@@ -1,10 +1,17 @@
 "use client";
 
-import { type ReactElement } from "react";
+import { type ReactElement, useRef, useState, useCallback } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Camera, Clock, MessageCircle, User, BookOpen } from "lucide-react";
-import { Dock, DockIcon, DockItem, DockLabel } from "@/components/ui/dock";
+import {
+  Home,
+  Camera,
+  Clock,
+  MessageCircle,
+  User,
+  BookOpen,
+} from "lucide-react";
+import { motion } from "framer-motion";
 import { COPY } from "@/constants/copy";
 
 interface NavItem {
@@ -24,14 +31,39 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function FloatingMenu(): ReactElement {
   const pathname = usePathname();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const startX = useRef(0);
+  const scrollLeft = useRef(0);
 
-  // Hide on /scan/uploading route (analysis in progress)
   if (pathname.startsWith("/scan/uploading")) return <></>;
 
   function isActive(href: string): boolean {
     if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
   }
+
+  /* ── Touch / drag scroll handlers ── */
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (!scrollRef.current) return;
+    setIsDragging(true);
+    startX.current = e.touches[0].pageX - scrollRef.current.offsetLeft;
+    scrollLeft.current = scrollRef.current.scrollLeft;
+  }, []);
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!isDragging || !scrollRef.current) return;
+      const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
+      const walk = (x - startX.current) * 1.2;
+      scrollRef.current.scrollLeft = scrollLeft.current - walk;
+    },
+    [isDragging],
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
 
   return (
     <>
@@ -56,7 +88,6 @@ export default function FloatingMenu(): ReactElement {
                 aria-current={active ? "page" : undefined}
               >
                 <Icon className="h-5 w-5" strokeWidth={1.8} />
-                {/* Tooltip */}
                 <span className="pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-lg bg-[#323338] px-3 py-1.5 text-xs font-medium text-white opacity-0 transition-opacity group-hover:opacity-100">
                   {label}
                 </span>
@@ -66,44 +97,56 @@ export default function FloatingMenu(): ReactElement {
         </div>
       </nav>
 
-      {/* ── Mobile: Bottom Dock (below lg) ── */}
+      {/* ── Mobile: Bottom Nav Bar (below lg) ── */}
       <nav
-        className="fixed bottom-0 left-0 right-0 z-40 pb-[env(safe-area-inset-bottom,0px)] lg:hidden"
+        className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#EEEFF2] bg-white/95 backdrop-blur-md lg:hidden"
+        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
         aria-label="Main navigation"
       >
-        <Dock
-          className="items-end border border-[#EEEFF2] bg-white/90 pb-2 shadow-lg backdrop-blur-md dark:bg-[#1a1a2e]/90"
-          magnification={60}
-          distance={100}
-          panelHeight={56}
+        <div
+          ref={scrollRef}
+          className="scrollbar-none flex overflow-x-auto"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
         >
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          {NAV_ITEMS.map(({ href, label, icon: Icon }, i) => {
             const active = isActive(href);
             return (
-              <Link key={href} href={href} aria-label={label}>
-                <DockItem
-                  className={`aspect-square rounded-full ${
+              <Link
+                key={href}
+                href={href}
+                className="relative flex min-w-[64px] flex-1 flex-col items-center gap-0.5 pb-1.5 pt-2"
+                aria-label={label}
+                aria-current={active ? "page" : undefined}
+              >
+                {/* Active indicator pill */}
+                {active && (
+                  <motion.div
+                    layoutId="nav-active"
+                    className="absolute top-0 h-[3px] w-8 rounded-b-full bg-[#6161FF]"
+                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                  />
+                )}
+                <Icon
+                  className={`h-[22px] w-[22px] transition-colors ${
+                    active ? "text-[#6161FF]" : "text-[#B0B3BE]"
+                  }`}
+                  strokeWidth={active ? 2 : 1.6}
+                />
+                <span
+                  className={`text-[10px] leading-tight transition-colors ${
                     active
-                      ? "bg-[#6161FF]/15"
-                      : "bg-[#F5F5F7] dark:bg-neutral-800"
+                      ? "font-semibold text-[#6161FF]"
+                      : "font-medium text-[#B0B3BE]"
                   }`}
                 >
-                  <DockLabel>{label}</DockLabel>
-                  <DockIcon>
-                    <Icon
-                      className={`h-full w-full ${
-                        active
-                          ? "text-[#6161FF]"
-                          : "text-[#9DA0AE] dark:text-neutral-400"
-                      }`}
-                      strokeWidth={1.8}
-                    />
-                  </DockIcon>
-                </DockItem>
+                  {label}
+                </span>
               </Link>
             );
           })}
-        </Dock>
+        </div>
       </nav>
     </>
   );
