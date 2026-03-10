@@ -3,6 +3,7 @@
 import type { ReactElement } from "react";
 import { getGradeConfig } from "@/constants/gradeConfig";
 import { COPY } from "@/constants/copy";
+import { EagleIcon } from "@/components/ui/eagle-icons";
 
 interface GradeIndicatorProps {
   grade: number;
@@ -19,21 +20,21 @@ export default function GradeIndicator({
     <div
       className="flex items-center gap-4 rounded-2xl p-5"
       style={{ backgroundColor: `${config.color}10` }}
-      aria-label={COPY.A11Y_GRADE(grade, config.label)}
+      aria-label={COPY.A11Y_GRADE(grade, config.eagleLabel)}
     >
-      {/* 등급 원형 */}
       <div
-        className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full text-2xl font-bold text-white"
-        style={{ backgroundColor: config.color }}
+        className="flex h-16 w-16 flex-shrink-0 items-center justify-center rounded-full"
+        style={{ backgroundColor: `${config.color}20` }}
       >
-        {grade}
+        <EagleIcon grade={grade} size={40} />
       </div>
-
-      {/* 등급 정보 */}
       <div className="flex-1">
         <div className="flex items-center gap-2">
           <span className="text-lg font-bold" style={{ color: config.color }}>
-            {config.label}
+            {config.eagleLabel}
+          </span>
+          <span className="rounded-full bg-white/60 px-2 py-0.5 text-[10px] font-medium text-[#9DA0AE]">
+            LV.{grade}
           </span>
         </div>
         <p className="mt-1 text-sm text-[#676879]">

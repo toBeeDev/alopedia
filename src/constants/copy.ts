@@ -70,6 +70,19 @@ export const COPY = {
   LOGIN_CTA: "시작하기",
   LOGOUT: "로그아웃",
 
+  // ── Board Point System (깃털) ──
+  FEATHER_UNIT: "깃털",
+  FEATHER_POST_REWARD: 10,
+  FEATHER_COMMENT_REWARD: 2,
+  FEATHER_BEST_REWARD: 50,
+  FEATHER_LIKE_ACTION: "깃털 투척",
+  FEATHER_REPORT_ACTION: "깃털 날리기",
+
+  // ── Board Community Slang ──
+  BOARD_SLANG_RICH_ALERT: "풍성충 침입 경보!",
+  BOARD_SLANG_KING_ADVICE: "제왕의 조언",
+  BOARD_SLANG_SAVE_OP: "깃털 사수 작전",
+
   // ── Board Names ──
   BOARD_NAME: {
     medication_review: "약물 후기",

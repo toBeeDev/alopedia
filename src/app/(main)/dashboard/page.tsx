@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/icon-3d";
 import { useScanHistory } from "@/hooks/useScanHistory";
 import { getGradeConfig } from "@/constants/gradeConfig";
+import { EagleIcon } from "@/components/ui/eagle-icons";
 import { COPY } from "@/constants/copy";
 import { fadeSlideUp, staggerContainer } from "@/lib/motion";
 
@@ -178,17 +179,17 @@ export default function DashboardPage(): ReactElement {
                         className="mt-1 text-lg font-bold"
                         style={{ color: gradeConfig.color }}
                       >
-                        {gradeConfig.label}
+                        {gradeConfig.eagleLabel}
                       </p>
                       <p className="mt-0.5 text-sm text-[#676879]">
                         {latestAnalysis.score}점
                       </p>
                     </div>
                     <div
-                      className="flex h-14 w-14 items-center justify-center rounded-2xl text-xl font-bold text-white"
-                      style={{ backgroundColor: gradeConfig.color }}
+                      className="flex h-14 w-14 items-center justify-center rounded-2xl"
+                      style={{ backgroundColor: `${gradeConfig.color}15` }}
                     >
-                      {latestAnalysis.norwood_grade}
+                      <EagleIcon grade={latestAnalysis.norwood_grade} size={40} />
                     </div>
                   </div>
                   <div className="mt-3 flex items-center gap-1 text-xs text-[#6161FF]">

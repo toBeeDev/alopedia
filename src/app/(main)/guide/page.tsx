@@ -18,6 +18,8 @@ import { motion } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import { COPY } from "@/constants/copy";
 import { GRADE_CONFIG, type GradeLevel } from "@/constants/gradeConfig";
+import { EagleIcon } from "@/components/ui/eagle-icons";
+import { CrownAreaIcon, FrontAreaIcon, SideAreaIcon } from "@/components/ui/scan-area-icons";
 import { fadeSlideUp, staggerContainer } from "@/lib/motion";
 
 /** Detail analysis items */
@@ -82,17 +84,17 @@ const FAIL_CASES = [
 const PHOTO_STEPS = [
   {
     step: "정수리",
-    emoji: "🔵",
+    icon: CrownAreaIcon,
     desc: "머리 꼭대기를 내려다보는 각도로 촬영합니다. 정수리 중심이 잘 보이도록 해주세요.",
   },
   {
     step: "앞이마",
-    emoji: "🟢",
+    icon: FrontAreaIcon,
     desc: "이마를 정면에서 촬영합니다. 헤어라인 전체가 보이도록 머리카락을 뒤로 넘겨주세요.",
   },
   {
     step: "측면이마",
-    emoji: "🟡",
+    icon: SideAreaIcon,
     desc: "관자놀이 부근을 측면에서 촬영합니다. M자 형태 여부를 확인할 수 있어요.",
   },
 ] as const;
@@ -160,13 +162,13 @@ export default function GuidePage(): ReactElement {
                       className="flex flex-col items-center gap-1 border-r border-[#EEEFF2] py-4 last:border-r-0"
                     >
                       <div
-                        className="flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white"
-                        style={{ backgroundColor: c.color }}
+                        className="flex h-10 w-10 items-center justify-center rounded-full"
+                        style={{ backgroundColor: `${c.color}15` }}
                       >
-                        {g}
+                        <EagleIcon grade={g} size={28} />
                       </div>
                       <span className="text-[11px] font-semibold text-[#323338]">
-                        {c.label}
+                        {c.eagleLabel}
                       </span>
                     </div>
                   );
@@ -192,10 +194,10 @@ export default function GuidePage(): ReactElement {
                     className="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm"
                   >
                     <div
-                      className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white"
-                      style={{ backgroundColor: c.color }}
+                      className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
+                      style={{ backgroundColor: `${c.color}15` }}
                     >
-                      {g}
+                      <EagleIcon grade={g} size={28} />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
@@ -203,16 +205,18 @@ export default function GuidePage(): ReactElement {
                           className="text-sm font-bold"
                           style={{ color: c.color }}
                         >
-                          {c.label}
+                          LV.{g} {c.eagleLabel}
                         </span>
                         <span className="rounded-full bg-[#F5F5F7] px-2 py-0.5 text-[10px] font-medium text-[#9DA0AE]">
                           {c.action}
                         </span>
                       </div>
-                      <p className="mt-0.5 text-xs font-medium text-[#323338]">
-                        {headline}
+                      <p className="mt-0.5 text-xs font-medium text-[#676879]">
+                        {c.eagleDesc}
                       </p>
-                      <p className="mt-0.5 text-xs text-[#676879]">{desc}</p>
+                      <p className="mt-0.5 text-xs text-[#9DA0AE]">
+                        {headline} · {desc}
+                      </p>
                     </div>
                   </div>
                 );
@@ -235,19 +239,14 @@ export default function GuidePage(): ReactElement {
                       key={g}
                       className="flex flex-col items-center gap-2 rounded-xl bg-white p-3 shadow-sm"
                     >
+                      <EagleIcon grade={g} size={28} />
+                      <span className="text-[10px] font-semibold text-[#323338]">
+                        {c.eagleLabel}
+                      </span>
                       <div
-                        className="h-5 w-5 rounded-full"
+                        className="h-2.5 w-full rounded-full"
                         style={{ backgroundColor: c.color }}
                       />
-                      <span className="text-[10px] font-semibold text-[#323338]">
-                        {c.label}
-                      </span>
-                      <span
-                        className="text-center text-[9px] leading-tight font-medium"
-                        style={{ color: c.color }}
-                      >
-                        {c.color}
-                      </span>
                     </div>
                   );
                 })}
@@ -321,13 +320,13 @@ export default function GuidePage(): ReactElement {
               description={COPY.GUIDE_SECTION_PHOTOS_DESC}
             />
             <motion.div variants={fadeSlideUp} className="space-y-2">
-              {PHOTO_STEPS.map(({ step, emoji, desc }, i) => (
+              {PHOTO_STEPS.map(({ step, icon: AreaIcon, desc }, i) => (
                 <div
                   key={step}
                   className="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm"
                 >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#F5F5F7] text-lg">
-                    {emoji}
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#F5F5F7]">
+                    <AreaIcon size={28} />
                   </div>
                   <div>
                     <p className="text-sm font-bold text-[#323338]">

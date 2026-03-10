@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import Link from "next/link";
 import {
-  Heart,
+  Feather,
   MessageCircle,
   Camera,
   TrendingDown,
@@ -14,6 +14,8 @@ import {
 import { motion } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import { COPY } from "@/constants/copy";
+import { getGradeConfig } from "@/constants/gradeConfig";
+import { EagleIcon } from "@/components/ui/eagle-icons";
 import { fadeSlideUp, staggerContainer } from "@/lib/motion";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -26,22 +28,6 @@ const BOARD_TABS = [
   COPY.BOARD_NAME.qna,
   COPY.BOARD_NAME.lounge,
 ] as const;
-
-const GRADE_COLORS: Record<number, string> = {
-  1: "#22C55E",
-  2: "#EAB308",
-  3: "#F97316",
-  4: "#EF4444",
-  5: "#A855F7",
-};
-
-const GRADE_LABELS: Record<number, string> = {
-  1: "정상",
-  2: "경미",
-  3: "주의",
-  4: "관리 필요",
-  5: "전문 상담 추천",
-};
 
 interface BoardPost {
   id: string;
@@ -310,16 +296,17 @@ function ReviewCard({
             <p className="text-[11px] text-[#9DA0AE]">{post.timeAgo}</p>
           </div>
         </div>
-        {post.grade !== null && (
-          <span
-            className="rounded-full px-2 py-0.5 text-[10px] font-bold text-white"
-            style={{
-              backgroundColor: GRADE_COLORS[post.grade] ?? "#9DA0AE",
-            }}
-          >
-            {post.grade}등급
-          </span>
-        )}
+        {post.grade !== null && (() => {
+          const gc = getGradeConfig(post.grade);
+          return (
+            <span
+              className="inline-flex items-center gap-1 rounded-full py-1 pl-1 pr-2.5 text-[11px] font-bold text-white"
+              style={{ backgroundColor: gc.color }}
+            >
+              <EagleIcon grade={post.grade} size={18} /> {gc.eagleLabel}
+            </span>
+          );
+        })()}
       </div>
 
       <h3 className="mb-1.5 text-sm font-bold text-[#323338]">{post.title}</h3>
@@ -331,7 +318,7 @@ function ReviewCard({
 
       <div className="mt-3 flex items-center gap-4 text-xs text-[#9DA0AE]">
         <span className="flex items-center gap-1">
-          <Heart className="h-3.5 w-3.5" />
+          <Feather className="h-3.5 w-3.5" />
           {post.likes}
         </span>
         <span className="flex items-center gap-1">
@@ -356,7 +343,7 @@ function ScanCard({
   const scan = SCAN_DETAILS[post.id];
   if (!scan) return <ReviewCard post={post} blurred={blurred} />;
 
-  const gradeColor = GRADE_COLORS[scan.grade] ?? "#9DA0AE";
+  const gc = getGradeConfig(scan.grade);
 
   return (
     <motion.article
@@ -387,21 +374,21 @@ function ScanCard({
       </div>
 
       <div className="px-5 py-4">
-        <div className="mb-3 flex items-center gap-3">
-          <div
-            className="flex h-12 w-12 items-center justify-center rounded-2xl text-lg font-bold text-white"
-            style={{ backgroundColor: gradeColor }}
-          >
-            {scan.grade}
-          </div>
-          <div>
-            <p className="text-sm font-bold" style={{ color: gradeColor }}>
-              {GRADE_LABELS[scan.grade] ?? "분석 완료"}
-            </p>
-            <p className="text-xs text-[#9DA0AE]">
+        <div className="mb-3">
+          <div className="flex items-center gap-2">
+            <span
+              className="inline-flex items-center gap-1 rounded-full py-1 pl-1 pr-2.5 text-xs font-bold text-white"
+              style={{ backgroundColor: gc.color }}
+            >
+              <EagleIcon grade={scan.grade} size={18} /> {gc.eagleLabel}
+            </span>
+            <span className="text-xs text-[#9DA0AE]">
               {scan.score.toFixed(1)}점 · {scan.scanCount}회차 기록
-            </p>
+            </span>
           </div>
+          <p className="mt-1.5 text-[11px] text-[#9DA0AE]">
+            {gc.eagleDesc}
+          </p>
         </div>
 
         <p
@@ -457,7 +444,7 @@ function ScanCard({
       <div className="border-t border-[#EEEFF2] px-5 py-3">
         <div className="flex items-center gap-4 text-xs text-[#9DA0AE]">
           <span className="flex items-center gap-1">
-            <Heart className="h-3.5 w-3.5" />
+            <Feather className="h-3.5 w-3.5" />
             {post.likes}
           </span>
           <span className="flex items-center gap-1">

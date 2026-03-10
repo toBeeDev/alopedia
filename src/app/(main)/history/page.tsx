@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import { useScanHistory } from "@/hooks/useScanHistory";
 import { getGradeConfig } from "@/constants/gradeConfig";
+import { EagleIcon } from "@/components/ui/eagle-icons";
 import { COPY } from "@/constants/copy";
 import { fadeSlideUp, staggerContainer } from "@/lib/motion";
 
@@ -88,12 +89,12 @@ export default function HistoryPage(): ReactElement {
                     {/* 정보 */}
                     <div className="flex-1">
                       <div className="flex items-center gap-2">
-                        {gradeConfig && (
+                        {gradeConfig && grade && (
                           <span
-                            className="rounded-full px-2.5 py-0.5 text-xs font-semibold text-white"
+                            className="inline-flex items-center gap-1 rounded-full py-0.5 pl-0.5 pr-2.5 text-[11px] font-bold text-white"
                             style={{ backgroundColor: gradeConfig.color }}
                           >
-                            {gradeConfig.label}
+                            <EagleIcon grade={grade} size={18} /> {gradeConfig.eagleLabel}
                           </span>
                         )}
                         {analysis && (
