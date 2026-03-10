@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getGeminiModel } from "@/lib/gemini/client";
 import { buildAnalysisPrompt } from "@/lib/gemini/prompt";
 import { parseGeminiResponse } from "@/lib/gemini/parser";
+import { checkRateLimit } from "@/lib/rateLimit/memory";
 import type { ScanImage } from "@/types/database";
 
 /** POST /api/scans/:id/analyze — AI 분석 트리거 (server-only) */
@@ -19,6 +20,15 @@ export async function POST(
   } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "로그인이 필요해요." }, { status: 401 });
+  }
+
+  // Rate limit: 3 analyses per minute
+  const rl = checkRateLimit(`analyze:${user.id}`, 3, 60_000);
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { error: "분석 요청이 너무 많아요. 잠시 후 다시 시도해주세요." },
+      { status: 429 },
+    );
   }
 
   // 스캔 조회 + 소유권 확인
