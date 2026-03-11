@@ -38,7 +38,7 @@ const HAIR_STRANDS = [
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function HandWrittenTitle({
   title = "Alopedia",
-  subtitle = "당신의 두피, 매일 기록하고 매일 달라지고",
+  subtitle = COPY.APP_TAGLINE,
 }: HandWrittenTitleProps) {
   const draw = {
     hidden: { pathLength: 0, opacity: 0 },
@@ -76,7 +76,7 @@ function HandWrittenTitle({
   } as any;
 
   return (
-    <div className="relative flex h-screen w-full flex-col items-center justify-center">
+    <div className="relative flex h-dvh w-full flex-col items-center justify-center">
       {/* SVG 원 + 모발 */}
       <div className="absolute inset-0 flex items-center justify-center">
         <motion.svg
@@ -136,7 +136,7 @@ function HandWrittenTitle({
         </motion.h1>
         {subtitle && (
           <motion.p
-            className="mt-3 text-lg text-black/60 dark:text-white/60 md:text-xl"
+            className="mt-3 text-base text-black/60 dark:text-white/60 md:text-xl"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.8 }}
@@ -148,7 +148,7 @@ function HandWrittenTitle({
 
       {/* CTA 버튼 영역 */}
       <motion.div
-        className="absolute bottom-10 flex flex-col items-center gap-3"
+        className="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom,0px)_+_0.5rem)] flex flex-col items-center gap-3"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{

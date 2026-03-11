@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactElement, useRef, useState, useCallback } from "react";
+import { type ReactElement, useState, useCallback, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -10,8 +10,10 @@ import {
   MessageCircle,
   User,
   BookOpen,
+  Menu,
+  X,
 } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { COPY } from "@/constants/copy";
 
 interface NavItem {
@@ -31,10 +33,14 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function FloatingMenu(): ReactElement {
   const pathname = usePathname();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [isDragging, setIsDragging] = useState(false);
-  const startX = useRef(0);
-  const scrollLeft = useRef(0);
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  // Close menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
 
   if (pathname.startsWith("/scan/uploading")) return <></>;
 
@@ -42,28 +48,6 @@ export default function FloatingMenu(): ReactElement {
     if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
   }
-
-  /* ── Touch / drag scroll handlers ── */
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (!scrollRef.current) return;
-    setIsDragging(true);
-    startX.current = e.touches[0].pageX - scrollRef.current.offsetLeft;
-    scrollLeft.current = scrollRef.current.scrollLeft;
-  }, []);
-
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent) => {
-      if (!isDragging || !scrollRef.current) return;
-      const x = e.touches[0].pageX - scrollRef.current.offsetLeft;
-      const walk = (x - startX.current) * 1.2;
-      scrollRef.current.scrollLeft = scrollLeft.current - walk;
-    },
-    [isDragging],
-  );
-
-  const handleTouchEnd = useCallback(() => {
-    setIsDragging(false);
-  }, []);
 
   return (
     <>
@@ -97,57 +81,97 @@ export default function FloatingMenu(): ReactElement {
         </div>
       </nav>
 
-      {/* ── Mobile: Bottom Nav Bar (below lg) ── */}
-      <nav
-        className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#EEEFF2] bg-white/95 backdrop-blur-md lg:hidden"
-        style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-        aria-label="Main navigation"
+      {/* ── Mobile: Top Header Bar (below lg) ── */}
+      <header
+        className="fixed top-0 left-0 right-0 z-50 border-b border-[#EEEFF2] bg-white/95 backdrop-blur-md lg:hidden"
+        style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}
       >
-        <div
-          ref={scrollRef}
-          className="scrollbar-none flex overflow-x-auto"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          {NAV_ITEMS.map(({ href, label, icon: Icon }, i) => {
-            const active = isActive(href);
-            return (
-              <Link
-                key={href}
-                href={href}
-                className="relative flex min-w-[64px] flex-1 flex-col items-center gap-0.5 pb-1.5 pt-2"
-                aria-label={label}
-                aria-current={active ? "page" : undefined}
-              >
-                {/* Active indicator pill */}
-                {active && (
-                  <motion.div
-                    layoutId="nav-active"
-                    className="absolute top-0 h-[3px] w-8 rounded-b-full bg-[#6161FF]"
-                    transition={{ type: "spring", stiffness: 400, damping: 30 }}
-                  />
-                )}
-                <Icon
-                  className={`h-[22px] w-[22px] transition-colors ${
-                    active ? "text-[#6161FF]" : "text-[#B0B3BE]"
-                  }`}
-                  strokeWidth={active ? 2 : 1.6}
-                />
-                <span
-                  className={`text-[10px] leading-tight transition-colors ${
-                    active
-                      ? "font-semibold text-[#6161FF]"
-                      : "font-medium text-[#B0B3BE]"
-                  }`}
-                >
-                  {label}
-                </span>
-              </Link>
-            );
-          })}
+        <div className="flex h-14 items-center justify-between px-4">
+          <Link
+            href="/dashboard"
+            className="text-lg font-bold tracking-tight text-[#323338]"
+          >
+            {COPY.APP_NAME}
+          </Link>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((prev) => !prev)}
+            className="flex h-10 w-10 items-center justify-center rounded-xl text-[#323338] transition-colors hover:bg-[#F5F5F7]"
+            aria-label={menuOpen ? COPY.NAV_CLOSE : COPY.NAV_OPEN}
+            aria-expanded={menuOpen}
+          >
+            {menuOpen ? (
+              <X className="h-5 w-5" strokeWidth={2} />
+            ) : (
+              <Menu className="h-5 w-5" strokeWidth={2} />
+            )}
+          </button>
         </div>
-      </nav>
+      </header>
+
+      {/* ── Mobile: Hamburger Menu Overlay ── */}
+      <AnimatePresence>
+        {menuOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={closeMenu}
+            />
+
+            {/* Menu panel */}
+            <motion.nav
+              className="fixed left-0 right-0 z-50 border-b border-[#EEEFF2] bg-white lg:hidden"
+              style={{ top: "calc(3.5rem + env(safe-area-inset-top, 0px))" }}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              aria-label="Mobile navigation"
+            >
+              <div className="flex flex-col py-2">
+                {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+                  const active = isActive(href);
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      onClick={closeMenu}
+                      className={`flex items-center gap-3 px-5 py-3 text-sm font-medium transition-colors ${
+                        active
+                          ? "bg-[#6161FF]/5 text-[#6161FF]"
+                          : "text-[#636571] hover:bg-[#F5F5F7] hover:text-[#323338]"
+                      }`}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      <Icon
+                        className="h-5 w-5"
+                        strokeWidth={active ? 2 : 1.6}
+                      />
+                      {label}
+                      {active && (
+                        <motion.div
+                          layoutId="mobile-nav-active"
+                          className="ml-auto h-1.5 w-1.5 rounded-full bg-[#6161FF]"
+                          transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 30,
+                          }}
+                        />
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            </motion.nav>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }

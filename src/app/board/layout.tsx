@@ -20,7 +20,7 @@ export default function BoardLayout({
 }: BoardLayoutProps): ReactElement {
   return (
     <div className="min-h-screen bg-[#F9FAFB]">
-      <main>{children}</main>
+      <main className="pt-14 lg:pt-0">{children}</main>
       <Footer />
       <FloatingMenu />
     </div>

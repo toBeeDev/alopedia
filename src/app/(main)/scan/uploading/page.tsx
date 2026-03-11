@@ -35,8 +35,10 @@ export default function UploadingPage(): ReactElement {
         // 1. 업로드
         setState("uploading");
         const formData = new FormData();
+        const scanTypes = ["top", "front", "side"] as const;
         images.forEach((img, i) => {
-          formData.append(`image_${i}`, img.blob, `image_${i}.jpg`);
+          const key = i < scanTypes.length ? scanTypes[i] : `extra_${i}`;
+          formData.append(key, img.blob, `${key}.jpg`);
         });
 
         const uploadRes = await fetch("/api/scans", {

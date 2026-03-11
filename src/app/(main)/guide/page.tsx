@@ -151,15 +151,15 @@ export default function GuidePage(): ReactElement {
             />
             <motion.div
               variants={fadeSlideUp}
-              className="overflow-hidden rounded-2xl bg-white shadow-sm"
+              className="overflow-x-auto rounded-2xl bg-white shadow-sm scrollbar-none"
             >
-              <div className="grid grid-cols-5">
+              <div className="flex min-w-max">
                 {GRADE_KEYS.map((g) => {
                   const c = GRADE_CONFIG[g as GradeLevel];
                   return (
                     <div
                       key={g}
-                      className="flex flex-col items-center gap-1 border-r border-[#EEEFF2] py-4 last:border-r-0"
+                      className="flex flex-1 flex-col items-center gap-1 border-r border-[#EEEFF2] px-4 py-4 last:border-r-0"
                     >
                       <div
                         className="flex h-10 w-10 items-center justify-center rounded-full"
@@ -167,7 +167,7 @@ export default function GuidePage(): ReactElement {
                       >
                         <EagleIcon grade={g} size={28} />
                       </div>
-                      <span className="text-[11px] font-semibold text-[#323338]">
+                      <span className="whitespace-nowrap text-[11px] font-semibold text-[#323338]">
                         {c.eagleLabel}
                       </span>
                     </div>
@@ -200,14 +200,14 @@ export default function GuidePage(): ReactElement {
                       <EagleIcon grade={g} size={28} />
                     </div>
                     <div className="flex-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <span
-                          className="text-sm font-bold"
+                          className="whitespace-nowrap text-sm font-bold"
                           style={{ color: c.color }}
                         >
                           LV.{g} {c.eagleLabel}
                         </span>
-                        <span className="rounded-full bg-[#F5F5F7] px-2 py-0.5 text-[10px] font-medium text-[#9DA0AE]">
+                        <span className="whitespace-nowrap rounded-full bg-[#F5F5F7] px-2 py-0.5 text-[10px] font-medium text-[#9DA0AE]">
                           {c.action}
                         </span>
                       </div>
@@ -230,17 +230,17 @@ export default function GuidePage(): ReactElement {
               title={COPY.GUIDE_SECTION_ICONS}
               description={COPY.GUIDE_SECTION_ICONS_DESC}
             />
-            <motion.div variants={fadeSlideUp}>
-              <div className="grid grid-cols-5 gap-2">
+            <motion.div variants={fadeSlideUp} className="overflow-x-auto scrollbar-none">
+              <div className="flex min-w-max gap-2">
                 {GRADE_KEYS.map((g) => {
                   const c = GRADE_CONFIG[g as GradeLevel];
                   return (
                     <div
                       key={g}
-                      className="flex flex-col items-center gap-2 rounded-xl bg-white p-3 shadow-sm"
+                      className="flex w-20 flex-shrink-0 flex-col items-center gap-2 rounded-xl bg-white p-3 shadow-sm"
                     >
                       <EagleIcon grade={g} size={28} />
-                      <span className="text-[10px] font-semibold text-[#323338]">
+                      <span className="whitespace-nowrap text-[10px] font-semibold text-[#323338]">
                         {c.eagleLabel}
                       </span>
                       <div

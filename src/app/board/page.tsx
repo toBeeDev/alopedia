@@ -379,7 +379,7 @@ function ReviewCard({
             const gc = getGradeConfig(post.grade);
             return (
               <span
-                className="inline-flex items-center gap-1 rounded-full py-1 pl-1 pr-2.5 text-[11px] font-bold text-white"
+                className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full py-1 pl-1 pr-2.5 text-[11px] font-bold text-white"
                 style={{ backgroundColor: gc.color }}
               >
                 <EagleIcon grade={post.grade} size={18} /> {gc.eagleLabel}
@@ -476,7 +476,7 @@ function ScanCard({
         <div className="mb-3">
           <div className="flex items-center gap-2">
             <span
-              className="inline-flex items-center gap-1 rounded-full py-1 pl-1 pr-2.5 text-xs font-bold text-white"
+              className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full py-1 pl-1 pr-2.5 text-xs font-bold text-white"
               style={{ backgroundColor: gc.color }}
             >
               <EagleIcon grade={scan.grade} size={18} /> {gc.eagleLabel}

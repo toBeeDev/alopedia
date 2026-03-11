@@ -3,7 +3,7 @@
 export const COPY = {
   // ── App ──
   APP_NAME: "Alopedia",
-  APP_TAGLINE: "당신의 두피, 매일 기록하고 매일 달라지고",
+  APP_TAGLINE: "두피 기록, 매일 달라지는 변화",
 
   // ── Medical Disclaimer (CRITICAL) ──
   DISCLAIMER_SHORT: "AI 참고용 분석 · 의료 진단 아님",
