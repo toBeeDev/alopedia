@@ -81,6 +81,7 @@ export default function HistoryPage(): ReactElement {
                           src={thumbnail}
                           alt={COPY.A11Y_SCALP_PHOTO}
                           fill
+                          sizes="64px"
                           className="object-cover"
                         />
                       )}

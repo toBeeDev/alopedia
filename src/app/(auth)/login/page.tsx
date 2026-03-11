@@ -1,16 +1,16 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import { useCallback, useState, type ReactElement } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { COPY } from "@/constants/copy";
 
 export default function LoginPage(): ReactElement {
   const [isLoading, setIsLoading] = useState(false);
-  const supabase = createClient();
 
-  async function handleSocialLogin(provider: "kakao"): Promise<void> {
+  const handleSocialLogin = useCallback(async (provider: "kakao"): Promise<void> => {
     setIsLoading(true);
+    const supabase = createClient();
     const { error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
@@ -20,7 +20,7 @@ export default function LoginPage(): ReactElement {
     if (error) {
       setIsLoading(false);
     }
-  }
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-white px-6">

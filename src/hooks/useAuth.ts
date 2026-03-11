@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { AuthChangeEvent, Session, User } from "@supabase/supabase-js";
 
@@ -11,9 +11,9 @@ interface UseAuthReturn {
 export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const supabase = createClient();
 
   useEffect(() => {
+    const supabase = createClient();
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event: AuthChangeEvent, session: Session | null) => {
@@ -22,11 +22,12 @@ export function useAuth(): UseAuthReturn {
     });
 
     return () => subscription.unsubscribe();
-  }, [supabase]);
+  }, []);
 
-  async function signOut(): Promise<void> {
+  const signOut = useCallback(async (): Promise<void> => {
+    const supabase = createClient();
     await supabase.auth.signOut();
-  }
+  }, []);
 
   return { user, isLoading, signOut };
 }
