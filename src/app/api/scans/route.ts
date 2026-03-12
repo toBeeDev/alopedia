@@ -25,14 +25,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const formData = await request.formData();
     const scanImages: ScanImage[] = [];
 
-    for (const type of SCAN_TYPES) {
-      const file = formData.get(type) as File | null;
-      if (!file) {
-        return NextResponse.json(
-          { error: `${type} 사진이 누락됐어요. 3장 모두 필요합니다.` },
-          { status: 400 },
-        );
-      }
+    // 최소 1장 필수, 최대 6장 (top/front/side + extra)
+    const allKeys = [...SCAN_TYPES, ...Array.from(formData.keys()).filter((k) => k.startsWith("extra_"))];
+    const presentKeys = allKeys.filter((k) => formData.get(k) instanceof File);
+
+    if (presentKeys.length === 0) {
+      return NextResponse.json(
+        { error: "최소 1장의 사진이 필요해요." },
+        { status: 400 },
+      );
+    }
+
+    for (const type of presentKeys) {
+      const file = formData.get(type) as File;
 
       // 파일 검증
       const arrayBuffer = await file.arrayBuffer();
@@ -45,8 +50,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ error: validation.error }, { status: 400 });
       }
 
-      // EXIF 스트리핑 + 리사이즈
+      // 해상도 검증 (원본 기준, 리사이즈 전)
       const rawBuffer = Buffer.from(arrayBuffer);
+      const rawMeta = await getImageMetadata(rawBuffer);
+      const resolutionCheck = validateResolution(rawMeta.width, rawMeta.height);
+
+      // EXIF 스트리핑 + 리사이즈
       const processedBuffer = await stripExifAndResize(rawBuffer);
 
       // EXIF 제거 검증
@@ -57,10 +66,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           { status: 500 },
         );
       }
-
-      // 해상도 검증
-      const meta = await getImageMetadata(processedBuffer);
-      const resolutionCheck = validateResolution(meta.width, meta.height);
       if (!resolutionCheck.valid) {
         return NextResponse.json({ error: resolutionCheck.error }, { status: 400 });
       }
@@ -103,7 +108,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       } = supabase.storage.from("scans").getPublicUrl(thumbPath);
 
       scanImages.push({
-        type: type as "top" | "front" | "side",
+        type: type as ScanImage["type"],
         url: imageUrl,
         thumbnailUrl,
       });

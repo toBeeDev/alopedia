@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useState, type ReactElement } from "react";
+import { useEffect, useRef, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Camera, Clock, MessageCircle, Home } from "lucide-react";
+import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
 import ResultCard from "@/components/analysis/ResultCard";
 import { COPY } from "@/constants/copy";
-import type { AnalysisDetail } from "@/types/database";
+import type { AnalysisDetail, ScanImage } from "@/types/database";
 
 type UploadState = "uploading" | "analyzing" | "done" | "error";
 
@@ -15,6 +17,7 @@ interface AnalysisData {
   score: number;
   details: AnalysisDetail;
   createdAt: string;
+  images: ScanImage[];
 }
 
 export default function UploadingPage(): ReactElement {
@@ -23,12 +26,16 @@ export default function UploadingPage(): ReactElement {
   const [state, setState] = useState<UploadState>("uploading");
   const [errorMsg, setErrorMsg] = useState("");
   const [analysis, setAnalysis] = useState<AnalysisData | null>(null);
+  const hasStarted = useRef(false);
 
   useEffect(() => {
     if (images.length === 0) {
       router.replace("/scan");
       return;
     }
+
+    if (hasStarted.current) return;
+    hasStarted.current = true;
 
     async function uploadAndAnalyze(): Promise<void> {
       try {
@@ -71,6 +78,7 @@ export default function UploadingPage(): ReactElement {
           score: Number(result.score),
           details: result.details,
           createdAt: result.created_at,
+          images: scan.images ?? [],
         });
         setState("done");
         reset();
@@ -86,6 +94,13 @@ export default function UploadingPage(): ReactElement {
 
   // 분석 완료 — 결과 카드 표시
   if (state === "done" && analysis) {
+    const quickLinks = [
+      { href: "/dashboard", label: "홈", icon: Home },
+      { href: "/scan", label: "다시 촬영", icon: Camera },
+      { href: "/history", label: "기록 보기", icon: Clock },
+      { href: "/board", label: "게시판", icon: MessageCircle },
+    ];
+
     return (
       <div className="min-h-screen bg-[#F9FAFB] px-6 py-10">
         <ResultCard
@@ -93,14 +108,21 @@ export default function UploadingPage(): ReactElement {
           score={analysis.score}
           details={analysis.details}
           createdAt={analysis.createdAt}
+          images={analysis.images}
         />
-        <div className="mx-auto mt-6 max-w-lg text-center">
-          <button
-            onClick={() => router.push("/history")}
-            className="text-sm font-medium text-[#6161FF] hover:underline"
-          >
-            분석 기록 보기
-          </button>
+
+        {/* 퀵 네비게이션 */}
+        <div className="mx-auto mt-6 grid max-w-5xl grid-cols-4 gap-2">
+          {quickLinks.map(({ href, label, icon: Icon }) => (
+            <Link
+              key={href}
+              href={href}
+              className="flex flex-col items-center gap-1.5 rounded-xl bg-white py-3 text-[#676879] shadow-sm transition-colors hover:bg-[#6161FF]/5 hover:text-[#6161FF]"
+            >
+              <Icon className="h-5 w-5" strokeWidth={1.8} />
+              <span className="text-xs font-medium">{label}</span>
+            </Link>
+          ))}
         </div>
       </div>
     );

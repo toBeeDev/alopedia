@@ -1,4 +1,4 @@
-import type { GeminiAnalysisResponse } from "@/types/analysis";
+import type { GeminiAnalysisResponse, ScalpRegion } from "@/types/analysis";
 
 /** Gemini 응답 텍스트에서 JSON 추출 및 검증 */
 export function parseGeminiResponse(text: string): GeminiAnalysisResponse {
@@ -24,6 +24,7 @@ export function parseGeminiResponse(text: string): GeminiAnalysisResponse {
     thickness: sanitizeText(parsed.thickness),
     scalpCondition: sanitizeText(parsed.scalpCondition),
     advice: sanitizeMedicalText(parsed.advice),
+    scalpRegions: parseScalpRegions(parsed.scalpRegions),
   };
 }
 
@@ -41,6 +42,28 @@ function isValidAnalysisResponse(
     typeof d.scalpCondition === "string" &&
     typeof d.advice === "string"
   );
+}
+
+function parseScalpRegions(raw: unknown): ScalpRegion[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter(
+      (r): r is ScalpRegion =>
+        typeof r === "object" &&
+        r !== null &&
+        typeof r.imageIndex === "number" &&
+        typeof r.x === "number" &&
+        typeof r.y === "number" &&
+        typeof r.w === "number" &&
+        typeof r.h === "number",
+    )
+    .map((r) => ({
+      imageIndex: r.imageIndex,
+      x: clamp(r.x, 0, 1),
+      y: clamp(r.y, 0, 1),
+      w: clamp(r.w, 0, 1),
+      h: clamp(r.h, 0, 1),
+    }));
 }
 
 function clamp(value: number, min: number, max: number): number {

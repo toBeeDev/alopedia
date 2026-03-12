@@ -4,6 +4,7 @@ import { getGeminiModel } from "@/lib/gemini/client";
 import { buildAnalysisPrompt } from "@/lib/gemini/prompt";
 import { parseGeminiResponse } from "@/lib/gemini/parser";
 import { checkRateLimit } from "@/lib/rateLimit/memory";
+import { blurOutsideRegion } from "@/lib/image/blur";
 import type { ScanImage } from "@/types/database";
 
 /** POST /api/scans/:id/analyze — AI 분석 트리거 (server-only) */
@@ -22,8 +23,8 @@ export async function POST(
     return NextResponse.json({ error: "로그인이 필요해요." }, { status: 401 });
   }
 
-  // Rate limit: 3 analyses per minute
-  const rl = checkRateLimit(`analyze:${user.id}`, 3, 60_000);
+  // Rate limit: 10 analyses per minute
+  const rl = checkRateLimit(`analyze:${user.id}`, 10, 60_000);
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "분석 요청이 너무 많아요. 잠시 후 다시 시도해주세요." },
@@ -60,9 +61,13 @@ export async function POST(
 
     // 이미지 URL에서 base64 변환
     const images = scan.images as ScanImage[];
+    console.log("[analyze] Fetching", images.length, "images");
     const imageParts = await Promise.all(
       images.map(async (img: ScanImage) => {
         const response = await fetch(img.url);
+        if (!response.ok) {
+          throw new Error(`Image fetch failed: ${img.url} (${response.status})`);
+        }
         const buffer = await response.arrayBuffer();
         const base64 = Buffer.from(buffer).toString("base64");
         return {
@@ -75,17 +80,19 @@ export async function POST(
     );
 
     // Gemini Vision API 호출
+    console.log("[analyze] Calling Gemini API...");
     const model = getGeminiModel();
     const prompt = buildAnalysisPrompt();
 
     const result = await model.generateContent([prompt, ...imageParts]);
     const responseText = result.response.text();
+    console.log("[analyze] Gemini response length:", responseText.length);
 
     // 응답 파싱 + 검증
     const analysisResult = parseGeminiResponse(responseText);
+    console.log("[analyze] Parsed grade:", analysisResult.norwoodGrade, "score:", analysisResult.score);
 
-    // analyses 테이블에 저장 (service_role이 필요하므로 RLS 우회)
-    // 현재는 anon key로 진행 — production에서는 service_role 사용
+    // analyses 테이블에 저장
     const { data: analysis, error: analysisError } = await supabase
       .from("analyses")
       .insert({
@@ -99,8 +106,8 @@ export async function POST(
           scalpCondition: analysisResult.scalpCondition,
           advice: analysisResult.advice,
         },
-        gemini_raw_response: JSON.parse(JSON.stringify(result.response)),
-        model_version: "gemini-2.0-flash",
+        gemini_raw_response: responseText,
+        model_version: "gemini-2.5-flash",
       })
       .select()
       .single();
@@ -116,6 +123,55 @@ export async function POST(
       );
     }
 
+    // 프라이버시 blur 처리: 두피 영역 외 blur 후 Storage 교체
+    if (analysisResult.scalpRegions.length > 0) {
+      console.log("[analyze] Applying privacy blur to", analysisResult.scalpRegions.length, "regions");
+      await Promise.all(
+        images.map(async (img: ScanImage, idx: number) => {
+          const region = analysisResult.scalpRegions.find((r) => r.imageIndex === idx);
+          if (!region) return;
+
+          // 원본 이미지 fetch
+          const res = await fetch(img.url);
+          if (!res.ok) return;
+          const originalBuffer = Buffer.from(await res.arrayBuffer());
+
+          // blur 처리
+          const blurredBuffer = await blurOutsideRegion(originalBuffer, region);
+
+          // Storage 경로 추출 (publicUrl에서 path 부분)
+          const urlObj = new URL(img.url);
+          const pathMatch = urlObj.pathname.match(/\/object\/public\/scans\/(.+)/);
+          if (!pathMatch) return;
+          const storagePath = pathMatch[1];
+
+          // 썸네일도 blur 처리
+          const thumbUrlObj = new URL(img.thumbnailUrl);
+          const thumbMatch = thumbUrlObj.pathname.match(/\/object\/public\/scans\/(.+)/);
+
+          // 원본 교체 (upsert)
+          await supabase.storage
+            .from("scans")
+            .update(storagePath, blurredBuffer, {
+              contentType: "image/jpeg",
+              upsert: true,
+            });
+
+          // 썸네일도 교체
+          if (thumbMatch) {
+            const { createThumbnail } = await import("@/lib/image/resize");
+            const blurredThumb = await createThumbnail(blurredBuffer);
+            await supabase.storage
+              .from("scans")
+              .update(thumbMatch[1], blurredThumb, {
+                contentType: "image/jpeg",
+                upsert: true,
+              });
+          }
+        }),
+      );
+    }
+
     // 상태를 completed로 업데이트
     await supabase
       .from("scans")
@@ -123,7 +179,8 @@ export async function POST(
       .eq("id", scanId);
 
     return NextResponse.json({ analysis });
-  } catch {
+  } catch (error) {
+    console.error("[POST /api/scans/:id/analyze] Error:", error);
     await supabase
       .from("scans")
       .update({ status: "failed" })

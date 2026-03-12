@@ -14,11 +14,12 @@ export interface Profile {
   streakCurrent: number;
   streakBest: number;
   avatarSeed: string | null;
+  avatarUrl: string | null;
   createdAt: string;
 }
 
 export interface ScanImage {
-  type: "top" | "front" | "side";
+  type: string;
   url: string;
   thumbnailUrl: string;
 }
@@ -113,6 +114,7 @@ export interface DbProfile {
   streak_current: number;
   streak_best: number;
   avatar_seed: string | null;
+  avatar_url: string | null;
   created_at: string;
 }
 

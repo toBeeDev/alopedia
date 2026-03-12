@@ -6,6 +6,15 @@ export async function updateSession(
 ): Promise<NextResponse> {
   let supabaseResponse = NextResponse.next({ request });
 
+  // PKCE flow: code가 루트로 도착하면 callback 라우트로 리다이렉트
+  const { pathname, searchParams } = request.nextUrl;
+  const code = searchParams.get("code");
+  if (code && pathname === "/") {
+    const callbackUrl = request.nextUrl.clone();
+    callbackUrl.pathname = "/api/auth/callback";
+    return NextResponse.redirect(callbackUrl);
+  }
+
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 

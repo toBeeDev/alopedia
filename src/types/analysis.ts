@@ -9,6 +9,14 @@ export interface GeminiAnalysisRequest {
   }[];
 }
 
+export interface ScalpRegion {
+  imageIndex: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
 export interface GeminiAnalysisResponse {
   norwoodGrade: number;
   score: number;
@@ -17,6 +25,7 @@ export interface GeminiAnalysisResponse {
   thickness: string;
   scalpCondition: string;
   advice: string;
+  scalpRegions: ScalpRegion[];
 }
 
 export interface AnalysisResultView {

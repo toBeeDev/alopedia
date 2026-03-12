@@ -8,8 +8,8 @@ export interface CapturedImage {
   height: number;
 }
 
-export const MIN_IMAGE_WIDTH = 1280;
-export const MIN_IMAGE_HEIGHT = 720;
+export const MIN_IMAGE_WIDTH = 640;
+export const MIN_IMAGE_HEIGHT = 480;
 export const MIN_IMAGES = 1;
 export const MAX_IMAGES = 6;
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
