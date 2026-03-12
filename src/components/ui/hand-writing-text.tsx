@@ -82,13 +82,13 @@ function HandWrittenTitle({
         <motion.svg
           width="100%"
           height="100%"
-          viewBox="0 0 1200 700"
+          viewBox="0 -100 1200 800"
           initial="hidden"
           animate="visible"
           className="h-full w-full max-w-5xl"
           preserveAspectRatio="xMidYMid meet"
         >
-          <title>Alopedia</title>
+          <title>{""}</title>
 
           {/* 원형 */}
           <motion.path
@@ -121,35 +121,41 @@ function HandWrittenTitle({
               className="text-black dark:text-white"
             />
           ))}
-        </motion.svg>
-      </div>
 
-      {/* 타이틀 텍스트 */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center">
-        <motion.h1
-          className="text-5xl font-bold tracking-tighter text-black dark:text-white md:text-7xl lg:text-8xl"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-        >
-          {title}
-        </motion.h1>
-        {subtitle && (
-          <motion.p
-            className="mt-3 text-base text-black/60 dark:text-white/60 md:text-xl"
+          {/* 타이틀 — 원 중앙 (SVG 내부 배치로 반응형 완벽 대응) */}
+          <motion.text
+            x="600"
+            y="390"
+            textAnchor="middle"
+            dominantBaseline="central"
+            className="fill-black font-bold tracking-tighter dark:fill-white"
+            style={{ fontSize: 120, fontFamily: "inherit" }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            {title}
+          </motion.text>
+          <motion.text
+            x="600"
+            y="460"
+            textAnchor="middle"
+            dominantBaseline="central"
+            className="fill-black/60 dark:fill-white/60"
+            style={{ fontSize: 28, fontFamily: "inherit" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.8 }}
           >
             {subtitle}
-          </motion.p>
-        )}
+          </motion.text>
+        </motion.svg>
       </div>
 
-      {/* CTA 버튼 영역 — 타이틀 바로 아래 */}
+      {/* CTA 버튼 영역 */}
       <motion.div
-        className="relative z-10 mt-8 flex flex-col items-center gap-3"
-        initial={{ opacity: 0, y: 20 }}
+        className="absolute bottom-[max(6rem,env(safe-area-inset-bottom,0px)_+_4rem)] flex flex-col items-center gap-3"
+        initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
           delay: 1.8,
