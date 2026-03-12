@@ -3,7 +3,7 @@
 export const COPY = {
   // ── App ──
   APP_NAME: "Alopedia",
-  APP_TAGLINE: "대머리독수리가 되기 전에, 깃털 사수 작전 개시",
+  APP_TAGLINE: "",
 
   // ── Medical Disclaimer (CRITICAL) ──
   DISCLAIMER_SHORT: "AI 참고용 분석 · 의료 진단 아님",
@@ -16,7 +16,8 @@ export const COPY = {
 
   // ── Onboarding ──
   WELCOME: "반가워요! 두피 관리, 오늘부터 시작해볼까요?",
-  FIRST_RESULT: "첫 번째 기록이 완성됐어요! 꾸준히 기록하면 변화를 확인할 수 있어요.",
+  FIRST_RESULT:
+    "첫 번째 기록이 완성됐어요! 꾸준히 기록하면 변화를 확인할 수 있어요.",
 
   // ── Scan ──
   SCAN_GUIDE_TOP: "정수리부터 찍어볼게요. 가이드에 맞춰 촬영하면 돼요.",
@@ -45,18 +46,22 @@ export const COPY = {
   // ── Error & Empty States ──
   ERROR_NETWORK: "연결이 불안정해요. 잠시 후 다시 시도해주세요.",
   ERROR_ANALYSIS_FAILED: "분석 중 문제가 생겼어요. 다시 촬영해볼까요?",
-  ERROR_PHOTO_INVALID: "두피가 잘 보이지 않아요. 가이드에 맞춰 다시 촬영해주세요.",
+  ERROR_PHOTO_INVALID:
+    "두피가 잘 보이지 않아요. 가이드에 맞춰 다시 촬영해주세요.",
   EMPTY_HISTORY: "아직 기록이 없어요. 첫 번째 두피 분석을 시작해볼까요?",
   EMPTY_POSTS: "아직 작성된 글이 없어요. 첫 번째 후기를 남겨보세요!",
   BOARD_NOTICE_BADGE: "공지",
   BOARD_ADMIN_BADGE: "운영자",
   BOARD_PREVIEW_TITLE: "다른 분들의 후기를 미리 볼 수 있어요",
   BOARD_PREVIEW_LOGIN_CTA: "로그인하고 전체 보기",
-  BOARD_PREVIEW_LOGIN_DESC: "로그인하면 모든 후기를 자세히 읽고, 직접 후기를 남길 수 있어요.",
+  BOARD_PREVIEW_LOGIN_DESC:
+    "로그인하면 모든 후기를 자세히 읽고, 직접 후기를 남길 수 있어요.",
 
   // ── Gamification ──
-  STREAK_ACHIEVED: (days: number): string => `${days}일 연속 기록! 꾸준함이 대단해요.`,
-  LEVEL_UP: (level: number): string => `레벨 ${level} 달성! 두피 관리 습관이 자리잡고 있어요.`,
+  STREAK_ACHIEVED: (days: number): string =>
+    `${days}일 연속 기록! 꾸준함이 대단해요.`,
+  LEVEL_UP: (level: number): string =>
+    `레벨 ${level} 달성! 두피 관리 습관이 자리잡고 있어요.`,
   BADGE_EARNED: (badge: string): string => `'${badge}' 뱃지를 획득했어요!`,
 
   // ── Community ──
@@ -109,12 +114,14 @@ export const COPY = {
   FEATURE_AI_DESC:
     "정수리, 이마, 측면을 촬영하면 AI가 노우드-해밀턴 스케일 기반으로 두피 상태를 분석합니다.",
   FEATURE_TRACK_TITLE: "변화 추적",
-  FEATURE_TRACK_DESC: "타임라인과 비교 슬라이더로 두피 상태 변화를 한눈에 확인하세요.",
+  FEATURE_TRACK_DESC:
+    "타임라인과 비교 슬라이더로 두피 상태 변화를 한눈에 확인하세요.",
   FEATURE_COMMUNITY_TITLE: "익명 커뮤니티",
   FEATURE_COMMUNITY_DESC:
     "약물, 시술 후기를 익명으로 공유하고 실질적인 정보를 나눠보세요.",
   FEATURE_RECORD_TITLE: "꾸준한 기록",
-  FEATURE_RECORD_DESC: "스트릭, 뱃지, 레벨 시스템으로 두피 관리 습관을 만들어갑니다.",
+  FEATURE_RECORD_DESC:
+    "스트릭, 뱃지, 레벨 시스템으로 두피 관리 습관을 만들어갑니다.",
 
   // ── Navigation ──
   NAV_HOME: "홈",
@@ -168,6 +175,7 @@ export const COPY = {
   A11Y_GRADE: (grade: number, label: string): string =>
     `두피 상태 등급 ${grade}단계, ${label}`,
   A11Y_STREAK: (days: number): string => `연속 기록 ${days}일째`,
-  A11Y_VOTE: (count: number): string => `이 글에 공감하기, 현재 ${count}명 공감`,
+  A11Y_VOTE: (count: number): string =>
+    `이 글에 공감하기, 현재 ${count}명 공감`,
   A11Y_SCALP_PHOTO: "본인의 두피 촬영 이미지",
 } as const;
