@@ -10,7 +10,6 @@ export async function createThumbnail(
       fit: "cover",
       position: "centre",
     })
-    .withMetadata({})
     .jpeg({ quality: 70 })
     .toBuffer();
 }

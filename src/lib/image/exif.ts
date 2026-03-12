@@ -14,7 +14,6 @@ export async function stripExifAndResize(
       fit: "inside",
       withoutEnlargement: true,
     })
-    .withMetadata({}) // 모든 EXIF/XMP/IPTC 제거 (빈 객체 = 메타데이터 초기화)
     .jpeg({ quality: 85, mozjpeg: true })
     .toBuffer();
 
