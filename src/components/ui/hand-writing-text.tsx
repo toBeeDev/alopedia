@@ -76,7 +76,7 @@ function HandWrittenTitle({
   } as any;
 
   return (
-    <div className="relative flex h-dvh w-full flex-col items-center justify-center">
+    <div className="relative flex h-dvh w-full flex-col items-center justify-center overflow-hidden">
       {/* SVG 원 + 모발 */}
       <div className="absolute inset-0 flex items-center justify-center">
         <motion.svg
@@ -146,10 +146,10 @@ function HandWrittenTitle({
         )}
       </div>
 
-      {/* CTA 버튼 영역 */}
+      {/* CTA 버튼 영역 — 타이틀 바로 아래 */}
       <motion.div
-        className="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom,0px)_+_0.5rem)] flex flex-col items-center gap-3"
-        initial={{ opacity: 0, y: 40 }}
+        className="relative z-10 mt-8 flex flex-col items-center gap-3"
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
           delay: 1.8,
