@@ -69,7 +69,13 @@ const SCAN_TYPE_LABELS: Record<string, string> = {
   side: "측면이마",
 };
 
-function ScoreRing({ score, color }: { score: number; color: string }): ReactElement {
+function ScoreRing({
+  score,
+  color,
+}: {
+  score: number;
+  color: string;
+}): ReactElement {
   const radius = 54;
   const circumference = 2 * Math.PI * radius;
   const offset = circumference - (score / 100) * circumference;
@@ -174,15 +180,15 @@ export default function ResultCard({
   return (
     <>
       <motion.div
-        className="mx-auto max-w-5xl"
+        className="mx-auto max-w-4xl"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
         {/* ── Desktop: 2-column / Mobile: single column ── */}
-        <div className="flex flex-col gap-6 xl:flex-row">
+        <div className="flex flex-col gap-6 lg:flex-row">
           {/* ── Left Column: Score + Images ── */}
-          <div className="flex flex-col gap-4 xl:w-[400px] xl:flex-shrink-0">
+          <div className="flex flex-col gap-4 lg:w-[340px] lg:shrink-0">
             {/* Score Card */}
             <div className="rounded-2xl bg-white p-6 shadow-sm">
               <GradeIndicator grade={grade} score={score} />
@@ -251,7 +257,7 @@ export default function ResultCard({
             )}
 
             {/* Disclaimer - desktop only, inside left column */}
-            <div className="hidden rounded-xl border border-[#EEEFF2] bg-[#FAFAFA] px-4 py-3 text-center xl:block">
+            <div className="hidden rounded-xl border border-[#EEEFF2] bg-[#FAFAFA] px-4 py-3 text-center lg:block">
               <p className="text-xs font-medium text-[#9DA0AE]">
                 {COPY.DISCLAIMER_SHORT}
               </p>
@@ -259,7 +265,7 @@ export default function ResultCard({
           </div>
 
           {/* ── Right Column: Analysis Details ── */}
-          <div className="flex-1 space-y-4">
+          <div className="min-w-0 flex-1 space-y-4">
             {/* Headline */}
             <div className="rounded-2xl bg-white p-6 shadow-sm">
               <h2 className="text-xl font-bold text-[#1E293B]">
@@ -282,15 +288,22 @@ export default function ResultCard({
             {/* Detail cards */}
             {(Object.keys(DETAIL_CONFIG) as (keyof AnalysisDetail)[]).map(
               (key) => {
-                const { label, icon: Icon, color, bgColor } =
-                  DETAIL_CONFIG[key];
+                const {
+                  label,
+                  icon: Icon,
+                  color,
+                  bgColor,
+                } = DETAIL_CONFIG[key];
                 return (
                   <motion.div
                     key={key}
                     className="rounded-2xl bg-white p-5 shadow-sm"
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.3, delay: 0.1 * Object.keys(DETAIL_CONFIG).indexOf(key) }}
+                    transition={{
+                      duration: 0.3,
+                      delay: 0.1 * Object.keys(DETAIL_CONFIG).indexOf(key),
+                    }}
                   >
                     <div className="mb-3 flex items-center gap-3">
                       <div
@@ -314,7 +327,7 @@ export default function ResultCard({
             )}
 
             {/* Disclaimer - mobile only */}
-            <div className="rounded-xl border border-[#EEEFF2] bg-[#FAFAFA] px-4 py-3 text-center xl:hidden">
+            <div className="rounded-xl border border-[#EEEFF2] bg-[#FAFAFA] px-4 py-3 text-center lg:hidden">
               <p className="text-xs font-medium text-[#9DA0AE]">
                 {COPY.DISCLAIMER_SHORT}
               </p>

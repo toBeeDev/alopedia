@@ -112,7 +112,7 @@ export default function UploadingPage(): ReactElement {
         />
 
         {/* 퀵 네비게이션 */}
-        <div className="mx-auto mt-6 grid max-w-5xl grid-cols-4 gap-2">
+        <div className="mx-auto mt-6 grid max-w-4xl grid-cols-4 gap-2">
           {quickLinks.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
