@@ -53,6 +53,14 @@ export async function POST(
   }
 
   try {
+    // 재시도 시 이전 실패 analysis 레코드 삭제
+    if (scan.status === "failed") {
+      await supabase
+        .from("analyses")
+        .delete()
+        .eq("scan_id", scanId);
+    }
+
     // 상태를 analyzing으로 업데이트
     await supabase
       .from("scans")
