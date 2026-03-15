@@ -123,6 +123,7 @@ export interface DbProfile {
   streak_best: number;
   avatar_seed: string | null;
   avatar_url: string | null;
+  last_check_in: string | null;
   created_at: string;
 }
 

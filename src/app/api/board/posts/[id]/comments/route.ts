@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit/memory";
 import { stripHtml } from "@/lib/utils/sanitize";
+import { grantExp } from "@/lib/utils/grantExp";
+import { EXP_REWARDS } from "@/lib/utils/level";
 
 /** POST /api/board/posts/:id/comments — 댓글 작성 */
 export async function POST(
@@ -82,6 +84,9 @@ export async function POST(
     .from("posts")
     .update({ comment_count: count ?? 0 })
     .eq("id", postId);
+
+  // Grant EXP for comment creation
+  await grantExp(supabase, user.id, EXP_REWARDS.COMMENT_CREATED);
 
   return NextResponse.json({ comment }, { status: 201 });
 }

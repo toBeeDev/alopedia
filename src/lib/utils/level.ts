@@ -3,6 +3,14 @@
 const EXP_PER_LEVEL = 100;
 const MAX_LEVEL = 99;
 
+/** 활동별 경험치 보상 */
+export const EXP_REWARDS = {
+  DAILY_CHECK_IN: 5,
+  SCAN_COMPLETED: 10,
+  POST_CREATED: 5,
+  COMMENT_CREATED: 2,
+} as const;
+
 /** 현재 레벨에서 다음 레벨까지 필요한 총 경험치 */
 export function getExpForNextLevel(level: number): number {
   return EXP_PER_LEVEL + (level - 1) * 20;

@@ -4,6 +4,8 @@ import { checkRateLimit } from "@/lib/rateLimit/memory";
 import { hashPin, isValidPin } from "@/lib/utils/pin";
 import { stripHtml } from "@/lib/utils/sanitize";
 import { generateSlug } from "@/lib/utils/slug";
+import { grantExp } from "@/lib/utils/grantExp";
+import { EXP_REWARDS } from "@/lib/utils/level";
 import type { BoardType } from "@/types/database";
 
 const VALID_BOARDS: BoardType[] = [
@@ -153,6 +155,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       { status: 500 },
     );
   }
+
+  // Grant EXP for post creation
+  await grantExp(supabase, user.id, EXP_REWARDS.POST_CREATED);
 
   return NextResponse.json({ post }, { status: 201 });
 }

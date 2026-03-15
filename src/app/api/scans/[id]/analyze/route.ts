@@ -4,6 +4,8 @@ import { getGeminiModel } from "@/lib/gemini/client";
 import { buildAnalysisPrompt } from "@/lib/gemini/prompt";
 import { parseGeminiResponse } from "@/lib/gemini/parser";
 import { checkRateLimit } from "@/lib/rateLimit/memory";
+import { grantExp } from "@/lib/utils/grantExp";
+import { EXP_REWARDS } from "@/lib/utils/level";
 import { blurOutsideRegion } from "@/lib/image/blur";
 import type { ScanImage } from "@/types/database";
 
@@ -185,6 +187,9 @@ export async function POST(
       .from("scans")
       .update({ status: "completed" })
       .eq("id", scanId);
+
+    // Grant EXP for completed scan
+    await grantExp(supabase, user.id, EXP_REWARDS.SCAN_COMPLETED);
 
     return NextResponse.json({ analysis });
   } catch (error) {
