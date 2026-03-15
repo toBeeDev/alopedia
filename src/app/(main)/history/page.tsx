@@ -209,7 +209,7 @@ export default function HistoryPage(): ReactElement {
             </p>
             <Link
               href="/scan"
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-foreground/85"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-background transition-colors hover:bg-foreground/85"
             >
               <Camera className="h-4 w-4" />
               촬영 시작하기

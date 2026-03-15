@@ -2,6 +2,7 @@
 
 import { type ReactElement } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Camera,
   TrendingUp,
@@ -301,7 +302,40 @@ export default function DashboardPage(): ReactElement {
             )
           )}
 
-          {/* ── 3. 빠른 메뉴 그리드 ── */}
+          {/* ── 3. 서비스 소개 ── */}
+          <motion.section variants={fadeSlideUp}>
+            <div className="overflow-hidden rounded-2xl bg-card ring-1 ring-border">
+              <div className="flex flex-col items-center gap-4 p-5 sm:flex-row sm:gap-6">
+                <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-32">
+                  <Image
+                    src="/og-image.png"
+                    alt="Alopedia"
+                    fill
+                    sizes="128px"
+                    className="object-contain p-2"
+                  />
+                </div>
+                <div className="text-center sm:text-left">
+                  <h3 className="text-sm font-bold text-foreground">
+                    Alo<span className="text-muted-foreground">pedia</span>
+                  </h3>
+                  <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                    Alopecia(탈모)의 백과사전.{" "}
+                    <span className="text-foreground/80 font-medium">
+                      AI 두피 분석
+                    </span>
+                    부터{" "}
+                    <span className="text-foreground/80 font-medium">
+                      익명 커뮤니티
+                    </span>
+                    까지, 탈모인들의 경험과 정보가 모이는 곳입니다.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.section>
+
+          {/* ── 4. 빠른 메뉴 그리드 ── */}
           <section>
             <motion.div variants={fadeSlideUp} className="mb-3">
               <h3 className="text-sm font-bold text-foreground">빠른 메뉴</h3>
