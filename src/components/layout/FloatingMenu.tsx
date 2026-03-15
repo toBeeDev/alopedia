@@ -2,7 +2,7 @@
 
 import { type ReactElement, useState, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
   Camera,
@@ -13,10 +13,12 @@ import {
   MapPin,
   Menu,
   X,
+  LogOut,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { COPY } from "@/constants/copy";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import { createBrowserClient } from "@supabase/ssr";
 
 interface NavItem {
   href: string;
@@ -36,9 +38,20 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function FloatingMenu(): ReactElement {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  const handleLogout = useCallback(async () => {
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    );
+    await supabase.auth.signOut();
+    closeMenu();
+    router.push("/");
+  }, [closeMenu, router]);
 
   // Close menu on route change
   useEffect(() => {
@@ -83,6 +96,17 @@ export default function FloatingMenu(): ReactElement {
           })}
           <div className="my-1 h-px bg-border" />
           <ThemeToggle />
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="group relative flex h-11 w-11 items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-red-500/10 hover:text-red-500"
+            aria-label={COPY.LOGOUT}
+          >
+            <LogOut className="h-5 w-5" strokeWidth={1.8} />
+            <span className="pointer-events-none absolute right-full mr-3 whitespace-nowrap rounded-lg bg-foreground px-3 py-1.5 text-xs font-medium text-background opacity-0 transition-opacity group-hover:opacity-100">
+              {COPY.LOGOUT}
+            </span>
+          </button>
         </div>
       </nav>
 
@@ -175,6 +199,15 @@ export default function FloatingMenu(): ReactElement {
                     </Link>
                   );
                 })}
+                <div className="mx-4 my-1 h-px bg-border" />
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="flex items-center gap-3 px-5 py-3 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/10"
+                >
+                  <LogOut className="h-5 w-5" strokeWidth={1.6} />
+                  {COPY.LOGOUT}
+                </button>
               </div>
             </motion.nav>
           </>
