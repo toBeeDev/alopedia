@@ -6,9 +6,12 @@ export type TreatmentType = "medication" | "procedure" | "supplement" | "shampoo
 export type VoteTargetType = "post" | "comment" | "scan";
 export type VoteType = "up" | "empathy";
 
+export type UserRole = "user" | "admin";
+
 export interface Profile {
   id: string;
   nickname: string;
+  role: UserRole;
   level: number;
   exp: number;
   streakCurrent: number;
@@ -66,6 +69,7 @@ export interface Treatment {
 
 export interface Post {
   id: string;
+  slug: string;
   userId: string;
   board: BoardType;
   title: string;
@@ -73,9 +77,12 @@ export interface Post {
   tags: string[];
   images: Record<string, unknown>[] | null;
   scanId: string | null;
+  norwoodGrade: number | null;
+  score: number | null;
   voteCount: number;
   commentCount: number;
   isAdopted: boolean;
+  isPinned: boolean;
   createdAt: string;
 }
 
@@ -109,6 +116,7 @@ export interface Achievement {
 export interface DbProfile {
   id: string;
   nickname: string;
+  role: UserRole;
   level: number;
   exp: number;
   streak_current: number;
@@ -152,6 +160,7 @@ export interface DbTreatment {
 
 export interface DbPost {
   id: string;
+  slug: string;
   user_id: string;
   board: BoardType;
   title: string;
@@ -159,9 +168,12 @@ export interface DbPost {
   tags: string[];
   images: Record<string, unknown>[] | null;
   scan_id: string | null;
+  norwood_grade: number | null;
+  score: number | null;
   vote_count: number;
   comment_count: number;
   is_adopted: boolean;
+  is_pinned: boolean;
   created_at: string;
 }
 

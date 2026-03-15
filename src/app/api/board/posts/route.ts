@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit/memory";
 import { hashPin, isValidPin } from "@/lib/utils/pin";
+import { stripHtml } from "@/lib/utils/sanitize";
+import { generateSlug } from "@/lib/utils/slug";
 import type { BoardType } from "@/types/database";
 
 const VALID_BOARDS: BoardType[] = [
@@ -24,9 +26,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   let query = supabase
     .from("posts")
-    .select("*, profiles!posts_user_id_fkey(nickname, avatar_seed)", {
+    .select("*, profiles!posts_user_id_profiles_fkey(nickname, avatar_seed, role)", {
       count: "exact",
     })
+    .order("is_pinned", { ascending: false })
     .order("created_at", { ascending: false })
     .range(offset, offset + PAGE_SIZE - 1);
 
@@ -37,8 +40,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const { data: posts, error, count } = await query;
 
   if (error) {
+    console.error("[GET /api/board/posts] Supabase error:", error);
     return NextResponse.json(
-      { error: "게시글을 불러올 수 없어요." },
+      { error: "게시글을 불러올 수 없어요.", detail: error.message },
       { status: 500 },
     );
   }
@@ -75,12 +79,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const body = await request.json();
-  const { board, title, content, tags, scanId, deletePin } = body as {
+  const { board, title, content, tags, scanId, norwoodGrade, score, images, deletePin } = body as {
     board: string;
     title: string;
     content: string;
     tags?: string[];
     scanId?: string;
+    norwoodGrade?: number;
+    score?: number;
+    images?: Record<string, unknown>[];
     deletePin: string;
   };
 
@@ -110,16 +117,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
+  // Check if user is admin → auto-pin
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const isAdmin = profile?.role === "admin";
+
+  const slug = generateSlug(title);
+
   const { data: post, error } = await supabase
     .from("posts")
     .insert({
       user_id: user.id,
+      slug,
       board,
-      title: title.trim(),
-      content: content.trim(),
+      title: stripHtml(title.trim()),
+      content: stripHtml(content.trim()),
       tags: tags ?? [],
       scan_id: scanId ?? null,
+      norwood_grade: norwoodGrade ?? null,
+      score: score ?? null,
+      images: images ?? null,
       delete_pin: hashPin(deletePin),
+      is_pinned: isAdmin,
     })
     .select()
     .single();

@@ -16,19 +16,19 @@ interface PostComment {
   profiles: CommentAuthor;
 }
 
-/** 게시글 상세 + 댓글 조회 */
-export function usePostDetail(postId: string) {
+/** 게시글 상세 + 댓글 조회 (slug 또는 UUID) */
+export function usePostDetail(slugOrId: string) {
   return useQuery({
-    queryKey: ["postDetail", postId],
+    queryKey: ["postDetail", slugOrId],
     queryFn: async () => {
-      const res = await fetch(`/api/board/posts/${postId}`);
+      const res = await fetch(`/api/board/posts/${slugOrId}`);
       if (!res.ok) throw new Error("게시글을 불러올 수 없어요.");
       return res.json() as Promise<{
         post: Record<string, unknown>;
         comments: PostComment[];
       }>;
     },
-    enabled: !!postId,
+    enabled: !!slugOrId,
   });
 }
 
@@ -46,6 +46,50 @@ export function useCreateComment(postId: string) {
       if (!res.ok) {
         const err = await res.json();
         throw new Error(err.error ?? "댓글 작성에 실패했어요.");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postDetail", postId] });
+    },
+  });
+}
+
+/** 댓글 수정 */
+export function useUpdateComment(postId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ commentId, content }: { commentId: string; content: string }) => {
+      const res = await fetch(`/api/board/comments/${commentId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "댓글 수정에 실패했어요.");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["postDetail", postId] });
+    },
+  });
+}
+
+/** 댓글 삭제 */
+export function useDeleteComment(postId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (commentId: string) => {
+      const res = await fetch(`/api/board/comments/${commentId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "댓글 삭제에 실패했어요.");
       }
       return res.json();
     },
