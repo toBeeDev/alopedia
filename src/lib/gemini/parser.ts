@@ -71,7 +71,7 @@ function clamp(value: number, min: number, max: number): number {
 }
 
 function sanitizeText(text: string): string {
-  return text.trim().slice(0, 500);
+  return text.replace(/<[^>]*>/g, "").trim().slice(0, 500);
 }
 
 /** 의료 금지 표현 치환 */

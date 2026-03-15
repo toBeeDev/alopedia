@@ -1,6 +1,9 @@
 /**
  * In-memory rate limiter (per-process, suitable for single-instance deployments).
  * For multi-instance production, replace with Redis-based limiter.
+ *
+ * TODO(security): Resets on server restart and not shared across Vercel instances.
+ * Acceptable for single-instance MVP. Migrate to Upstash Redis before scaling.
  */
 
 interface RateLimitEntry {
