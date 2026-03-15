@@ -117,8 +117,8 @@ export default function ScoreChart({
           {/* 그라데이션 영역 */}
           <defs>
             <linearGradient id="scoreAreaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#6161FF" stopOpacity={0.15} />
-              <stop offset="100%" stopColor="#6161FF" stopOpacity={0} />
+              <stop offset="0%" stopColor="#171717" stopOpacity={0.15} />
+              <stop offset="100%" stopColor="#171717" stopOpacity={0} />
             </linearGradient>
           </defs>
           <motion.path
@@ -133,7 +133,7 @@ export default function ScoreChart({
           <motion.path
             d={linePath}
             fill="none"
-            stroke="#6161FF"
+            stroke="#171717"
             strokeWidth={2.5}
             strokeLinecap="round"
             strokeLinejoin="round"

@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import FloatingMenu from "@/components/layout/FloatingMenu";
-import Footer from "@/components/layout/Footer";
 import type { ReactElement, ReactNode } from "react";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +18,8 @@ export default function BoardLayout({
   children,
 }: BoardLayoutProps): ReactElement {
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className="min-h-screen bg-background">
       <main className="pt-14 lg:pt-0">{children}</main>
-      <Footer />
       <FloatingMenu />
     </div>
   );

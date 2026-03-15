@@ -78,7 +78,7 @@ function HandWrittenTitle({
   return (
     <div className="relative flex h-dvh w-full flex-col items-center justify-center overflow-hidden">
       {/* SVG 원 + 모발 */}
-      <div className="absolute inset-0 flex items-center justify-center">
+      <div className="absolute inset-0 flex items-center justify-center pb-[20vh]">
         <motion.svg
           width="100%"
           height="100%"
@@ -154,7 +154,7 @@ function HandWrittenTitle({
 
       {/* CTA 버튼 영역 */}
       <motion.div
-        className="absolute bottom-[max(6rem,env(safe-area-inset-bottom,0px)_+_4rem)] flex flex-col items-center gap-3"
+        className="absolute bottom-[max(4rem,env(safe-area-inset-bottom,0px)_+_3rem)] flex flex-col items-center gap-4"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{
@@ -175,7 +175,7 @@ function HandWrittenTitle({
         >
           <Link
             href="/login"
-            className="inline-flex items-center gap-2 rounded-full bg-[#6161FF] px-8 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#6161FF]/25 transition-all hover:bg-[#4338ca] hover:shadow-xl hover:shadow-[#6161FF]/30 active:scale-95"
+            className="inline-flex items-center gap-2 rounded-full bg-foreground px-10 py-4 text-base font-bold text-background shadow-xl shadow-black/20 transition-all hover:bg-foreground/85 hover:shadow-2xl hover:shadow-black/25 active:scale-95 dark:text-background"
           >
             {COPY.HERO_LOGIN_CTA}
           </Link>
@@ -189,7 +189,7 @@ function HandWrittenTitle({
         >
           <Link
             href="/board"
-            className="group flex items-center gap-1 text-sm font-medium text-black/40 transition-colors hover:text-black/70 dark:text-white/40 dark:hover:text-white/70"
+            className="group flex items-center gap-1.5 rounded-full border border-foreground/20 px-6 py-2.5 text-sm font-semibold text-foreground/60 transition-all hover:border-foreground/40 hover:text-foreground/80"
           >
             {COPY.HERO_BROWSE_CTA}
             <ChevronDown className="h-4 w-4 transition-transform group-hover:translate-y-0.5" />

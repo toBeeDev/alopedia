@@ -94,7 +94,7 @@ export default function ScanSession(): ReactElement {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F9FAFB]">
+    <div className="flex flex-col bg-background">
       <div className="mx-auto w-full max-w-lg px-6 py-10">
         {/* Header */}
         <motion.div
@@ -103,44 +103,55 @@ export default function ScanSession(): ReactElement {
           transition={{ duration: 0.5 }}
           className="mb-8 text-center"
         >
-          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#6161FF]/10">
-            <Scan className="h-7 w-7 text-[#6161FF]" />
+          <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground/10">
+            <Scan className="h-7 w-7 text-foreground" />
           </div>
-          <h1 className="text-xl font-bold text-[#323338]">두피 사진 업로드</h1>
-          <p className="mt-2 text-sm text-[#676879]">
+          <h1 className="text-xl font-bold text-foreground">두피 사진 업로드</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
             두피 사진을 촬영하거나 갤러리에서 선택해주세요.
           </p>
         </motion.div>
 
         {/* Upload card */}
         <motion.div variants={fadeSlideUp} initial="hidden" animate="visible">
-          <div className="rounded-2xl bg-white shadow-sm">
+          <div className="rounded-2xl bg-card shadow-sm">
             {/* Tips */}
-            <div className="border-b border-[#F5F5F7] px-5 py-4">
-              <p className="mb-2 text-xs font-semibold text-[#323338]">
-                촬영 가이드
-              </p>
+            <div className="border-b border-accent px-5 py-4">
+              <div className="mb-2 flex items-center justify-between">
+                <p className="text-xs font-semibold text-foreground">
+                  촬영 가이드
+                </p>
+                <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-bold text-foreground/60">
+                  필수 {MIN_IMAGES}장
+                </span>
+              </div>
               <div className="flex flex-col gap-1.5">
-                {TIPS.map((tip) => (
-                  <div key={tip.emoji} className="flex items-center gap-2 text-xs text-[#676879]">
+                {TIPS.map((tip, idx) => (
+                  <div key={tip.emoji} className="flex items-center gap-2 text-xs text-muted-foreground">
                     <span>{tip.emoji}</span>
                     <span>{tip.text}</span>
+                    {idx < MIN_IMAGES && (
+                      <span className="text-[10px] font-medium text-foreground/40">필수</span>
+                    )}
                   </div>
                 ))}
               </div>
+              <p className="mt-2.5 text-[11px] leading-relaxed text-muted-foreground/60">
+                위 순서대로 {MIN_IMAGES}장을 업로드하면 AI가 더 정확하게 분석해요.
+              </p>
             </div>
 
             {/* Drop zone + previews */}
             <div className="p-4" onDragOver={onDragOver} onDrop={onDrop}>
               {images.length === 0 ? (
-                <div className="rounded-xl border-2 border-dashed border-[#E0E0E0] bg-[#FAFAFA] p-8 text-center">
-                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[#F0F0F5]">
-                    <Upload className="h-5 w-5 text-[#9DA0AE]" />
+                <div className="rounded-xl border-2 border-dashed border-border bg-muted/50 p-8 text-center">
+                  <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-accent">
+                    <Upload className="h-5 w-5 text-muted-foreground/70" />
                   </div>
-                  <p className="text-sm font-medium text-[#676879]">
+                  <p className="text-sm font-medium text-muted-foreground">
                     사진을 드래그하거나 아래 버튼으로 추가
                   </p>
-                  <p className="mt-1 text-xs text-[#9DA0AE]">
+                  <p className="mt-1 text-xs text-muted-foreground/70">
                     JPG, PNG, WebP · 최대 10MB · 최대 {MAX_IMAGES}장
                   </p>
                 </div>
@@ -177,7 +188,7 @@ export default function ScanSession(): ReactElement {
 
                   {/* Add more */}
                   {!isFull && (
-                    <label className="flex aspect-square cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-[#E0E0E0] bg-[#FAFAFA] text-[#9DA0AE] transition-colors hover:border-[#6161FF] hover:text-[#6161FF]">
+                    <label className="flex aspect-square cursor-pointer items-center justify-center rounded-xl border-2 border-dashed border-border bg-muted/50 text-muted-foreground/70 transition-colors hover:border-foreground hover:text-foreground">
                       <ImagePlus className="h-5 w-5" />
                       <input
                         type="file"
@@ -196,7 +207,7 @@ export default function ScanSession(): ReactElement {
 
               {/* Counter */}
               {images.length > 0 && (
-                <p className="mt-2 text-right text-xs text-[#9DA0AE]">
+                <p className="mt-2 text-right text-xs text-muted-foreground/70">
                   {images.length}/{MAX_IMAGES}장
                 </p>
               )}
@@ -204,7 +215,7 @@ export default function ScanSession(): ReactElement {
               {/* Action buttons */}
               {!isFull && (
                 <div className="mt-3 flex gap-2">
-                  <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#6161FF] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#4338ca] active:scale-[0.98]">
+                  <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/85 active:scale-[0.98]">
                     <Camera className="h-4 w-4" />
                     촬영하기
                     <input
@@ -218,7 +229,7 @@ export default function ScanSession(): ReactElement {
                       }}
                     />
                   </label>
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-[#F5F5F7] px-4 py-2.5 text-sm font-semibold text-[#676879] transition-colors hover:bg-[#EEEFF2] active:scale-[0.98]">
+                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-border active:scale-[0.98]">
                     <ImagePlus className="h-4 w-4" />
                     갤러리
                     <input
@@ -245,7 +256,7 @@ export default function ScanSession(): ReactElement {
             animate={{ opacity: canSubmit ? 1 : 0.4 }}
             disabled={!canSubmit}
             onClick={() => router.push("/scan/uploading")}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#6161FF] py-4 text-base font-semibold text-white shadow-lg shadow-[#6161FF]/25 transition-all hover:bg-[#4338ca] disabled:cursor-not-allowed disabled:shadow-none"
+            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-4 text-base font-semibold text-background shadow-lg shadow-black/15 transition-all hover:bg-foreground/85 disabled:cursor-not-allowed disabled:shadow-none"
           >
             <Upload className="h-5 w-5" />
             AI 분석 시작하기
@@ -254,7 +265,7 @@ export default function ScanSession(): ReactElement {
           {images.length > 0 && (
             <button
               onClick={handleReset}
-              className="flex w-full items-center justify-center gap-2 py-3 text-sm text-[#676879] transition-colors hover:text-[#323338]"
+              className="flex w-full items-center justify-center gap-2 py-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               <RotateCcw className="h-4 w-4" />
               전체 초기화
@@ -262,7 +273,7 @@ export default function ScanSession(): ReactElement {
           )}
         </div>
 
-        <p className="mt-6 text-center text-xs text-[#9DA0AE]">
+        <p className="mt-6 text-center text-xs text-muted-foreground/70">
           {COPY.DISCLAIMER_SHORT}
         </p>
       </div>

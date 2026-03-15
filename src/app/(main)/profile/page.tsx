@@ -91,7 +91,7 @@ export default function ProfilePage(): ReactElement {
   if (isLoading) {
     return (
       <PageContainer className="flex min-h-[60vh] items-center justify-center py-10">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#6161FF]/20 border-t-[#6161FF]" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-foreground/20 border-t-foreground" />
       </PageContainer>
     );
   }
@@ -105,13 +105,13 @@ export default function ProfilePage(): ReactElement {
         className="space-y-4"
       >
         {/* ── 프로필 카드 ── */}
-        <div className="rounded-2xl bg-white p-6 shadow-sm">
+        <div className="rounded-2xl bg-card p-6 shadow-sm">
           <div className="flex items-center gap-5">
             {/* 아바타 */}
             <button
               type="button"
               onClick={handleAvatarClick}
-              className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-[#F1F5F9]"
+              className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-accent"
             >
               {profile?.avatar_url ? (
                 <Image
@@ -122,8 +122,8 @@ export default function ProfilePage(): ReactElement {
                   unoptimized
                 />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#6161FF]/10 to-[#6161FF]/5">
-                  <span className="text-2xl font-bold text-[#6161FF]/40">
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-foreground/10 to-foreground/5">
+                  <span className="text-2xl font-bold text-foreground/40">
                     {(profile?.nickname ?? "?")[0]?.toUpperCase()}
                   </span>
                 </div>
@@ -154,7 +154,7 @@ export default function ProfilePage(): ReactElement {
                     value={nicknameInput}
                     onChange={(e) => setNicknameInput(e.target.value)}
                     maxLength={20}
-                    className="w-full rounded-lg border border-[#EEEFF2] px-3 py-1.5 text-sm text-[#323338] focus:border-[#6161FF] focus:outline-none"
+                    className="w-full rounded-lg border border-border px-3 py-1.5 text-sm text-foreground focus:border-foreground focus:outline-none"
                     autoFocus
                     onKeyDown={(e) => {
                       if (e.key === "Enter") submitNickname();
@@ -165,27 +165,27 @@ export default function ProfilePage(): ReactElement {
                     type="button"
                     onClick={submitNickname}
                     disabled={updateNickname.isPending}
-                    className="rounded-lg bg-[#6161FF] p-1.5 text-white hover:bg-[#4F4FD9]"
+                    className="rounded-lg bg-foreground p-1.5 text-white hover:bg-foreground/85"
                   >
                     <Check className="h-3.5 w-3.5" />
                   </button>
                   <button
                     type="button"
                     onClick={cancelEditNickname}
-                    className="rounded-lg bg-[#F1F5F9] p-1.5 text-[#9DA0AE] hover:bg-[#E2E5EA]"
+                    className="rounded-lg bg-accent p-1.5 text-muted-foreground/70 hover:bg-accent"
                   >
                     <X className="h-3.5 w-3.5" />
                   </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <h2 className="truncate text-lg font-bold text-[#323338]">
+                  <h2 className="truncate text-lg font-bold text-foreground">
                     {profile?.nickname ?? "사용자"}
                   </h2>
                   <button
                     type="button"
                     onClick={startEditNickname}
-                    className="rounded-md p-1 text-[#9DA0AE] hover:bg-[#F1F5F9] hover:text-[#676879]"
+                    className="rounded-md p-1 text-muted-foreground/70 hover:bg-accent hover:text-muted-foreground"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </button>
@@ -197,22 +197,22 @@ export default function ProfilePage(): ReactElement {
 
               {/* 독수리 타이틀 */}
               {gradeConfig && stats?.latestGrade && (
-                <div className="mt-1 flex items-center gap-1.5">
+                <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
                   <EagleIcon grade={stats.latestGrade} size={20} />
                   <span
-                    className="text-xs font-semibold"
+                    className="shrink-0 text-xs font-semibold"
                     style={{ color: gradeConfig.color }}
                   >
                     {gradeConfig.eagleLabel}
                   </span>
-                  <span className="text-[10px] text-[#9DA0AE]">
+                  <span className="truncate text-[10px] text-muted-foreground/70">
                     · {gradeConfig.eagleDesc}
                   </span>
                 </div>
               )}
 
               {/* 가입일 */}
-              <p className="mt-1 text-[11px] text-[#9DA0AE]">
+              <p className="mt-1 text-[11px] text-muted-foreground/70">
                 {profile?.created_at
                   ? `${new Date(profile.created_at).toLocaleDateString("ko-KR", {
                       year: "numeric",
@@ -226,30 +226,30 @@ export default function ProfilePage(): ReactElement {
         </div>
 
         {/* ── 레벨 프로그레스 ── */}
-        <div className="rounded-2xl bg-white p-5 shadow-sm">
+        <div className="rounded-2xl bg-card p-5 shadow-sm">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#6161FF]/10">
-                <Trophy className="h-4 w-4 text-[#6161FF]" />
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/10">
+                <Trophy className="h-4 w-4 text-foreground" />
               </div>
               <div>
-                <span className="text-sm font-bold text-[#323338]">
+                <span className="text-sm font-bold text-foreground">
                   Lv.{level}
                 </span>
-                <span className="ml-1.5 text-xs text-[#9DA0AE]">
+                <span className="ml-1.5 text-xs text-muted-foreground/70">
                   {levelTitle}
                 </span>
               </div>
             </div>
-            <span className="text-xs text-[#9DA0AE]">
+            <span className="text-xs text-muted-foreground/70">
               {exp} / {expNeeded} EXP
             </span>
           </div>
 
           {/* 프로그레스 바 */}
-          <div className="h-2.5 overflow-hidden rounded-full bg-[#F1F5F9]">
+          <div className="h-2.5 overflow-hidden rounded-full bg-accent">
             <motion.div
-              className="h-full rounded-full bg-gradient-to-r from-[#6161FF] to-[#8B8BFF]"
+              className="h-full rounded-full bg-gradient-to-r from-foreground to-foreground/70"
               initial={{ width: 0 }}
               animate={{ width: `${progress * 100}%` }}
               transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
@@ -258,35 +258,35 @@ export default function ProfilePage(): ReactElement {
         </div>
 
         {/* ── 활동 통계 ── */}
-        <div className="rounded-2xl bg-white p-5 shadow-sm">
-          <h3 className="mb-3 text-sm font-semibold text-[#323338]">
+        <div className="rounded-2xl bg-card p-5 shadow-sm">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">
             활동 요약
           </h3>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatCard
               icon={<Scan className="h-4 w-4 text-blue-500" />}
-              bgColor="bg-blue-50"
+              bgColor="bg-blue-500/10"
               label="두피 분석"
               value={stats?.scanCount ?? 0}
               unit="회"
             />
             <StatCard
               icon={<MessageCircle className="h-4 w-4 text-emerald-500" />}
-              bgColor="bg-emerald-50"
+              bgColor="bg-emerald-500/10"
               label="게시글"
               value={stats?.postCount ?? 0}
               unit="개"
             />
             <StatCard
               icon={<MessageSquare className="h-4 w-4 text-amber-500" />}
-              bgColor="bg-amber-50"
+              bgColor="bg-amber-500/10"
               label="댓글"
               value={stats?.commentCount ?? 0}
               unit="개"
             />
             <StatCard
               icon={<Flame className="h-4 w-4 text-rose-500" />}
-              bgColor="bg-rose-50"
+              bgColor="bg-rose-500/10"
               label="연속 기록"
               value={profile?.streak_current ?? 0}
               unit="일"
@@ -296,8 +296,8 @@ export default function ProfilePage(): ReactElement {
 
         {/* ── 최근 두피 상태 ── */}
         {gradeConfig && stats?.latestScore !== null && stats?.latestScore !== undefined && (
-          <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <h3 className="mb-3 text-sm font-semibold text-[#323338]">
+          <div className="rounded-2xl bg-card p-5 shadow-sm">
+            <h3 className="mb-3 text-sm font-semibold text-foreground">
               최근 두피 상태
             </h3>
             <div className="flex items-center gap-4">
@@ -315,11 +315,11 @@ export default function ProfilePage(): ReactElement {
                   >
                     {gradeConfig.label}
                   </span>
-                  <span className="text-xs text-[#9DA0AE]">
+                  <span className="text-xs text-muted-foreground/70">
                     · {stats.latestScore.toFixed(0)}점
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-[#676879]">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {gradeConfig.action}
                 </p>
               </div>
@@ -328,11 +328,11 @@ export default function ProfilePage(): ReactElement {
         )}
 
         {/* ── 계정 정보 ── */}
-        <div className="rounded-2xl bg-white p-5 shadow-sm">
-          <h3 className="mb-3 text-sm font-semibold text-[#323338]">
+        <div className="rounded-2xl bg-card p-5 shadow-sm">
+          <h3 className="mb-3 text-sm font-semibold text-foreground">
             계정 정보
           </h3>
-          <p className="text-sm text-[#676879]">{user?.email ?? ""}</p>
+          <p className="text-sm text-muted-foreground">{user?.email ?? ""}</p>
         </div>
 
         {/* ── 로그아웃 ── */}
@@ -363,17 +363,17 @@ function StatCard({
   unit: string;
 }): ReactElement {
   return (
-    <div className="rounded-xl bg-[#F8FAFC] p-3">
+    <div className="rounded-xl bg-muted/50 p-3">
       <div className={`mb-2 inline-flex rounded-lg p-1.5 ${bgColor}`}>
         {icon}
       </div>
-      <p className="text-lg font-bold text-[#323338]">
+      <p className="text-lg font-bold text-foreground">
         {value}
-        <span className="ml-0.5 text-xs font-normal text-[#9DA0AE]">
+        <span className="ml-0.5 text-xs font-normal text-muted-foreground/70">
           {unit}
         </span>
       </p>
-      <p className="text-[11px] text-[#9DA0AE]">{label}</p>
+      <p className="text-[11px] text-muted-foreground/70">{label}</p>
     </div>
   );
 }

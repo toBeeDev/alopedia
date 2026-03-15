@@ -59,17 +59,17 @@ export default function WritePostModal({
         animate={{ y: 0 }}
         exit={{ y: 100 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg rounded-t-2xl bg-white p-6 shadow-xl sm:rounded-2xl"
+        className="w-full max-w-lg rounded-t-2xl bg-card p-6 shadow-xl sm:rounded-2xl"
       >
         <div className="mb-5 flex items-center justify-between">
-          <h2 className="text-base font-bold text-[#323338]">
+          <h2 className="text-base font-bold text-foreground">
             {isEdit ? "글 수정" : "글쓰기"}
           </h2>
           <button
             onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-[#F5F5F7]"
+            className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-accent"
           >
-            <X className="h-5 w-5 text-[#9DA0AE]" />
+            <X className="h-5 w-5 text-muted-foreground/70" />
           </button>
         </div>
 
@@ -80,8 +80,8 @@ export default function WritePostModal({
               onClick={() => setBoard(key)}
               className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
                 board === key
-                  ? "bg-[#6161FF] text-white"
-                  : "bg-[#F5F5F7] text-[#676879]"
+                  ? "bg-foreground text-background"
+                  : "bg-accent text-muted-foreground"
               }`}
             >
               {label}
@@ -95,7 +95,7 @@ export default function WritePostModal({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={100}
-          className="mb-3 w-full rounded-xl border border-[#EEEFF2] px-4 py-3 text-sm text-[#323338] outline-none placeholder:text-[#B0B3BE] focus:border-[#6161FF]"
+          className="mb-3 w-full rounded-xl border border-border px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-foreground"
         />
 
         <textarea
@@ -104,12 +104,12 @@ export default function WritePostModal({
           onChange={(e) => setContent(e.target.value)}
           maxLength={5000}
           rows={6}
-          className="mb-3 w-full resize-none rounded-xl border border-[#EEEFF2] px-4 py-3 text-sm leading-relaxed text-[#323338] outline-none placeholder:text-[#B0B3BE] focus:border-[#6161FF]"
+          className="mb-3 w-full resize-none rounded-xl border border-border px-4 py-3 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-foreground"
         />
 
         {!isEdit && (
           <div className="mb-4">
-            <label className="mb-1.5 block text-xs font-medium text-[#676879]">
+            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
               삭제 비밀번호 (숫자 4자리)
             </label>
             <input
@@ -122,7 +122,7 @@ export default function WritePostModal({
                 setDeletePin(v);
               }}
               maxLength={4}
-              className="w-32 rounded-xl border border-[#EEEFF2] px-4 py-3 text-center text-sm tracking-[0.3em] text-[#323338] outline-none placeholder:text-[#B0B3BE] focus:border-[#6161FF]"
+              className="w-32 rounded-xl border border-border px-4 py-3 text-center text-sm tracking-[0.3em] text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-foreground"
             />
           </div>
         )}
@@ -132,13 +132,13 @@ export default function WritePostModal({
         <div className="flex justify-end gap-2">
           <button
             onClick={onClose}
-            className="rounded-full px-5 py-2.5 text-sm font-medium text-[#676879] hover:bg-[#F5F5F7]"
+            className="rounded-full px-5 py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent"
           >
             취소
           </button>
           <button
             onClick={handleSubmit}
-            className="rounded-full bg-[#6161FF] px-6 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#6161FF]/25 transition-all hover:bg-[#4338ca] active:scale-95"
+            className="rounded-full bg-foreground px-6 py-2.5 text-sm font-semibold text-background shadow-md shadow-black/15 transition-all hover:bg-foreground/85 active:scale-95"
           >
             {isEdit ? "수정하기" : "등록하기"}
           </button>

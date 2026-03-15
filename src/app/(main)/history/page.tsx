@@ -42,7 +42,7 @@ function getTrendBetween(
   return {
     icon: <Minus className="h-3.5 w-3.5" />,
     label: "유지",
-    color: "text-[#9DA0AE]",
+    color: "text-muted-foreground/70",
   };
 }
 
@@ -88,7 +88,7 @@ function SummaryStats({
               <EagleIcon grade={latestGrade} size={36} />
             </div>
             <div className="flex-1">
-              <p className="text-xs text-[#9DA0AE]">최근 분석 상태</p>
+              <p className="text-xs text-muted-foreground/70">최근 분석 상태</p>
               <div className="mt-0.5 flex items-center gap-2">
                 <span
                   className="text-lg font-bold"
@@ -96,11 +96,11 @@ function SummaryStats({
                 >
                   {latestConfig.eagleLabel}
                 </span>
-                <span className="text-sm font-medium text-[#323338]">
+                <span className="text-sm font-medium text-foreground">
                   {latestScore.toFixed(1)}점
                 </span>
               </div>
-              <p className="mt-0.5 text-xs text-[#676879]">
+              <p className="mt-0.5 text-xs text-muted-foreground">
                 {latestConfig.action}
               </p>
             </div>
@@ -110,30 +110,30 @@ function SummaryStats({
 
       {/* 통계 그리드 */}
       <div className="grid grid-cols-3 gap-3">
-        <div className="rounded-xl bg-white p-3.5 shadow-sm">
-          <div className="mb-1.5 inline-flex rounded-lg bg-blue-50 p-1.5">
+        <div className="rounded-xl bg-card p-3.5 shadow-sm">
+          <div className="mb-1.5 inline-flex rounded-lg bg-blue-500/10 p-1.5">
             <Scan className="h-4 w-4 text-blue-500" />
           </div>
-          <p className="text-lg font-bold text-[#323338]">{totalCount}</p>
-          <p className="text-[11px] text-[#9DA0AE]">총 분석</p>
+          <p className="text-lg font-bold text-foreground">{totalCount}</p>
+          <p className="text-[11px] text-muted-foreground/70">총 분석</p>
         </div>
-        <div className="rounded-xl bg-white p-3.5 shadow-sm">
-          <div className="mb-1.5 inline-flex rounded-lg bg-emerald-50 p-1.5">
+        <div className="rounded-xl bg-card p-3.5 shadow-sm">
+          <div className="mb-1.5 inline-flex rounded-lg bg-emerald-500/10 p-1.5">
             <TrendingUp className="h-4 w-4 text-emerald-500" />
           </div>
-          <p className="text-lg font-bold text-[#323338]">
+          <p className="text-lg font-bold text-foreground">
             {bestScore > 0 ? bestScore.toFixed(0) : "-"}
           </p>
-          <p className="text-[11px] text-[#9DA0AE]">최고 점수</p>
+          <p className="text-[11px] text-muted-foreground/70">최고 점수</p>
         </div>
-        <div className="rounded-xl bg-white p-3.5 shadow-sm">
-          <div className="mb-1.5 inline-flex rounded-lg bg-amber-50 p-1.5">
+        <div className="rounded-xl bg-card p-3.5 shadow-sm">
+          <div className="mb-1.5 inline-flex rounded-lg bg-amber-500/10 p-1.5">
             <Clock className="h-4 w-4 text-amber-500" />
           </div>
-          <p className="text-lg font-bold text-[#323338]">
+          <p className="text-lg font-bold text-foreground">
             {avgScore > 0 ? avgScore.toFixed(0) : "-"}
           </p>
-          <p className="text-[11px] text-[#9DA0AE]">평균 점수</p>
+          <p className="text-[11px] text-muted-foreground/70">평균 점수</p>
         </div>
       </div>
     </div>
@@ -161,28 +161,28 @@ export default function HistoryPage(): ReactElement {
   );
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB]">
+    <div className="min-h-screen bg-background">
       <PageContainer className="py-6">
-        <h1 className="mb-6 text-lg font-bold text-[#323338] md:text-xl">
+        <h1 className="mb-6 text-lg font-bold text-foreground md:text-xl">
           {COPY.PAGE_TITLE_HISTORY}
         </h1>
 
         {/* 로딩 */}
         {isLoading && (
           <div className="space-y-4">
-            <div className="h-24 animate-pulse rounded-2xl bg-white" />
+            <div className="h-24 animate-pulse rounded-2xl bg-card" />
             <div className="grid grid-cols-3 gap-3">
               {[1, 2, 3].map((i) => (
                 <div
                   key={i}
-                  className="h-20 animate-pulse rounded-xl bg-white"
+                  className="h-20 animate-pulse rounded-xl bg-card"
                 />
               ))}
             </div>
             {[1, 2].map((i) => (
               <div
                 key={i}
-                className="h-28 animate-pulse rounded-2xl bg-white"
+                className="h-28 animate-pulse rounded-2xl bg-card"
               />
             ))}
           </div>
@@ -190,7 +190,7 @@ export default function HistoryPage(): ReactElement {
 
         {/* 에러 */}
         {error && (
-          <div className="rounded-2xl bg-red-50 px-5 py-8 text-center">
+          <div className="rounded-2xl bg-red-500/10 px-5 py-8 text-center">
             <p className="text-sm text-red-500">{COPY.ERROR_NETWORK}</p>
           </div>
         )}
@@ -198,18 +198,18 @@ export default function HistoryPage(): ReactElement {
         {/* 빈 상태 */}
         {scans && scans.length === 0 && (
           <div className="py-16 text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#6161FF]/10">
-              <Camera className="h-8 w-8 text-[#6161FF]" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-foreground/10">
+              <Camera className="h-8 w-8 text-foreground" />
             </div>
-            <h3 className="text-base font-bold text-[#323338]">
+            <h3 className="text-base font-bold text-foreground">
               아직 기록이 없어요
             </h3>
-            <p className="mt-1 text-sm text-[#676879]">
+            <p className="mt-1 text-sm text-muted-foreground">
               첫 번째 두피 분석을 시작해볼까요?
             </p>
             <Link
               href="/scan"
-              className="mt-5 inline-flex items-center gap-2 rounded-full bg-[#6161FF] px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-[#4F4FD9]"
+              className="mt-5 inline-flex items-center gap-2 rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-foreground/85"
             >
               <Camera className="h-4 w-4" />
               촬영 시작하기
@@ -232,7 +232,7 @@ export default function HistoryPage(): ReactElement {
               </div>
             )}
 
-            <h2 className="mb-3 text-sm font-semibold text-[#676879]">
+            <h2 className="mb-3 text-sm font-semibold text-muted-foreground">
               분석 기록
             </h2>
 
@@ -272,10 +272,10 @@ export default function HistoryPage(): ReactElement {
                   <motion.div key={scan.id} variants={fadeSlideUp}>
                     <Link
                       href={`/history/${scan.id}`}
-                      className="group flex items-center gap-4 rounded-2xl bg-white p-4 shadow-sm transition-all hover:shadow-md"
+                      className="group flex items-center gap-4 rounded-2xl bg-card p-4 shadow-sm transition-all hover:shadow-md"
                     >
                       {/* 썸네일 */}
-                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-[#F5F5F7]">
+                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-accent">
                         {thumbnail ? (
                           <Image
                             src={thumbnail}
@@ -286,7 +286,7 @@ export default function HistoryPage(): ReactElement {
                           />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center">
-                            <Camera className="h-6 w-6 text-[#9DA0AE]" />
+                            <Camera className="h-6 w-6 text-muted-foreground/70" />
                           </div>
                         )}
                       </div>
@@ -306,7 +306,7 @@ export default function HistoryPage(): ReactElement {
                             </span>
                           )}
                           {score !== null && (
-                            <span className="text-base font-bold text-[#323338]">
+                            <span className="text-base font-bold text-foreground">
                               {score.toFixed(1)}점
                             </span>
                           )}
@@ -322,24 +322,24 @@ export default function HistoryPage(): ReactElement {
 
                         {/* 점수 바 */}
                         {score !== null && (
-                          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-[#F1F5F9]">
+                          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-accent">
                             <div
                               className="h-full rounded-full transition-all"
                               style={{
                                 width: `${score}%`,
                                 backgroundColor:
-                                  gradeConfig?.color ?? "#6161FF",
+                                  gradeConfig?.color ?? "#171717",
                               }}
                             />
                           </div>
                         )}
 
                         <div className="mt-1.5 flex items-center gap-2">
-                          <span className="text-xs text-[#9DA0AE]">
+                          <span className="text-xs text-muted-foreground/70">
                             {dateStr}
                           </span>
                           {scan.status === "analyzing" && (
-                            <span className="text-xs font-medium text-[#6161FF]">
+                            <span className="text-xs font-medium text-foreground">
                               분석 중...
                             </span>
                           )}
@@ -349,14 +349,14 @@ export default function HistoryPage(): ReactElement {
                             </span>
                           )}
                           {scan.images && scan.images.length > 0 && (
-                            <span className="text-[10px] text-[#9DA0AE]">
+                            <span className="text-[10px] text-muted-foreground/70">
                               사진 {scan.images.length}장
                             </span>
                           )}
                         </div>
                       </div>
 
-                      <ChevronRight className="h-5 w-5 shrink-0 text-[#D1D5DB] transition-colors group-hover:text-[#6161FF]" />
+                      <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground" />
                     </Link>
                   </motion.div>
                 );

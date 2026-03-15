@@ -46,8 +46,8 @@ export default function Footer(): ReactElement | null {
             className="flex items-center gap-x-2"
             aria-label={COPY.APP_NAME}
           >
-            <Scan className="h-8 w-8 text-[#6161FF]" />
-            <span className="text-lg font-bold text-[#323338]">
+            <Scan className="h-8 w-8 text-foreground" />
+            <span className="text-lg font-bold text-foreground">
               {COPY.APP_NAME}
             </span>
           </Link>
@@ -74,14 +74,14 @@ export default function Footer(): ReactElement | null {
           </ul>
         </div>
 
-        <div className="mt-6 border-t border-[#EEEFF2] pt-6 md:mt-4 md:pt-8 lg:grid lg:grid-cols-10">
+        <div className="mt-6 border-t border-border pt-6 md:mt-4 md:pt-8 lg:grid lg:grid-cols-10">
           <nav className="lg:col-[4/11] lg:mt-0">
             <ul className="-mx-2 -my-1 flex list-none flex-wrap lg:justify-end">
               {MAIN_LINKS.map((link, i) => (
                 <li key={i} className="mx-2 my-1 shrink-0">
                   <Link
                     href={link.href}
-                    className="text-sm text-[#323338] underline-offset-4 hover:underline"
+                    className="text-sm text-foreground underline-offset-4 hover:underline"
                   >
                     {link.label}
                   </Link>
@@ -96,7 +96,7 @@ export default function Footer(): ReactElement | null {
                 <li key={i} className="mx-3 my-1 shrink-0">
                   <Link
                     href={link.href}
-                    className="text-sm text-[#9DA0AE] underline-offset-4 hover:underline"
+                    className="text-sm text-muted-foreground/70 underline-offset-4 hover:underline"
                   >
                     {link.label}
                   </Link>
@@ -105,7 +105,7 @@ export default function Footer(): ReactElement | null {
             </ul>
           </div>
 
-          <div className="mt-6 text-sm leading-6 text-[#9DA0AE] lg:col-[1/4] lg:row-[1/3] lg:mt-0">
+          <div className="mt-6 text-sm leading-6 text-muted-foreground/70 lg:col-[1/4] lg:row-[1/3] lg:mt-0">
             <div>&copy; {new Date().getFullYear()} {COPY.APP_NAME}</div>
           </div>
         </div>

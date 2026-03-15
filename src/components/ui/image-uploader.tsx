@@ -99,7 +99,7 @@ export function ImageUploader({
             className={cn(
               "rounded-xl border-2 border-dashed p-6 text-center transition-colors duration-200",
               isDragging
-                ? "border-[#6161FF] bg-[#6161FF]/5"
+                ? "border-foreground bg-foreground/5"
                 : "border-[#E0E0E0] bg-[#FAFAFA]",
             )}
             onDragEnter={handleDragEnter}
@@ -126,7 +126,7 @@ export function ImageUploader({
           <div
             className={cn(
               "rounded-xl transition-colors duration-200",
-              isDragging && !isFull && "ring-2 ring-[#6161FF] ring-offset-2",
+              isDragging && !isFull && "ring-2 ring-foreground ring-offset-2",
             )}
             onDragEnter={handleDragEnter}
             onDragLeave={handleDragLeave}
@@ -170,7 +170,7 @@ export function ImageUploader({
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   onClick={() => galleryRef.current?.click()}
-                  className="flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-[#E0E0E0] bg-[#FAFAFA] text-[#9DA0AE] transition-colors hover:border-[#6161FF] hover:text-[#6161FF]"
+                  className="flex aspect-square items-center justify-center rounded-xl border-2 border-dashed border-[#E0E0E0] bg-[#FAFAFA] text-[#9DA0AE] transition-colors hover:border-foreground hover:text-foreground"
                 >
                   <ImagePlus className="h-5 w-5" />
                 </motion.button>
@@ -185,7 +185,7 @@ export function ImageUploader({
             <button
               type="button"
               onClick={() => cameraRef.current?.click()}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#6161FF] py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#4338ca] active:scale-[0.98]"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-white transition-colors hover:bg-foreground/85 active:scale-[0.98]"
             >
               <Camera className="h-4 w-4" />
               촬영하기

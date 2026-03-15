@@ -61,7 +61,7 @@ const TRENDS = [
   {
     label: "유지 중",
     icon: Minus,
-    color: "#6161FF",
+    color: "#171717",
     desc: "현재 상태가 안정적으로 유지되고 있어요.",
   },
   {
@@ -110,10 +110,10 @@ function SectionHeader({
 }): ReactElement {
   return (
     <motion.div variants={fadeSlideUp} className="mb-4">
-      <h2 className="text-base font-bold text-[#323338] md:text-lg">
+      <h2 className="text-base font-bold text-foreground md:text-lg">
         {title}
       </h2>
-      <p className="mt-1 text-sm leading-relaxed text-[#676879]">
+      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
         {description}
       </p>
     </motion.div>
@@ -122,7 +122,7 @@ function SectionHeader({
 
 export default function GuidePage(): ReactElement {
   return (
-    <div className="min-h-screen bg-[#F9FAFB] pb-24">
+    <div className="min-h-screen bg-background pb-24">
       <PageContainer className="py-8">
         <motion.div
           variants={staggerContainer}
@@ -132,13 +132,13 @@ export default function GuidePage(): ReactElement {
         >
           {/* ── Hero ── */}
           <motion.div variants={fadeSlideUp} className="text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#6161FF]/10">
-              <ScanLine className="h-7 w-7 text-[#6161FF]" />
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-foreground/10">
+              <ScanLine className="h-7 w-7 text-foreground" />
             </div>
-            <h1 className="text-xl font-bold text-[#323338] md:text-2xl">
+            <h1 className="text-xl font-bold text-foreground md:text-2xl">
               {COPY.GUIDE_HERO}
             </h1>
-            <p className="mt-2 text-sm leading-relaxed text-[#676879] md:text-base">
+            <p className="mt-2 text-sm leading-relaxed text-muted-foreground md:text-base">
               {COPY.GUIDE_HERO_DESC}
             </p>
           </motion.div>
@@ -151,7 +151,7 @@ export default function GuidePage(): ReactElement {
             />
             <motion.div
               variants={fadeSlideUp}
-              className="overflow-x-auto rounded-2xl bg-white shadow-sm scrollbar-none"
+              className="overflow-x-auto rounded-2xl bg-card shadow-sm scrollbar-none"
             >
               <div className="flex min-w-max">
                 {GRADE_KEYS.map((g) => {
@@ -159,7 +159,7 @@ export default function GuidePage(): ReactElement {
                   return (
                     <div
                       key={g}
-                      className="flex flex-1 flex-col items-center gap-1 border-r border-[#EEEFF2] px-4 py-4 last:border-r-0"
+                      className="flex flex-1 flex-col items-center gap-1 border-r border-border px-4 py-4 last:border-r-0"
                     >
                       <div
                         className="flex h-10 w-10 items-center justify-center rounded-full"
@@ -167,7 +167,7 @@ export default function GuidePage(): ReactElement {
                       >
                         <EagleIcon grade={g} size={28} />
                       </div>
-                      <span className="whitespace-nowrap text-[11px] font-semibold text-[#323338]">
+                      <span className="whitespace-nowrap text-[11px] font-semibold text-foreground">
                         {c.eagleLabel}
                       </span>
                     </div>
@@ -191,7 +191,7 @@ export default function GuidePage(): ReactElement {
                 return (
                   <div
                     key={g}
-                    className="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm"
+                    className="flex items-start gap-3 rounded-xl bg-card p-4 shadow-sm"
                   >
                     <div
                       className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
@@ -207,14 +207,14 @@ export default function GuidePage(): ReactElement {
                         >
                           LV.{g} {c.eagleLabel}
                         </span>
-                        <span className="whitespace-nowrap rounded-full bg-[#F5F5F7] px-2 py-0.5 text-[10px] font-medium text-[#9DA0AE]">
+                        <span className="whitespace-nowrap rounded-full bg-accent px-2 py-0.5 text-[10px] font-medium text-muted-foreground/70">
                           {c.action}
                         </span>
                       </div>
-                      <p className="mt-0.5 text-xs font-medium text-[#676879]">
+                      <p className="mt-0.5 text-xs font-medium text-muted-foreground">
                         {c.eagleDesc}
                       </p>
-                      <p className="mt-0.5 text-xs text-[#9DA0AE]">
+                      <p className="mt-0.5 text-xs text-muted-foreground/70">
                         {headline} · {desc}
                       </p>
                     </div>
@@ -237,10 +237,10 @@ export default function GuidePage(): ReactElement {
                   return (
                     <div
                       key={g}
-                      className="flex w-20 flex-shrink-0 flex-col items-center gap-2 rounded-xl bg-white p-3 shadow-sm"
+                      className="flex w-20 flex-shrink-0 flex-col items-center gap-2 rounded-xl bg-card p-3 shadow-sm"
                     >
                       <EagleIcon grade={g} size={28} />
-                      <span className="whitespace-nowrap text-[10px] font-semibold text-[#323338]">
+                      <span className="whitespace-nowrap text-[10px] font-semibold text-foreground">
                         {c.eagleLabel}
                       </span>
                       <div
@@ -264,7 +264,7 @@ export default function GuidePage(): ReactElement {
               {TRENDS.map(({ label, icon: Icon, color, desc }) => (
                 <div
                   key={label}
-                  className="flex items-center gap-3 rounded-xl bg-white p-4 shadow-sm"
+                  className="flex items-center gap-3 rounded-xl bg-card p-4 shadow-sm"
                 >
                   <div
                     className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl"
@@ -279,7 +279,7 @@ export default function GuidePage(): ReactElement {
                     >
                       {label}
                     </span>
-                    <p className="mt-0.5 text-xs text-[#676879]">{desc}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -299,14 +299,14 @@ export default function GuidePage(): ReactElement {
               {DETAIL_ITEMS.map(({ key, label, icon: Icon, desc }) => (
                 <div
                   key={key}
-                  className="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm"
+                  className="flex items-start gap-3 rounded-xl bg-card p-4 shadow-sm"
                 >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#6161FF]/10">
-                    <Icon className="h-5 w-5 text-[#6161FF]" />
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-foreground/10">
+                    <Icon className="h-5 w-5 text-foreground" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[#323338]">{label}</p>
-                    <p className="mt-0.5 text-xs text-[#676879]">{desc}</p>
+                    <p className="text-sm font-bold text-foreground">{label}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -323,16 +323,16 @@ export default function GuidePage(): ReactElement {
               {PHOTO_STEPS.map(({ step, icon: AreaIcon, desc }, i) => (
                 <div
                   key={step}
-                  className="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm"
+                  className="flex items-start gap-3 rounded-xl bg-card p-4 shadow-sm"
                 >
-                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-[#F5F5F7]">
+                  <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-accent">
                     <AreaIcon size={28} />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-[#323338]">
-                      <span className="text-[#6161FF]">{i + 1}.</span> {step}
+                    <p className="text-sm font-bold text-foreground">
+                      <span className="text-foreground">{i + 1}.</span> {step}
                     </p>
-                    <p className="mt-0.5 text-xs text-[#676879]">{desc}</p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -347,15 +347,15 @@ export default function GuidePage(): ReactElement {
             />
             <motion.div
               variants={fadeSlideUp}
-              className="rounded-2xl border border-red-100 bg-red-50/50 p-4"
+              className="rounded-2xl border border-red-500/20 bg-red-500/5 p-4"
             >
               <div className="space-y-3">
                 {FAIL_CASES.map(({ icon: Icon, text }) => (
                   <div key={text} className="flex items-center gap-3">
-                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-white">
+                    <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-card">
                       <Icon className="h-4 w-4 text-red-400" />
                     </div>
-                    <p className="text-xs font-medium text-[#323338]">
+                    <p className="text-xs font-medium text-foreground">
                       {text}
                     </p>
                   </div>
@@ -367,12 +367,12 @@ export default function GuidePage(): ReactElement {
           {/* ── Disclaimer ── */}
           <motion.div
             variants={fadeSlideUp}
-            className="rounded-xl border border-[#EEEFF2] bg-[#FAFAFA] px-4 py-3 text-center"
+            className="rounded-xl border border-border bg-muted px-4 py-3 text-center"
           >
-            <p className="text-xs font-medium text-[#9DA0AE]">
+            <p className="text-xs font-medium text-muted-foreground/70">
               {COPY.DISCLAIMER_SHORT}
             </p>
-            <p className="mt-1 text-[10px] text-[#9DA0AE]">
+            <p className="mt-1 text-[10px] text-muted-foreground/70">
               {COPY.DISCLAIMER_FULL}
             </p>
           </motion.div>

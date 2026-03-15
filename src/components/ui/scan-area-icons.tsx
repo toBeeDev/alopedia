@@ -20,9 +20,9 @@ export function CrownAreaIcon({ size = 32, className }: ScanAreaIconProps): Reac
       {/* 정수리 밝은 부분 */}
       <ellipse cx="24" cy="22" rx="4.5" ry="3.5" fill="#C4A882" opacity="0.6" />
       {/* 타겟 원 */}
-      <circle cx="24" cy="22" r="9" stroke="#6161FF" strokeWidth="2" strokeDasharray="4 3" />
+      <circle cx="24" cy="22" r="9" stroke="#171717" strokeWidth="2" strokeDasharray="4 3" />
       {/* 타겟 중심점 */}
-      <circle cx="24" cy="22" r="2" fill="#6161FF" opacity="0.6" />
+      <circle cx="24" cy="22" r="2" fill="#171717" opacity="0.6" />
     </svg>
   );
 }
@@ -53,7 +53,7 @@ export function FrontAreaIcon({ size = 32, className }: ScanAreaIconProps): Reac
       {/* 헤어라인 강조 */}
       <path
         d="M12 22 C12 12, 17 5, 24 5 C31 5, 36 12, 36 22"
-        stroke="#6161FF"
+        stroke="#171717"
         strokeWidth="2.5"
         strokeLinecap="round"
         fill="none"
@@ -62,8 +62,8 @@ export function FrontAreaIcon({ size = 32, className }: ScanAreaIconProps): Reac
       <circle cx="19" cy="33" r="1.5" fill="#999" opacity="0.4" />
       <circle cx="29" cy="33" r="1.5" fill="#999" opacity="0.4" />
       {/* 화살표: 헤어라인 가리킴 */}
-      <path d="M7 14 L11 18" stroke="#6161FF" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
-      <path d="M41 14 L37 18" stroke="#6161FF" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+      <path d="M7 14 L11 18" stroke="#171717" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
+      <path d="M41 14 L37 18" stroke="#171717" strokeWidth="1.5" strokeLinecap="round" opacity="0.5" />
     </svg>
   );
 }
@@ -90,13 +90,13 @@ export function SideAreaIcon({ size = 32, className }: ScanAreaIconProps): React
       {/* M자 관자놀이 영역 강조 */}
       <path
         d="M18 16 C19 12, 22 9, 26 8"
-        stroke="#6161FF"
+        stroke="#171717"
         strokeWidth="2.5"
         strokeLinecap="round"
         fill="none"
       />
       {/* 포커스 영역 */}
-      <ellipse cx="21" cy="14" rx="6" ry="5" stroke="#6161FF" strokeWidth="1.5" strokeDasharray="3 2.5" fill="none" />
+      <ellipse cx="21" cy="14" rx="6" ry="5" stroke="#171717" strokeWidth="1.5" strokeDasharray="3 2.5" fill="none" />
       {/* 눈 */}
       <circle cx="28" cy="27" r="1.5" fill="#999" opacity="0.4" />
       {/* 코 */}

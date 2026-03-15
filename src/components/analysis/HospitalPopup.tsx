@@ -30,26 +30,26 @@ export default function HospitalPopup({
 
           {/* 모달 */}
           <motion.div
-            className="fixed inset-x-4 bottom-8 z-50 mx-auto max-w-md rounded-3xl bg-white p-8 shadow-2xl"
+            className="fixed inset-x-4 bottom-8 z-50 mx-auto max-w-md rounded-3xl bg-card p-8 shadow-2xl"
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 50 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
-            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50">
+            <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10">
               <MapPin className="h-7 w-7 text-red-500" />
             </div>
 
-            <h2 className="mb-2 text-xl font-bold text-[#323338]">
+            <h2 className="mb-2 text-xl font-bold text-foreground">
               {COPY.HOSPITAL_POPUP_TITLE}
             </h2>
-            <p className="mb-6 text-sm leading-relaxed text-[#676879]">
+            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
               {COPY.HOSPITAL_POPUP_BODY}
             </p>
 
             <Button
               onClick={onClose}
-              className="w-full bg-[#6161FF] py-6 text-base font-semibold hover:bg-[#4338ca]"
+              className="w-full bg-foreground py-6 text-base font-semibold hover:bg-foreground/85"
             >
               {COPY.HOSPITAL_POPUP_CTA}
             </Button>

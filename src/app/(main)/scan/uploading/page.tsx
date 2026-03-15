@@ -102,7 +102,7 @@ export default function UploadingPage(): ReactElement {
     ];
 
     return (
-      <div className="min-h-screen bg-[#F9FAFB] px-6 py-10">
+      <div className="min-h-screen bg-background px-6 py-10">
         <ResultCard
           grade={analysis.grade}
           score={analysis.score}
@@ -117,7 +117,7 @@ export default function UploadingPage(): ReactElement {
             <Link
               key={href}
               href={href}
-              className="flex flex-col items-center gap-1.5 rounded-xl bg-white py-3 text-[#676879] shadow-sm transition-colors hover:bg-[#6161FF]/5 hover:text-[#6161FF]"
+              className="flex flex-col items-center gap-1.5 rounded-xl bg-card py-3 text-muted-foreground shadow-sm transition-colors hover:bg-foreground/5 hover:text-foreground"
             >
               <Icon className="h-5 w-5" strokeWidth={1.8} />
               <span className="text-xs font-medium">{label}</span>
@@ -135,7 +135,7 @@ export default function UploadingPage(): ReactElement {
         <p className="mb-4 text-sm text-red-500">{errorMsg}</p>
         <button
           onClick={() => router.push("/scan")}
-          className="rounded-full bg-[#6161FF] px-6 py-3 text-sm font-semibold text-white hover:bg-[#4338ca]"
+          className="rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-white hover:bg-foreground/85"
         >
           다시 촬영하기
         </button>
@@ -147,14 +147,14 @@ export default function UploadingPage(): ReactElement {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center px-6">
       <motion.div
-        className="mb-6 h-16 w-16 rounded-full border-4 border-[#6161FF]/20 border-t-[#6161FF]"
+        className="mb-6 h-16 w-16 rounded-full border-4 border-foreground/20 border-t-foreground"
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
       />
-      <p className="text-lg font-semibold text-[#323338]">
+      <p className="text-lg font-semibold text-foreground">
         {state === "uploading" ? "사진을 업로드하고 있어요..." : COPY.SCAN_ANALYZING}
       </p>
-      <p className="mt-2 text-sm text-[#9DA0AE]">{COPY.SCAN_UPLOAD_WARN}</p>
+      <p className="mt-2 text-sm text-muted-foreground/70">{COPY.SCAN_UPLOAD_WARN}</p>
     </div>
   );
 }

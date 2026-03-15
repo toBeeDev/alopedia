@@ -37,7 +37,7 @@ const FEATURES = [
     icon: Camera,
     title: COPY.FEATURE_AI_TITLE,
     description: COPY.FEATURE_AI_DESC,
-    color: "#6161FF",
+    color: "#171717",
   },
   {
     icon: BarChart3,

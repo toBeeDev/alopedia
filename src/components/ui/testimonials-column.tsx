@@ -39,19 +39,19 @@ export function TestimonialsColumn({
               const gc = grade !== null ? getGradeConfig(grade) : null;
               return (
                 <div
-                  className="w-full max-w-xs rounded-2xl border border-[#EEEFF2] bg-white p-5 shadow-sm"
+                  className="w-full max-w-xs rounded-2xl border border-border bg-card p-5 shadow-sm"
                   key={i}
                 >
-                  <p className="text-sm leading-relaxed text-[#676879]">{text}</p>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{text}</p>
                   <div className="mt-4 flex items-center gap-2">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#F5F5F7] text-xs font-bold text-[#9DA0AE]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-accent text-xs font-bold text-muted-foreground/70">
                       {name.charAt(0)}
                     </div>
                     <div className="flex-1">
-                      <div className="text-xs font-semibold leading-5 text-[#323338]">
+                      <div className="text-xs font-semibold leading-5 text-foreground">
                         {name}
                       </div>
-                      <div className="text-[11px] leading-4 text-[#9DA0AE]">
+                      <div className="text-[11px] leading-4 text-muted-foreground/70">
                         {role}
                       </div>
                     </div>

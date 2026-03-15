@@ -36,12 +36,12 @@ export default function DeletePinModal({
         animate={{ scale: 1 }}
         exit={{ scale: 0.9 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-80 rounded-2xl bg-white p-6 shadow-xl"
+        className="w-80 rounded-2xl bg-card p-6 shadow-xl"
       >
-        <h3 className="mb-1 text-base font-bold text-[#323338]">
+        <h3 className="mb-1 text-base font-bold text-foreground">
           게시글 삭제
         </h3>
-        <p className="mb-4 text-sm text-[#676879]">
+        <p className="mb-4 text-sm text-muted-foreground">
           작성 시 설정한 비밀번호 4자리를 입력해주세요.
         </p>
 
@@ -56,7 +56,7 @@ export default function DeletePinModal({
             setError("");
           }}
           maxLength={4}
-          className="mb-3 w-full rounded-xl border border-[#EEEFF2] px-4 py-3 text-center text-lg tracking-[0.5em] text-[#323338] outline-none placeholder:text-[#B0B3BE] focus:border-[#6161FF]"
+          className="mb-3 w-full rounded-xl border border-border px-4 py-3 text-center text-lg tracking-[0.5em] text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-foreground"
           autoFocus
         />
 
@@ -67,7 +67,7 @@ export default function DeletePinModal({
         <div className="flex gap-2">
           <button
             onClick={onClose}
-            className="flex-1 rounded-full py-2.5 text-sm font-medium text-[#676879] hover:bg-[#F5F5F7]"
+            className="flex-1 rounded-full py-2.5 text-sm font-medium text-muted-foreground hover:bg-accent"
           >
             취소
           </button>
