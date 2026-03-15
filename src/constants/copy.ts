@@ -56,6 +56,11 @@ export const COPY = {
   BOARD_PREVIEW_LOGIN_CTA: "로그인하고 전체 보기",
   BOARD_PREVIEW_LOGIN_DESC:
     "로그인하면 모든 후기를 자세히 읽고, 직접 후기를 남길 수 있어요.",
+  SHARE_ANALYSIS_TITLE: "분석 결과 공유하기",
+  SHARE_ANALYSIS_INCLUDE_IMAGES: "두피 사진 포함하기",
+  SHARE_ANALYSIS_IMAGE_WARNING:
+    "사진은 익명으로 공유되며, EXIF 정보가 제거된 상태입니다.",
+  SHARE_ANALYSIS_CTA: "게시판에 공유하기",
 
   // ── Gamification ──
   STREAK_ACHIEVED: (days: number): string =>
@@ -130,6 +135,7 @@ export const COPY = {
   NAV_BOARD: "게시판",
   NAV_GUIDE: "분석 가이드",
   NAV_PROFILE: "프로필",
+  NAV_HOSPITAL: "병원 찾기",
   NAV_OPEN: "메뉴 열기",
   NAV_CLOSE: "메뉴 닫기",
 
