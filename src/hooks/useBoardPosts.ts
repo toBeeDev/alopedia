@@ -4,10 +4,12 @@ import type { BoardType } from "@/types/database";
 interface PostAuthor {
   nickname: string;
   avatar_seed: string | null;
+  role: "user" | "admin";
 }
 
 interface BoardPost {
   id: string;
+  slug: string;
   user_id: string;
   board: BoardType;
   title: string;
@@ -15,9 +17,12 @@ interface BoardPost {
   tags: string[];
   images: Record<string, unknown>[] | null;
   scan_id: string | null;
+  norwood_grade: number | null;
+  score: number | null;
   vote_count: number;
   comment_count: number;
   is_adopted: boolean;
+  is_pinned: boolean;
   created_at: string;
   profiles: PostAuthor;
 }
@@ -60,6 +65,10 @@ export function useCreatePost() {
       content: string;
       tags?: string[];
       scanId?: string;
+      norwoodGrade?: number;
+      score?: number;
+      images?: Record<string, unknown>[];
+      deletePin: string;
     }) => {
       const res = await fetch("/api/board/posts", {
         method: "POST",
@@ -78,16 +87,59 @@ export function useCreatePost() {
   });
 }
 
+/** 게시글 수정 */
+export function useUpdatePost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({
+      postId,
+      ...data
+    }: {
+      postId: string;
+      board?: string;
+      title?: string;
+      content?: string;
+      tags?: string[];
+    }) => {
+      const res = await fetch(`/api/board/posts/${postId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "게시글 수정에 실패했어요.");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
+    },
+  });
+}
+
 /** 게시글 삭제 */
 export function useDeletePost() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (postId: string) => {
+    mutationFn: async ({
+      postId,
+      deletePin,
+    }: {
+      postId: string;
+      deletePin: string;
+    }) => {
       const res = await fetch(`/api/board/posts/${postId}`, {
         method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deletePin }),
       });
-      if (!res.ok) throw new Error("게시글 삭제에 실패했어요.");
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "게시글 삭제에 실패했어요.");
+      }
       return res.json();
     },
     onSuccess: () => {

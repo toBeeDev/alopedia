@@ -2,19 +2,29 @@
 
 import { useEffect, useState, type ReactElement } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import dynamic from "next/dynamic";
+import { ArrowLeft, Share2 } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import ResultCard from "@/components/analysis/ResultCard";
 import { COPY } from "@/constants/copy";
-import type { AnalysisDetail, ScanImage } from "@/types/database";
+import { useCreatePost } from "@/hooks/useBoardPosts";
+import type { AnalysisDetail, ScanImage, BoardType } from "@/types/database";
 import type { ScanWithAnalysis } from "@/hooks/useScanHistory";
 
+const ShareAnalysisModal = dynamic(
+  () => import("@/components/board/ShareAnalysisModal"),
+  { ssr: false },
+);
 
 export default function ScanDetailPage(): ReactElement {
   const params = useParams<{ id: string }>();
   const router = useRouter();
   const [scan, setScan] = useState<ScanWithAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showShare, setShowShare] = useState(false);
+  const [shared, setShared] = useState(false);
+  const createPost = useCreatePost();
 
   useEffect(() => {
     async function fetchScan(): Promise<void> {
@@ -36,7 +46,7 @@ export default function ScanDetailPage(): ReactElement {
   if (isLoading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#6161FF]/20 border-t-[#6161FF]" />
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-foreground/20 border-t-foreground" />
       </div>
     );
   }
@@ -44,10 +54,10 @@ export default function ScanDetailPage(): ReactElement {
   if (!scan) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 text-center">
-        <p className="text-sm text-[#676879]">스캔을 찾을 수 없어요.</p>
+        <p className="text-sm text-muted-foreground">스캔을 찾을 수 없어요.</p>
         <button
           onClick={() => router.push("/history")}
-          className="mt-4 text-sm font-medium text-[#6161FF] hover:underline"
+          className="mt-4 text-sm font-medium text-foreground hover:underline"
         >
           기록으로 돌아가기
         </button>
@@ -58,35 +68,90 @@ export default function ScanDetailPage(): ReactElement {
   const analysis = scan.analyses?.[0];
   const images = scan.images as ScanImage[];
 
+  function handleShare(payload: {
+    board: BoardType;
+    title: string;
+    content: string;
+    tags: string[];
+    scanId: string;
+    norwoodGrade: number;
+    score: number;
+    images?: Record<string, unknown>[];
+    deletePin: string;
+  }): void {
+    createPost.mutate(payload, {
+      onSuccess: () => {
+        setShowShare(false);
+        setShared(true);
+      },
+    });
+  }
+
   return (
     <PageContainer className="py-6">
-      {/* Floating back button */}
+      {/* 뒤로가기 */}
       <button
         onClick={() => router.push("/history")}
-        className="mb-6 flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-md transition-shadow hover:shadow-lg"
-        aria-label="뒤로가기"
+        className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground/70 hover:text-muted-foreground"
       >
-        <ArrowLeft className="h-5 w-5 text-[#323338]" />
+        <ArrowLeft className="h-4 w-4" />
+        분석 기록
       </button>
 
-      {/* 분석 결과 (사진은 ResultCard 내부에서 표시) */}
+      {/* 분석 결과 */}
       {analysis ? (
-        <ResultCard
-          grade={analysis.norwood_grade}
-          score={Number(analysis.score)}
-          details={analysis.details as AnalysisDetail}
-          createdAt={analysis.created_at}
-          images={images}
-        />
+        <>
+          <ResultCard
+            grade={analysis.norwood_grade}
+            score={Number(analysis.score)}
+            details={analysis.details as AnalysisDetail}
+            createdAt={analysis.created_at}
+            images={images}
+          />
+
+          {/* 공유 버튼 */}
+          <div className="mt-4">
+            {shared ? (
+              <div className="rounded-xl bg-emerald-500/10 px-4 py-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                게시판에 공유됐어요!
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowShare(true)}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-card py-3.5 text-sm font-semibold text-foreground shadow-sm ring-1 ring-border transition-all hover:bg-accent active:scale-[0.98]"
+              >
+                <Share2 className="h-4 w-4" />
+                커뮤니티에 분석 결과 공유하기
+              </button>
+            )}
+          </div>
+        </>
       ) : (
-        <div className="rounded-2xl bg-white p-6 text-center shadow-sm">
-          <p className="text-sm text-[#676879]">
+        <div className="rounded-2xl bg-card p-6 text-center shadow-sm">
+          <p className="text-sm text-muted-foreground">
             {scan.status === "analyzing"
               ? COPY.SCAN_ANALYZING
               : COPY.ERROR_ANALYSIS_FAILED}
           </p>
         </div>
       )}
+
+      {/* 공유 모달 */}
+      <AnimatePresence>
+        {showShare && analysis && (
+          <ShareAnalysisModal
+            data={{
+              scanId: scan.id,
+              norwoodGrade: analysis.norwood_grade,
+              score: Number(analysis.score),
+              details: analysis.details as AnalysisDetail,
+              images,
+            }}
+            onClose={() => setShowShare(false)}
+            onSubmit={handleShare}
+          />
+        )}
+      </AnimatePresence>
     </PageContainer>
   );
 }
