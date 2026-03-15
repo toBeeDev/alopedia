@@ -54,12 +54,21 @@ export const metadata: Metadata = {
     title: "Alopedia — AI 두피 분석",
     description:
       "사진 한 장으로 AI가 두피 상태를 분석합니다. 변화를 추적하고, 같은 고민을 가진 사람들과 경험을 나눠보세요.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Alopedia — AI 두피 분석",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Alopedia — AI 두피 분석",
     description:
       "사진 한 장으로 AI가 두피 상태를 분석합니다. 변화를 추적하고, 같은 고민을 가진 사람들과 경험을 나눠보세요.",
+    images: ["/og-image.png"],
   },
   icons: {
     icon: "/favicon.svg",
@@ -68,6 +77,19 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: SITE_URL,
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_VERIFICATION,
   },
 };
 
@@ -76,11 +98,32 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "Alopedia",
+    description:
+      "사진 한 장으로 AI가 두피 상태를 분석합니다. 노우드-해밀턴 스케일 기반 5단계 분석, 변화 추적, 익명 커뮤니티.",
+    url: SITE_URL,
+    applicationCategory: "HealthApplication",
+    operatingSystem: "Web",
+    inLanguage: "ko",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "KRW",
+    },
+  };
+
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>
