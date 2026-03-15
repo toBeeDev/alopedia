@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit/memory";
+import { stripHtml } from "@/lib/utils/sanitize";
 
 /** POST /api/board/posts/:id/comments — 댓글 작성 */
 export async function POST(
@@ -58,7 +59,7 @@ export async function POST(
     .insert({
       post_id: postId,
       user_id: user.id,
-      content: content.trim(),
+      content: stripHtml(content.trim()),
       parent_id: parentId ?? null,
     })
     .select()
@@ -72,7 +73,15 @@ export async function POST(
   }
 
   // Increment comment_count on post
-  await supabase.rpc("increment_comment_count", { post_id: postId });
+  const { count } = await supabase
+    .from("comments")
+    .select("*", { count: "exact", head: true })
+    .eq("post_id", postId);
+
+  await supabase
+    .from("posts")
+    .update({ comment_count: count ?? 0 })
+    .eq("id", postId);
 
   return NextResponse.json({ comment }, { status: 201 });
 }
