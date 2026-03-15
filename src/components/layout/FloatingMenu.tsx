@@ -14,6 +14,9 @@ import {
   Menu,
   X,
   LogOut,
+  Stethoscope,
+  ChevronDown,
+  ChevronLeft,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { COPY } from "@/constants/copy";
@@ -26,12 +29,30 @@ interface NavItem {
   icon: typeof Home;
 }
 
-const NAV_ITEMS: NavItem[] = [
+interface NavGroup {
+  label: string;
+  icon: typeof Home;
+  children: NavItem[];
+}
+
+type NavEntry = NavItem | NavGroup;
+
+function isGroup(entry: NavEntry): entry is NavGroup {
+  return "children" in entry;
+}
+
+const NAV_ENTRIES: NavEntry[] = [
   { href: "/dashboard", label: COPY.NAV_HOME, icon: Home },
-  { href: "/scan", label: COPY.NAV_SCAN, icon: Camera },
-  { href: "/history", label: COPY.NAV_HISTORY, icon: Clock },
+  {
+    label: COPY.NAV_SCALP_CARE,
+    icon: Stethoscope,
+    children: [
+      { href: "/scan", label: COPY.NAV_SCAN, icon: Camera },
+      { href: "/history", label: COPY.NAV_HISTORY, icon: Clock },
+      { href: "/guide", label: COPY.NAV_GUIDE, icon: BookOpen },
+    ],
+  },
   { href: "/board", label: COPY.NAV_BOARD, icon: MessageCircle },
-  { href: "/guide", label: COPY.NAV_GUIDE, icon: BookOpen },
   { href: "/hospital", label: COPY.NAV_HOSPITAL, icon: MapPin },
   { href: "/profile", label: COPY.NAV_PROFILE, icon: User },
 ];
@@ -40,8 +61,12 @@ export default function FloatingMenu(): ReactElement {
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [mobileGroupOpen, setMobileGroupOpen] = useState(false);
 
-  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const closeMenu = useCallback(() => {
+    setMenuOpen(false);
+    setMobileGroupOpen(false);
+  }, []);
 
   const handleLogout = useCallback(async () => {
     const supabase = createBrowserClient(
@@ -56,6 +81,7 @@ export default function FloatingMenu(): ReactElement {
   // Close menu on route change
   useEffect(() => {
     setMenuOpen(false);
+    setMobileGroupOpen(false);
   }, [pathname]);
 
   if (pathname.startsWith("/scan/uploading")) return <></>;
@@ -63,6 +89,10 @@ export default function FloatingMenu(): ReactElement {
   function isActive(href: string): boolean {
     if (href === "/dashboard") return pathname === "/dashboard";
     return pathname.startsWith(href);
+  }
+
+  function isGroupActive(group: NavGroup): boolean {
+    return group.children.some((child) => isActive(child.href));
   }
 
   return (
@@ -73,7 +103,55 @@ export default function FloatingMenu(): ReactElement {
         aria-label="Main navigation"
       >
         <div className="mr-4 flex flex-col gap-2 rounded-2xl border border-border bg-card/90 p-2 shadow-lg backdrop-blur-sm">
-          {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          {NAV_ENTRIES.map((entry) => {
+            if (isGroup(entry)) {
+              const groupActive = isGroupActive(entry);
+              const Icon = entry.icon;
+              return (
+                <div key={entry.label} className="group/sub relative">
+                  <button
+                    type="button"
+                    className={`flex h-11 w-11 items-center justify-center rounded-xl transition-colors ${
+                      groupActive
+                        ? "bg-foreground text-background"
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                    }`}
+                    aria-label={entry.label}
+                  >
+                    <Icon className="h-5 w-5" strokeWidth={1.8} />
+                  </button>
+                  {/* Hover submenu — appears to the left */}
+                  <div className="pointer-events-none absolute right-full top-0 opacity-0 transition-all group-hover/sub:pointer-events-auto group-hover/sub:opacity-100">
+                    {/* Invisible bridge to prevent hover gap */}
+                    <div className="absolute inset-y-0 -right-3 w-3" />
+                    <div className="mr-2 flex flex-col gap-1 rounded-xl border border-border bg-card/95 p-1.5 shadow-lg backdrop-blur-sm">
+                      <p className="px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                        {entry.label}
+                      </p>
+                      {entry.children.map(({ href, label, icon: SubIcon }) => {
+                        const active = isActive(href);
+                        return (
+                          <Link
+                            key={href}
+                            href={href}
+                            className={`flex items-center gap-2.5 whitespace-nowrap rounded-lg px-3 py-2 text-xs font-medium transition-colors ${
+                              active
+                                ? "bg-foreground text-background"
+                                : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                            }`}
+                          >
+                            <SubIcon className="h-4 w-4" strokeWidth={1.8} />
+                            {label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+
+            const { href, label, icon: Icon } = entry;
             const active = isActive(href);
             return (
               <Link
@@ -145,7 +223,6 @@ export default function FloatingMenu(): ReactElement {
       <AnimatePresence>
         {menuOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm lg:hidden"
               initial={{ opacity: 0 }}
@@ -155,7 +232,6 @@ export default function FloatingMenu(): ReactElement {
               onClick={closeMenu}
             />
 
-            {/* Menu panel */}
             <motion.nav
               className="fixed left-0 right-0 z-50 border-b border-border bg-background lg:hidden"
               style={{ top: "calc(3.5rem + env(safe-area-inset-top, 0px))" }}
@@ -166,7 +242,87 @@ export default function FloatingMenu(): ReactElement {
               aria-label="Mobile navigation"
             >
               <div className="flex flex-col py-2">
-                {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+                {NAV_ENTRIES.map((entry) => {
+                  if (isGroup(entry)) {
+                    const groupActive = isGroupActive(entry);
+                    const Icon = entry.icon;
+                    return (
+                      <div key={entry.label}>
+                        <button
+                          type="button"
+                          onClick={() => setMobileGroupOpen((prev) => !prev)}
+                          className={`flex w-full items-center gap-3 px-5 py-3 text-sm font-medium transition-colors ${
+                            groupActive
+                              ? "bg-foreground/5 text-foreground"
+                              : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                          }`}
+                        >
+                          <Icon
+                            className="h-5 w-5"
+                            strokeWidth={groupActive ? 2 : 1.6}
+                          />
+                          {entry.label}
+                          <ChevronDown
+                            className={`ml-auto h-4 w-4 transition-transform ${
+                              mobileGroupOpen ? "rotate-180" : ""
+                            }`}
+                            strokeWidth={1.6}
+                          />
+                        </button>
+                        <AnimatePresence>
+                          {mobileGroupOpen && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: "auto", opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.2 }}
+                              className="overflow-hidden"
+                            >
+                              {entry.children.map(
+                                ({ href, label, icon: SubIcon }) => {
+                                  const active = isActive(href);
+                                  return (
+                                    <Link
+                                      key={href}
+                                      href={href}
+                                      onClick={closeMenu}
+                                      className={`flex items-center gap-3 py-2.5 pl-12 pr-5 text-sm font-medium transition-colors ${
+                                        active
+                                          ? "bg-foreground/5 text-foreground"
+                                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                      }`}
+                                      aria-current={
+                                        active ? "page" : undefined
+                                      }
+                                    >
+                                      <SubIcon
+                                        className="h-4 w-4"
+                                        strokeWidth={active ? 2 : 1.6}
+                                      />
+                                      {label}
+                                      {active && (
+                                        <motion.div
+                                          layoutId="mobile-nav-active"
+                                          className="ml-auto h-1.5 w-1.5 rounded-full bg-foreground"
+                                          transition={{
+                                            type: "spring",
+                                            stiffness: 400,
+                                            damping: 30,
+                                          }}
+                                        />
+                                      )}
+                                    </Link>
+                                  );
+                                },
+                              )}
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    );
+                  }
+
+                  const { href, label, icon: Icon } = entry;
                   const active = isActive(href);
                   return (
                     <Link

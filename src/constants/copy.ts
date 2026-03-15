@@ -130,10 +130,11 @@ export const COPY = {
 
   // ── Navigation ──
   NAV_HOME: "홈",
+  NAV_SCALP_CARE: "두피 관리",
   NAV_SCAN: "촬영",
   NAV_HISTORY: "기록",
-  NAV_BOARD: "게시판",
   NAV_GUIDE: "분석 가이드",
+  NAV_BOARD: "게시판",
   NAV_PROFILE: "프로필",
   NAV_HOSPITAL: "병원 찾기",
   NAV_OPEN: "메뉴 열기",
