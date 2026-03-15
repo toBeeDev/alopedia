@@ -308,7 +308,7 @@ export default function DashboardPage(): ReactElement {
               <div className="flex flex-col items-center gap-4 p-5 sm:flex-row sm:gap-6">
                 <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-xl bg-muted sm:h-24 sm:w-32">
                   <Image
-                    src="/og-image.png"
+                    src="/logo.png"
                     alt="Alopedia"
                     fill
                     sizes="128px"
