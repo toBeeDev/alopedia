@@ -27,13 +27,13 @@ function getTrendBetween(
   previous: number,
 ): { icon: ReactElement; label: string; color: string } {
   const diff = current - previous;
-  if (diff > 2)
+  if (diff > 0)
     return {
       icon: <TrendingUp className="h-3.5 w-3.5" />,
       label: `+${diff.toFixed(1)}`,
       color: "text-emerald-500",
     };
-  if (diff < -2)
+  if (diff < 0)
     return {
       icon: <TrendingDown className="h-3.5 w-3.5" />,
       label: diff.toFixed(1),
@@ -41,7 +41,7 @@ function getTrendBetween(
     };
   return {
     icon: <Minus className="h-3.5 w-3.5" />,
-    label: "유지",
+    label: "동일",
     color: "text-muted-foreground/70",
   };
 }
