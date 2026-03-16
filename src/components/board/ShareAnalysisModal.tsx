@@ -34,6 +34,14 @@ interface ShareAnalysisModalProps {
   }) => void;
 }
 
+const BLUR_OPTIONS = [
+  { value: "none", label: "원본 그대로", css: "" },
+  { value: "light", label: "약하게 블러", css: "blur-[3px]" },
+  { value: "heavy", label: "강하게 블러", css: "blur-[8px]" },
+] as const;
+
+type BlurLevel = (typeof BLUR_OPTIONS)[number]["value"];
+
 export default function ShareAnalysisModal({
   data,
   onClose,
@@ -55,6 +63,7 @@ export default function ShareAnalysisModal({
   const [title, setTitle] = useState(generated.title);
   const [content, setContent] = useState(generated.content);
   const [includeImages, setIncludeImages] = useState(false);
+  const [blurLevel, setBlurLevel] = useState<BlurLevel>("light");
   const [deletePin, setDeletePin] = useState("");
   const [error, setError] = useState("");
 
@@ -85,6 +94,7 @@ export default function ShareAnalysisModal({
             type: img.type,
             url: img.url,
             thumbnailUrl: img.thumbnailUrl,
+            blurLevel: blurLevel !== "none" ? blurLevel : undefined,
           }))
         : undefined,
       deletePin,
@@ -205,24 +215,49 @@ export default function ShareAnalysisModal({
 
             {includeImages && (
               <>
-                <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none">
-                  {data.images.map((img, idx) => (
-                    <div
-                      key={idx}
-                      className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg"
+                {/* 블러 강도 선택 */}
+                <div className="mt-3 flex gap-1.5">
+                  {BLUR_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setBlurLevel(opt.value)}
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                        blurLevel === opt.value
+                          ? "bg-foreground text-background"
+                          : "bg-accent text-muted-foreground"
+                      }`}
                     >
-                      <Image
-                        src={img.thumbnailUrl}
-                        alt={`두피 사진 ${idx + 1}`}
-                        fill
-                        className="object-cover"
-                        sizes="64px"
-                      />
-                    </div>
+                      {opt.label}
+                    </button>
                   ))}
                 </div>
+
+                {/* 미리보기 */}
+                <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none">
+                  {data.images.map((img, idx) => {
+                    const blurCss =
+                      BLUR_OPTIONS.find((o) => o.value === blurLevel)?.css ?? "";
+                    return (
+                      <div
+                        key={idx}
+                        className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg"
+                      >
+                        <Image
+                          src={img.thumbnailUrl}
+                          alt={`두피 사진 ${idx + 1}`}
+                          fill
+                          className={`object-cover transition-[filter] ${blurCss}`}
+                          sizes="64px"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
                 <p className="mt-2 text-[11px] text-muted-foreground/70">
-                  {COPY.SHARE_ANALYSIS_IMAGE_WARNING}
+                  {blurLevel !== "none"
+                    ? "블러 처리된 상태로 게시판에 표시돼요."
+                    : COPY.SHARE_ANALYSIS_IMAGE_WARNING}
                 </p>
               </>
             )}

@@ -320,20 +320,28 @@ export default function PostDetailPage(): ReactElement {
             {/* 공유된 이미지 */}
             {post.images && post.images.length > 0 && (
               <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-                {post.images.map((img, idx) => (
-                  <div
-                    key={idx}
-                    className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl"
-                  >
-                    <Image
-                      src={img.thumbnailUrl ?? img.url}
-                      alt={`두피 사진 ${idx + 1}`}
-                      fill
-                      className="object-cover"
-                      sizes="96px"
-                    />
-                  </div>
-                ))}
+                {post.images.map((img, idx) => {
+                  const blurClass =
+                    img.blurLevel === "heavy"
+                      ? "blur-[8px]"
+                      : img.blurLevel === "light"
+                        ? "blur-[3px]"
+                        : "";
+                  return (
+                    <div
+                      key={idx}
+                      className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl"
+                    >
+                      <Image
+                        src={img.thumbnailUrl ?? img.url}
+                        alt={`두피 사진 ${idx + 1}`}
+                        fill
+                        className={`object-cover ${blurClass}`}
+                        sizes="96px"
+                      />
+                    </div>
+                  );
+                })}
               </div>
             )}
 
