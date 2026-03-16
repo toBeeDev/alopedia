@@ -96,7 +96,7 @@ export const COPY = {
 
   // ── Board Names ──
   BOARD_NAME: {
-    medication_review: "약물 후기",
+    medication_review: "탈모약 후기",
     procedure_review: "시술 후기",
     qna: "Q&A",
     lounge: "자유게시판",

@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
+import { useState, useRef, useEffect, type ReactElement } from "react";
 import Image from "next/image";
-import { X, ImagePlus, Loader2 } from "lucide-react";
-import { motion } from "framer-motion";
+import { X, ImagePlus, Loader2, ChevronDown, Check } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { COPY } from "@/constants/copy";
+import { MEDICATION_CATEGORIES, PROCEDURE_CATEGORIES } from "@/constants/medications";
 import { compressImage } from "@/lib/image/compressClient";
 
 export interface WritePostData {
@@ -13,6 +14,8 @@ export interface WritePostData {
   content: string;
   deletePin: string;
   images?: { url: string; thumbnailUrl: string }[];
+  medication?: string;
+  procedure?: string;
 }
 
 interface PreviewImage {
@@ -29,6 +32,128 @@ interface WritePostModalProps {
 
 const MAX_IMAGES = 5;
 
+/* ── 커스텀 드롭다운 ── */
+interface DropdownOption {
+  value: string;
+  label: string;
+  group?: string;
+}
+
+function CustomSelect({
+  label,
+  placeholder,
+  value,
+  onChange,
+  options,
+  maxHeight = "max-h-52",
+}: {
+  label: string;
+  placeholder: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: DropdownOption[];
+  maxHeight?: string;
+}): ReactElement {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function onClickOutside(e: MouseEvent): void {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [open]);
+
+  const selectedLabel = options.find((o) => o.value === value)?.label;
+
+  // 그룹 헤더 렌더링을 위한 이전 그룹 추적
+  let lastGroup = "";
+
+  return (
+    <div ref={ref} className="relative mb-4">
+      <p className="mb-1.5 text-xs font-medium text-muted-foreground">
+        {label}
+      </p>
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        className="flex w-full items-center justify-between rounded-xl border border-border bg-background px-4 py-3 text-left text-sm outline-none transition-colors focus:border-foreground"
+      >
+        <span className={selectedLabel ? "text-foreground" : "text-muted-foreground/50"}>
+          {selectedLabel ?? placeholder}
+        </span>
+        <ChevronDown
+          className={`h-4 w-4 text-muted-foreground/50 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -4 }}
+            transition={{ duration: 0.15 }}
+            className={`absolute left-0 right-0 z-50 mt-1.5 overflow-y-auto rounded-xl border border-border bg-popover shadow-lg ${maxHeight}`}
+          >
+            <div className="p-1">
+              {options.map((opt) => {
+                const showGroup = opt.group && opt.group !== lastGroup;
+                if (opt.group) lastGroup = opt.group;
+                return (
+                  <div key={opt.value}>
+                    {showGroup && (
+                      <div className="px-3 pb-1 pt-2.5 text-[11px] font-bold uppercase tracking-wide text-muted-foreground/60">
+                        {opt.group}
+                      </div>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onChange(opt.value);
+                        setOpen(false);
+                      }}
+                      className={`flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition-colors hover:bg-accent ${
+                        value === opt.value
+                          ? "font-medium text-foreground"
+                          : "text-foreground/80"
+                      }`}
+                    >
+                      <span className="flex-1">{opt.label}</span>
+                      {value === opt.value && (
+                        <Check className="h-3.5 w-3.5 text-foreground" />
+                      )}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* 탈모약 옵션 빌드 */
+const MEDICATION_OPTIONS: DropdownOption[] = MEDICATION_CATEGORIES.flatMap(
+  (cat) =>
+    cat.drugs.map((drug) => ({
+      value: drug,
+      label: drug,
+      group: cat.label,
+    })),
+);
+
+/* 시술 유형 옵션 빌드 */
+const PROCEDURE_OPTIONS: DropdownOption[] = PROCEDURE_CATEGORIES.map((cat) => ({
+  value: cat.label,
+  label: cat.label,
+}));
+
 export default function WritePostModal({
   onClose,
   onSubmit,
@@ -40,6 +165,8 @@ export default function WritePostModal({
   const [content, setContent] = useState(initial?.content ?? "");
   const [deletePin, setDeletePin] = useState("");
   const [error, setError] = useState("");
+  const [medication, setMedication] = useState("");
+  const [procedure, setProcedure] = useState("");
   const [previewImages, setPreviewImages] = useState<PreviewImage[]>([]);
   const [uploading, setUploading] = useState(false);
 
@@ -72,6 +199,14 @@ export default function WritePostModal({
     }
     if (content.trim().length < 10) {
       setError("내용은 10자 이상 입력해주세요.");
+      return;
+    }
+    if (board === "medication_review" && !medication) {
+      setError("탈모약을 선택해주세요.");
+      return;
+    }
+    if (board === "procedure_review" && !procedure) {
+      setError("시술 유형을 선택해주세요.");
       return;
     }
     if (!isEdit && !/^\d{4}$/.test(deletePin)) {
@@ -117,7 +252,15 @@ export default function WritePostModal({
       setUploading(false);
     }
 
-    onSubmit({ board, title, content, deletePin, images: uploadedImages });
+    onSubmit({
+      board,
+      title,
+      content,
+      deletePin,
+      images: uploadedImages,
+      medication: board === "medication_review" ? medication : undefined,
+      procedure: board === "procedure_review" ? procedure : undefined,
+    });
   }
 
   return (
@@ -162,6 +305,29 @@ export default function WritePostModal({
             </button>
           ))}
         </div>
+
+        {/* 탈모약 선택 (medication_review 전용) */}
+        {board === "medication_review" && (
+          <CustomSelect
+            label="복용/사용 중인 약 선택"
+            placeholder="약을 선택해주세요"
+            value={medication}
+            onChange={setMedication}
+            options={MEDICATION_OPTIONS}
+            maxHeight="max-h-52"
+          />
+        )}
+
+        {/* 시술 유형 선택 (procedure_review 전용) */}
+        {board === "procedure_review" && (
+          <CustomSelect
+            label="시술 유형 선택"
+            placeholder="유형을 선택해주세요"
+            value={procedure}
+            onChange={setProcedure}
+            options={PROCEDURE_OPTIONS}
+          />
+        )}
 
         <input
           type="text"

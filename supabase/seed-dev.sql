@@ -184,7 +184,7 @@ BEGIN
   INSERT INTO public.profiles (id, nickname, avatar_seed)
   VALUES (
     NEW.id,
-    '익명_' || LEFT(NEW.id::text, 8),
+    '익명독수리_' || LEFT(NEW.id::text, 8),
     NEW.id::text
   );
   RETURN NEW;

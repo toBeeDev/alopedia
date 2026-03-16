@@ -21,6 +21,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import { COPY } from "@/constants/copy";
 import { EagleIcon } from "@/components/ui/eagle-icons";
 import { getGradeConfig } from "@/constants/gradeConfig";
+import { getTagColor } from "@/constants/medications";
 import { useAuth } from "@/hooks/useAuth";
 import { usePostDetail, useCreateComment, useUpdateComment, useDeleteComment } from "@/hooks/usePostDetail";
 import { useUpdatePost, useDeletePost } from "@/hooks/useBoardPosts";
@@ -283,14 +284,17 @@ export default function PostDetailPage(): ReactElement {
             {/* 태그 */}
             {post.tags && post.tags.length > 0 && (
               <div className="mb-3 flex flex-wrap gap-1.5">
-                {post.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="rounded-full bg-foreground/5 px-2.5 py-0.5 text-[11px] font-medium text-foreground"
-                  >
-                    #{tag}
-                  </span>
-                ))}
+                {post.tags.map((tag) => {
+                  const color = getTagColor(tag);
+                  return (
+                    <span
+                      key={tag}
+                      className={`rounded-full px-2.5 py-0.5 text-[11px] font-medium ${color.bg} ${color.text}`}
+                    >
+                      #{tag}
+                    </span>
+                  );
+                })}
               </div>
             )}
 
