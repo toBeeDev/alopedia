@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Upload, RotateCcw, Scan, Camera, ImagePlus, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useScanSessionStore } from "@/stores/scanSession";
+import { useDailyRemaining } from "@/hooks/useDailyRemaining";
 import { COPY } from "@/constants/copy";
 import { fadeSlideUp } from "@/lib/motion";
 import type { CapturedImage, AllowedMimeType } from "@/types/scan";
@@ -41,7 +42,9 @@ function createCapturedImage(file: File): Promise<CapturedImage> {
 export default function ScanSession(): ReactElement {
   const router = useRouter();
   const { images, addImages, removeImage, reset } = useScanSessionStore();
+  const { data: dailyData } = useDailyRemaining();
   const [isIOS, setIsIOS] = useState(false);
+  const isLimitReached = dailyData?.remaining === 0;
 
   useEffect(() => {
     setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
@@ -115,6 +118,19 @@ export default function ScanSession(): ReactElement {
           <p className="mt-2 text-sm text-muted-foreground">
             두피 사진을 촬영하거나 갤러리에서 선택해주세요.
           </p>
+          {dailyData && (
+            <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 ring-1 ring-border">
+              <span
+                className={`text-xs font-bold ${
+                  dailyData.remaining > 0
+                    ? "text-foreground"
+                    : "text-destructive"
+                }`}
+              >
+                오늘 {dailyData.remaining}/{dailyData.limit}회 남음
+              </span>
+            </div>
+          )}
         </motion.div>
 
         {/* Upload card */}
@@ -258,13 +274,15 @@ export default function ScanSession(): ReactElement {
         <div className="mt-8 space-y-3">
           <motion.button
             initial={{ opacity: 0 }}
-            animate={{ opacity: canSubmit ? 1 : 0.4 }}
-            disabled={!canSubmit}
+            animate={{ opacity: canSubmit && !isLimitReached ? 1 : 0.4 }}
+            disabled={!canSubmit || isLimitReached}
             onClick={() => router.push("/scan/uploading")}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-4 text-base font-semibold text-background shadow-lg shadow-black/15 transition-all hover:bg-foreground/85 disabled:cursor-not-allowed disabled:shadow-none"
           >
             <Upload className="h-5 w-5" />
-            AI 분석 시작하기
+            {isLimitReached
+              ? "오늘 분석 횟수를 모두 사용했어요"
+              : "AI 분석 시작하기"}
           </motion.button>
 
           {images.length > 0 && (

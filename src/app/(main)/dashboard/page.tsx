@@ -20,6 +20,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import { TestimonialsColumn, type Testimonial } from "@/components/ui/testimonials-column";
 import { useScanHistory } from "@/hooks/useScanHistory";
 import { useProfile } from "@/hooks/useProfile";
+import { useDailyRemaining } from "@/hooks/useDailyRemaining";
 import { getGradeConfig } from "@/constants/gradeConfig";
 import { EagleIcon } from "@/components/ui/eagle-icons";
 import { COPY } from "@/constants/copy";
@@ -132,6 +133,7 @@ function QuickAction({
 export default function DashboardPage(): ReactElement {
   const { data: scans, isLoading: scansLoading } = useScanHistory();
   const { data: profileData } = useProfile();
+  const { data: dailyData } = useDailyRemaining();
   const profile = profileData?.profile;
 
   // 분석 완료된 스캔만 필터링
@@ -185,6 +187,42 @@ export default function DashboardPage(): ReactElement {
               </div>
             ) : null}
           </motion.div>
+
+          {/* ── 오늘의 분석 횟수 ── */}
+          {dailyData && (
+            <motion.div variants={fadeSlideUp}>
+              <div className="flex items-center justify-between rounded-xl bg-card px-4 py-3 ring-1 ring-border">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted">
+                    <Sparkles className="h-4 w-4 text-foreground" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">
+                      오늘의 AI 분석
+                    </p>
+                    <p className="text-[11px] text-muted-foreground">
+                      하루 {dailyData.limit}회 무료
+                    </p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p
+                    className={`text-lg font-bold ${
+                      dailyData.remaining > 0
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    }`}
+                  >
+                    {dailyData.remaining}
+                    <span className="text-xs font-medium text-muted-foreground">
+                      /{dailyData.limit}
+                    </span>
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">남은 횟수</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
 
           {/* ── 2. 메인 분석 카드 (Hero) ── */}
           {latestAnalysis && gradeConfig ? (
