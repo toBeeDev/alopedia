@@ -346,23 +346,23 @@ export default function ResultCard({
             {/* Comparison card */}
             {details.comparison && (
               <motion.div
-                className="rounded-2xl bg-white p-5 shadow-sm"
+                className="rounded-2xl bg-card p-5 shadow-sm"
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3, delay: 0.6 }}
               >
                 <div className="mb-3 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950/30">
                     <ArrowLeftRight
                       className="h-5 w-5 text-teal-500"
                       strokeWidth={1.8}
                     />
                   </div>
-                  <h3 className="text-base font-semibold text-[#1E293B]">
+                  <h3 className="text-base font-semibold text-foreground">
                     이전 대비 변화
                   </h3>
                 </div>
-                <p className="text-sm leading-relaxed text-[#64748B]">
+                <p className="text-sm leading-relaxed text-muted-foreground">
                   {details.comparison}
                 </p>
               </motion.div>

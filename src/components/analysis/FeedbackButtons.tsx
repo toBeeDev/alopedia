@@ -24,7 +24,7 @@ const FEEDBACK_OPTIONS: {
     color: "text-emerald-500",
     selectedBg: "bg-emerald-500",
     selectedText: "text-white",
-    hoverBg: "hover:bg-emerald-50",
+    hoverBg: "hover:bg-emerald-50 dark:hover:bg-emerald-950/30",
   },
   {
     rating: "too_high",
@@ -33,7 +33,7 @@ const FEEDBACK_OPTIONS: {
     color: "text-amber-500",
     selectedBg: "bg-amber-500",
     selectedText: "text-white",
-    hoverBg: "hover:bg-amber-50",
+    hoverBg: "hover:bg-amber-50 dark:hover:bg-amber-950/30",
   },
   {
     rating: "too_low",
@@ -42,16 +42,17 @@ const FEEDBACK_OPTIONS: {
     color: "text-blue-500",
     selectedBg: "bg-blue-500",
     selectedText: "text-white",
-    hoverBg: "hover:bg-blue-50",
+    hoverBg: "hover:bg-blue-50 dark:hover:bg-blue-950/30",
   },
 ];
 
 export default function FeedbackButtons({
   scanId,
-}: FeedbackButtonsProps): ReactElement {
+}: FeedbackButtonsProps): ReactElement | null {
   const [selected, setSelected] = useState<FeedbackRating | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showToast, setShowToast] = useState(false);
+  const [alreadyVoted, setAlreadyVoted] = useState(false);
 
   // 기존 피드백 조회
   useEffect(() => {
@@ -61,7 +62,7 @@ export default function FeedbackButtons({
         if (!res.ok) return;
         const { feedback } = await res.json() as { feedback: { rating: FeedbackRating } | null };
         if (feedback) {
-          setSelected(feedback.rating);
+          setAlreadyVoted(true);
         }
       } catch {
         // 조회 실패는 무시
@@ -85,7 +86,10 @@ export default function FeedbackButtons({
         if (res.ok) {
           setSelected(rating);
           setShowToast(true);
-          setTimeout(() => setShowToast(false), 2000);
+          setTimeout(() => {
+            setShowToast(false);
+            setAlreadyVoted(true);
+          }, 1500);
         }
       } catch {
         // 저장 실패는 무시
@@ -96,9 +100,12 @@ export default function FeedbackButtons({
     [scanId, isSubmitting],
   );
 
+  // 이미 투표한 경우 렌더링하지 않음
+  if (alreadyVoted) return null;
+
   return (
-    <div className="relative rounded-2xl bg-white p-5 shadow-sm">
-      <p className="mb-3 text-center text-sm font-medium text-[#334155]">
+    <div className="relative rounded-2xl bg-card p-5 shadow-sm">
+      <p className="mb-3 text-center text-sm font-medium text-foreground">
         분석 결과가 정확했나요?
       </p>
       <div className="flex gap-2.5">
@@ -112,7 +119,7 @@ export default function FeedbackButtons({
               className={`flex flex-1 flex-col items-center gap-1.5 rounded-xl border py-3 text-xs font-semibold transition-all active:scale-[0.97] ${
                 isSelected
                   ? `${selectedBg} ${selectedText} border-transparent shadow-md`
-                  : `border-[#E2E8F0] bg-white ${color} ${hoverBg}`
+                  : `border-border bg-card ${color} ${hoverBg}`
               } ${isSubmitting ? "opacity-50" : ""}`}
             >
               <Icon className={`h-5 w-5 ${isSelected ? "text-white" : ""}`} strokeWidth={2} />
@@ -124,7 +131,7 @@ export default function FeedbackButtons({
 
       {/* 토스트 */}
       {showToast && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 animate-bounce rounded-full bg-[#1E293B] px-4 py-1.5 text-xs font-medium text-white shadow-lg">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 animate-bounce rounded-full bg-foreground px-4 py-1.5 text-xs font-medium text-background shadow-lg">
           의견이 반영됐어요
         </div>
       )}

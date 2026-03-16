@@ -26,8 +26,8 @@ export default function AreaScoreChart({
   areaScores,
 }: AreaScoreChartProps): ReactElement {
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
-      <h3 className="mb-4 text-sm font-semibold text-[#334155]">
+    <div className="rounded-2xl bg-card p-5 shadow-sm">
+      <h3 className="mb-4 text-sm font-semibold text-foreground">
         부위별 점수
       </h3>
       <div className="space-y-3">
@@ -37,7 +37,7 @@ export default function AreaScoreChart({
           return (
             <div key={key}>
               <div className="mb-1 flex items-center justify-between">
-                <span className="text-xs font-medium text-[#64748B]">
+                <span className="text-xs font-medium text-muted-foreground">
                   {label}
                 </span>
                 <span
@@ -47,7 +47,7 @@ export default function AreaScoreChart({
                   {score}
                 </span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-[#F1F5F9]">
+              <div className="h-2 overflow-hidden rounded-full bg-muted">
                 <motion.div
                   className="h-full rounded-full"
                   style={{ backgroundColor: color }}
