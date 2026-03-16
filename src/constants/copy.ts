@@ -132,7 +132,7 @@ export const COPY = {
   // ── Navigation ──
   NAV_HOME: "홈",
   NAV_SCALP_CARE: "두피 관리",
-  NAV_SCAN: "촬영",
+  NAV_SCAN: "업로드",
   NAV_HISTORY: "기록",
   NAV_GUIDE: "분석 가이드",
   NAV_BOARD: "게시판",

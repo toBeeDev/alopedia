@@ -111,7 +111,7 @@ export default function ScanSession(): ReactElement {
           </div>
           <h1 className="text-xl font-bold text-foreground">두피 사진 업로드</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            두피 사진을 촬영하거나 갤러리에서 선택해주세요.
+            두피 사진을 선택해서 업로드해주세요.
           </p>
           {dailyData && (
             <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 ring-1 ring-border">

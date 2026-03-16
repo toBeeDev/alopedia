@@ -136,7 +136,7 @@ export default function UploadingPage(): ReactElement {
   if (state === "done" && analysis) {
     const quickLinks = [
       { href: "/dashboard", label: "홈", icon: Home },
-      { href: "/scan", label: "다시 촬영", icon: Camera },
+      { href: "/scan", label: "다시 업로드", icon: Camera },
       { href: "/history", label: "기록 보기", icon: Clock },
       { href: "/board", label: "게시판", icon: MessageCircle },
     ];
@@ -233,7 +233,7 @@ export default function UploadingPage(): ReactElement {
           onClick={() => router.push("/scan")}
           className="rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-white hover:bg-foreground/85"
         >
-          다시 촬영하기
+          다시 업로드하기
         </button>
       </div>
     );
