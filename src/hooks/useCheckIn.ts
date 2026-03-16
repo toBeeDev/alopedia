@@ -15,6 +15,7 @@ export function useCheckIn(): void {
       .then((data) => {
         if (data.checkedIn) {
           queryClient.invalidateQueries({ queryKey: ["profile"] });
+          queryClient.invalidateQueries({ queryKey: ["profile", "stats"] });
         }
       })
       .catch(() => {

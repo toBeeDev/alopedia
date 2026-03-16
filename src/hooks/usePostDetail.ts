@@ -51,6 +51,7 @@ export function useCreateComment(postId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postDetail", postId] });
+      queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
     },
   });
 }
@@ -95,6 +96,7 @@ export function useDeleteComment(postId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postDetail", postId] });
+      queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
     },
   });
 }

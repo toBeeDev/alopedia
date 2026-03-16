@@ -115,6 +115,7 @@ export function useUpdatePost() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["postDetail"] });
     },
   });
 }

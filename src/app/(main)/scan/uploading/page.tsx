@@ -2,26 +2,32 @@
 
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
-import { Camera, Clock, MessageCircle, Home } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { motion, AnimatePresence } from "framer-motion";
+import { Camera, Clock, MessageCircle, Home, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
 import ResultCard from "@/components/analysis/ResultCard";
+import ShareAnalysisModal from "@/components/board/ShareAnalysisModal";
+import { useCreatePost } from "@/hooks/useBoardPosts";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail, ScanImage } from "@/types/database";
 
 type UploadState = "uploading" | "analyzing" | "done" | "error";
 
 interface AnalysisData {
+  scanId: string;
   grade: number;
   score: number;
   details: AnalysisDetail;
   createdAt: string;
   images: ScanImage[];
+  dailyRemaining: number;
 }
 
 export default function UploadingPage(): ReactElement {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { images, reset } = useScanSessionStore();
   const [state, setState] = useState<UploadState>("uploading");
   const [errorMsg, setErrorMsg] = useState("");
@@ -71,17 +77,24 @@ export default function UploadingPage(): ReactElement {
           throw new Error(err.error ?? COPY.ERROR_ANALYSIS_FAILED);
         }
 
-        const { analysis: result } = await analyzeRes.json();
+        const { analysis: result, dailyRemaining } = await analyzeRes.json();
 
         setAnalysis({
+          scanId: scan.id,
           grade: result.norwood_grade,
           score: Number(result.score),
           details: result.details,
           createdAt: result.created_at,
           images: scan.images ?? [],
+          dailyRemaining: dailyRemaining ?? 0,
         });
         setState("done");
         reset();
+
+        // 새 스캔 데이터가 히스토리/대시보드에 즉시 반영되도록 캐시 무효화
+        queryClient.invalidateQueries({ queryKey: ["scanHistory"] });
+        queryClient.invalidateQueries({ queryKey: ["profile"] });
+        queryClient.invalidateQueries({ queryKey: ["profile", "stats"] });
       } catch (e) {
         setState("error");
         setErrorMsg(e instanceof Error ? e.message : COPY.ERROR_ANALYSIS_FAILED);
@@ -91,6 +104,10 @@ export default function UploadingPage(): ReactElement {
     uploadAndAnalyze();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [shareSuccess, setShareSuccess] = useState(false);
+  const createPost = useCreatePost();
 
   // 분석 완료 — 결과 카드 표시
   if (state === "done" && analysis) {
@@ -111,8 +128,40 @@ export default function UploadingPage(): ReactElement {
           images={analysis.images}
         />
 
+        {/* 커뮤니티 공유 CTA */}
+        <div className="mx-auto mt-6 max-w-4xl">
+          {shareSuccess ? (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-50 px-6 py-4 text-sm font-medium text-emerald-700"
+            >
+              <span>게시판에 공유됐어요!</span>
+              <Link
+                href="/board"
+                className="underline underline-offset-2 hover:text-emerald-900"
+              >
+                게시판으로 이동
+              </Link>
+            </motion.div>
+          ) : (
+            <button
+              onClick={() => setShowShareModal(true)}
+              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground px-6 py-4 text-sm font-semibold text-background shadow-md shadow-black/10 transition-all hover:bg-foreground/85 active:scale-[0.98]"
+            >
+              <Share2 className="h-4 w-4" strokeWidth={2} />
+              커뮤니티에 결과 공유하기
+            </button>
+          )}
+        </div>
+
+        {/* 남은 분석 횟수 안내 */}
+        <p className="mx-auto mt-3 max-w-4xl text-center text-xs text-muted-foreground/70">
+          오늘 남은 분석 횟수: <span className="font-semibold text-foreground">{analysis.dailyRemaining}회</span> / 2회
+        </p>
+
         {/* 퀵 네비게이션 */}
-        <div className="mx-auto mt-6 grid max-w-4xl grid-cols-4 gap-2">
+        <div className="mx-auto mt-3 grid max-w-4xl grid-cols-4 gap-2">
           {quickLinks.map(({ href, label, icon: Icon }) => (
             <Link
               key={href}
@@ -124,6 +173,30 @@ export default function UploadingPage(): ReactElement {
             </Link>
           ))}
         </div>
+
+        {/* 공유 모달 */}
+        <AnimatePresence>
+          {showShareModal && (
+            <ShareAnalysisModal
+              data={{
+                scanId: analysis.scanId,
+                norwoodGrade: analysis.grade,
+                score: analysis.score,
+                details: analysis.details,
+                images: analysis.images,
+              }}
+              onClose={() => setShowShareModal(false)}
+              onSubmit={(payload) => {
+                createPost.mutate(payload, {
+                  onSuccess: () => {
+                    setShowShareModal(false);
+                    setShareSuccess(true);
+                  },
+                });
+              }}
+            />
+          )}
+        </AnimatePresence>
       </div>
     );
   }
