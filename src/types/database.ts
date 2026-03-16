@@ -42,6 +42,23 @@ export interface AnalysisDetail {
   thickness: string;
   scalpCondition: string;
   advice: string;
+  comparison?: string;
+  areaScores?: AreaScores;
+}
+
+export interface AreaScores {
+  crown: number;
+  hairline: number;
+  density: number;
+}
+
+export type FeedbackRating = "accurate" | "too_high" | "too_low";
+
+export interface AnalysisFeedback {
+  id: string;
+  analysisId: string;
+  rating: FeedbackRating;
+  createdAt: string;
 }
 
 export interface Analysis {

@@ -103,6 +103,15 @@ CREATE TABLE IF NOT EXISTS achievements (
   UNIQUE(user_id, badge_code)
 );
 
+CREATE TABLE IF NOT EXISTS analysis_feedbacks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  analysis_id UUID REFERENCES analyses ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES auth.users NOT NULL,
+  rating TEXT NOT NULL CHECK (rating IN ('accurate', 'too_high', 'too_low')),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(analysis_id, user_id)
+);
+
 -- 2. RLS Policies
 -- ============================================================
 
@@ -113,6 +122,7 @@ ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE votes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE analysis_feedbacks ENABLE ROW LEVEL SECURITY;
 
 -- Profiles
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
@@ -154,6 +164,11 @@ CREATE POLICY "Admins can update any comment" ON comments FOR UPDATE
 CREATE POLICY "Users can view own votes" ON votes FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own votes" ON votes FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete own votes" ON votes FOR DELETE USING (auth.uid() = user_id);
+
+-- Analysis Feedbacks
+CREATE POLICY "Users can view own feedbacks" ON analysis_feedbacks FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own feedbacks" ON analysis_feedbacks FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own feedbacks" ON analysis_feedbacks FOR UPDATE USING (auth.uid() = user_id);
 
 -- Achievements
 CREATE POLICY "Users can view own achievements" ON achievements FOR SELECT USING (auth.uid() = user_id);

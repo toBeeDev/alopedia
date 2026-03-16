@@ -1,4 +1,4 @@
-import type { GeminiAnalysisResponse, ScalpRegion } from "@/types/analysis";
+import type { GeminiAnalysisResponse, ScalpRegion, AreaScores } from "@/types/analysis";
 
 /** Gemini 응답 텍스트에서 JSON 추출 및 검증 */
 export function parseGeminiResponse(text: string): GeminiAnalysisResponse {
@@ -20,6 +20,14 @@ export function parseGeminiResponse(text: string): GeminiAnalysisResponse {
   // 등급-점수 교차검증: 점수를 등급 범위 내로 강제 보정
   const score = enforceGradeScoreSync(grade, parsed.score);
 
+  // comparison, areaScores 파싱 (optional — raw data에서 직접 추출)
+  const raw = parsed as unknown as Record<string, unknown>;
+  const rawComparison = raw.comparison;
+  const comparison =
+    typeof rawComparison === "string" && rawComparison.trim()
+      ? sanitizeText(rawComparison)
+      : undefined;
+
   return {
     norwoodGrade: grade,
     score,
@@ -29,6 +37,8 @@ export function parseGeminiResponse(text: string): GeminiAnalysisResponse {
     scalpCondition: sanitizeText(parsed.scalpCondition),
     advice: sanitizeMedicalText(parsed.advice),
     scalpRegions: parseScalpRegions(parsed.scalpRegions),
+    comparison,
+    areaScores: parseAreaScores(raw.areaScores, score),
   };
 }
 
@@ -68,6 +78,26 @@ function parseScalpRegions(raw: unknown): ScalpRegion[] {
       w: clamp(r.w, 0, 1),
       h: clamp(r.h, 0, 1),
     }));
+}
+
+function parseAreaScores(raw: unknown, fallbackScore: number): AreaScores {
+  if (typeof raw === "object" && raw !== null) {
+    const r = raw as Record<string, unknown>;
+    if (
+      typeof r.crown === "number" &&
+      typeof r.hairline === "number" &&
+      typeof r.density === "number"
+    ) {
+      return {
+        crown: clamp(Math.round(r.crown), 0, 100),
+        hairline: clamp(Math.round(r.hairline), 0, 100),
+        density: clamp(Math.round(r.density), 0, 100),
+      };
+    }
+  }
+  // 폴백: 전체 점수로 채움
+  const rounded = clamp(Math.round(fallbackScore), 0, 100);
+  return { crown: rounded, hairline: rounded, density: rounded };
 }
 
 function clamp(value: number, min: number, max: number): number {

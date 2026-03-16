@@ -12,9 +12,11 @@ import {
   TrendingDown,
   TrendingUp,
   Minus,
+  ArrowLeftRight,
 } from "lucide-react";
 import GradeIndicator from "@/components/analysis/GradeIndicator";
 import HospitalPopup from "@/components/analysis/HospitalPopup";
+import AreaScoreChart from "@/components/analysis/AreaScoreChart";
 import { getGradeConfig } from "@/constants/gradeConfig";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail, ScanImage } from "@/types/database";
@@ -27,8 +29,18 @@ interface ResultCardProps {
   images?: ScanImage[];
 }
 
+type DetailKey = "hairline" | "density" | "thickness" | "scalpCondition" | "advice";
+
+const DETAIL_KEYS: DetailKey[] = [
+  "hairline",
+  "density",
+  "thickness",
+  "scalpCondition",
+  "advice",
+];
+
 const DETAIL_CONFIG: Record<
-  keyof AnalysisDetail,
+  DetailKey,
   { label: string; icon: typeof Ruler; color: string; bgColor: string }
 > = {
   hairline: {
@@ -229,6 +241,11 @@ export default function ResultCard({
               </div>
             </div>
 
+            {/* Area Scores */}
+            {details.areaScores && (
+              <AreaScoreChart areaScores={details.areaScores} />
+            )}
+
             {/* Uploaded Images */}
             {images && images.length > 0 && (
               <div className="rounded-2xl bg-white p-5 shadow-sm">
@@ -277,7 +294,7 @@ export default function ResultCard({
 
               {/* Category icons row */}
               <div className="mt-4 flex flex-wrap gap-3">
-                {(Object.keys(DETAIL_CONFIG) as (keyof AnalysisDetail)[]).map(
+                {DETAIL_KEYS.map(
                   (key) => (
                     <ScoreBar key={key} {...DETAIL_CONFIG[key]} />
                   ),
@@ -286,7 +303,7 @@ export default function ResultCard({
             </div>
 
             {/* Detail cards */}
-            {(Object.keys(DETAIL_CONFIG) as (keyof AnalysisDetail)[]).map(
+            {DETAIL_KEYS.map(
               (key) => {
                 const {
                   label,
@@ -302,7 +319,7 @@ export default function ResultCard({
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
                       duration: 0.3,
-                      delay: 0.1 * Object.keys(DETAIL_CONFIG).indexOf(key),
+                      delay: 0.1 * DETAIL_KEYS.indexOf(key),
                     }}
                   >
                     <div className="mb-3 flex items-center gap-3">
@@ -324,6 +341,31 @@ export default function ResultCard({
                   </motion.div>
                 );
               },
+            )}
+
+            {/* Comparison card */}
+            {details.comparison && (
+              <motion.div
+                className="rounded-2xl bg-white p-5 shadow-sm"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.6 }}
+              >
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50">
+                    <ArrowLeftRight
+                      className="h-5 w-5 text-teal-500"
+                      strokeWidth={1.8}
+                    />
+                  </div>
+                  <h3 className="text-base font-semibold text-[#1E293B]">
+                    이전 대비 변화
+                  </h3>
+                </div>
+                <p className="text-sm leading-relaxed text-[#64748B]">
+                  {details.comparison}
+                </p>
+              </motion.div>
             )}
 
             {/* Disclaimer - mobile only */}

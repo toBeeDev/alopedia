@@ -59,12 +59,39 @@ export const JSON_SCHEMA = `{
   "thickness": "string (한국어, 2-3문장)",
   "scalpCondition": "string (한국어, 2-3문장)",
   "advice": "string (한국어, 2-3문장, '진단합니다/치료가 필요합니다/약을 드세요' 등의 의료 표현 금지)",
+  "areaScores": {
+    "crown": number (0-100, 정수리 점수. 정수리 사진(index 0) 기반. 두피 비침 정도, 소용돌이 주변 밀도 평가),
+    "hairline": number (0-100, 헤어라인 점수. 전면/측면 사진(index 1,2) 기반. M자 후퇴 정도, 이마선 형태 평가),
+    "density": number (0-100, 모발 밀도 점수. 전체 사진 종합. 모발 간격, 굵기, 전체적 밀도감 평가)
+  },
+  "comparison": "string (한국어, 2-3문장, 이전 분석과 비교한 변화 요약. 이전 분석 정보가 없으면 null)",
   "scalpRegions": [
     { "imageIndex": 0, "x": 0.0, "y": 0.0, "w": 1.0, "h": 0.6 },
     { "imageIndex": 1, "x": 0.1, "y": 0.0, "w": 0.8, "h": 0.5 }
   ]
 }`;
 
-export function buildAnalysisPrompt(): string {
-  return `${SYSTEM_PROMPT}\n\n${JSON_SCHEMA}\n\n위 사진들을 분석하여 JSON으로 응답해주세요.`;
+interface PreviousAnalysis {
+  grade: number;
+  score: number;
+  hairline: string;
+  density: string;
+}
+
+export function buildAnalysisPrompt(previousAnalysis?: PreviousAnalysis): string {
+  let prompt = `${SYSTEM_PROMPT}\n\n${JSON_SCHEMA}\n\n`;
+
+  if (previousAnalysis) {
+    prompt += `## 이전 분석 결과 (비교 참고용)
+- 이전 등급: ${previousAnalysis.grade}, 점수: ${previousAnalysis.score}
+- 헤어라인: ${previousAnalysis.hairline}
+- 밀도: ${previousAnalysis.density}
+
+현재 사진과 비교하여 변화를 감지하고, comparison 필드에 요약해주세요.
+
+`;
+  }
+
+  prompt += "위 사진들을 분석하여 JSON으로 응답해주세요.";
+  return prompt;
 }

@@ -7,6 +7,7 @@ import { ArrowLeft, Share2 } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import ResultCard from "@/components/analysis/ResultCard";
+import FeedbackButtons from "@/components/analysis/FeedbackButtons";
 import { COPY } from "@/constants/copy";
 import { useCreatePost } from "@/hooks/useBoardPosts";
 import type { AnalysisDetail, ScanImage, BoardType } from "@/types/database";
@@ -108,6 +109,11 @@ export default function ScanDetailPage(): ReactElement {
             createdAt={analysis.created_at}
             images={images}
           />
+
+          {/* 피드백 버튼 */}
+          <div className="mt-4">
+            <FeedbackButtons scanId={scan.id} />
+          </div>
 
           {/* 공유 버튼 */}
           <div className="mt-4">
