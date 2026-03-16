@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, type ReactElement } from "react";
-import { Check, ChevronUp, ChevronDown } from "lucide-react";
+import { ThumbsUp, TrendingUp, TrendingDown } from "lucide-react";
 import type { FeedbackRating } from "@/types/database";
 
 interface FeedbackButtonsProps {
@@ -11,11 +11,39 @@ interface FeedbackButtonsProps {
 const FEEDBACK_OPTIONS: {
   rating: FeedbackRating;
   label: string;
-  icon: typeof Check;
+  icon: typeof ThumbsUp;
+  color: string;
+  selectedBg: string;
+  selectedText: string;
+  hoverBg: string;
 }[] = [
-  { rating: "accurate", label: "정확해요", icon: Check },
-  { rating: "too_high", label: "점수가 높아요", icon: ChevronUp },
-  { rating: "too_low", label: "점수가 낮아요", icon: ChevronDown },
+  {
+    rating: "accurate",
+    label: "정확해요",
+    icon: ThumbsUp,
+    color: "text-emerald-500",
+    selectedBg: "bg-emerald-500",
+    selectedText: "text-white",
+    hoverBg: "hover:bg-emerald-50",
+  },
+  {
+    rating: "too_high",
+    label: "점수가 높아요",
+    icon: TrendingUp,
+    color: "text-amber-500",
+    selectedBg: "bg-amber-500",
+    selectedText: "text-white",
+    hoverBg: "hover:bg-amber-50",
+  },
+  {
+    rating: "too_low",
+    label: "점수가 낮아요",
+    icon: TrendingDown,
+    color: "text-blue-500",
+    selectedBg: "bg-blue-500",
+    selectedText: "text-white",
+    hoverBg: "hover:bg-blue-50",
+  },
 ];
 
 export default function FeedbackButtons({
@@ -69,25 +97,25 @@ export default function FeedbackButtons({
   );
 
   return (
-    <div className="relative">
-      <p className="mb-2 text-center text-xs text-[#94A3B8]">
+    <div className="relative rounded-2xl bg-white p-5 shadow-sm">
+      <p className="mb-3 text-center text-sm font-medium text-[#334155]">
         분석 결과가 정확했나요?
       </p>
-      <div className="flex gap-2">
-        {FEEDBACK_OPTIONS.map(({ rating, label, icon: Icon }) => {
+      <div className="flex gap-2.5">
+        {FEEDBACK_OPTIONS.map(({ rating, label, icon: Icon, color, selectedBg, selectedText, hoverBg }) => {
           const isSelected = selected === rating;
           return (
             <button
               key={rating}
               onClick={() => handleSubmit(rating)}
               disabled={isSubmitting}
-              className={`flex flex-1 items-center justify-center gap-1.5 rounded-xl py-2.5 text-xs font-medium transition-all ${
+              className={`flex flex-1 flex-col items-center gap-1.5 rounded-xl border py-3 text-xs font-semibold transition-all active:scale-[0.97] ${
                 isSelected
-                  ? "bg-[#1E293B] text-white shadow-sm"
-                  : "bg-[#F8FAFC] text-[#64748B] hover:bg-[#F1F5F9]"
+                  ? `${selectedBg} ${selectedText} border-transparent shadow-md`
+                  : `border-[#E2E8F0] bg-white ${color} ${hoverBg}`
               } ${isSubmitting ? "opacity-50" : ""}`}
             >
-              <Icon className="h-3.5 w-3.5" strokeWidth={2} />
+              <Icon className={`h-5 w-5 ${isSelected ? "text-white" : ""}`} strokeWidth={2} />
               {label}
             </button>
           );
@@ -96,7 +124,7 @@ export default function FeedbackButtons({
 
       {/* 토스트 */}
       {showToast && (
-        <div className="absolute -top-10 left-1/2 -translate-x-1/2 rounded-lg bg-[#1E293B] px-3 py-1.5 text-xs text-white shadow-lg">
+        <div className="absolute -top-3 left-1/2 -translate-x-1/2 animate-bounce rounded-full bg-[#1E293B] px-4 py-1.5 text-xs font-medium text-white shadow-lg">
           의견이 반영됐어요
         </div>
       )}
