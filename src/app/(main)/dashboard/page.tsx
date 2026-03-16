@@ -21,6 +21,7 @@ import { TestimonialsColumn, type Testimonial } from "@/components/ui/testimonia
 import { useScanHistory } from "@/hooks/useScanHistory";
 import { useProfile } from "@/hooks/useProfile";
 import { useDailyRemaining } from "@/hooks/useDailyRemaining";
+import { useOnlineCount } from "@/hooks/useOnlineCount";
 import { getGradeConfig } from "@/constants/gradeConfig";
 import { EagleIcon } from "@/components/ui/eagle-icons";
 import { COPY } from "@/constants/copy";
@@ -134,6 +135,7 @@ export default function DashboardPage(): ReactElement {
   const { data: scans, isLoading: scansLoading } = useScanHistory();
   const { data: profileData } = useProfile();
   const { data: dailyData } = useDailyRemaining();
+  const onlineCount = useOnlineCount();
   const profile = profileData?.profile;
 
   // 분석 완료된 스캔만 필터링
@@ -165,13 +167,21 @@ export default function DashboardPage(): ReactElement {
           {/* ── 1. 인사 헤더 ── */}
           <motion.div variants={fadeSlideUp} className="flex items-center justify-between">
             <div>
-              <p className="text-[13px] text-muted-foreground/70">
-                {new Date().toLocaleDateString("ko-KR", {
-                  month: "long",
-                  day: "numeric",
-                  weekday: "short",
-                })}
-              </p>
+              <div className="flex items-center gap-2">
+                <p className="text-[13px] text-muted-foreground/70">
+                  {new Date().toLocaleDateString("ko-KR", {
+                    month: "long",
+                    day: "numeric",
+                    weekday: "short",
+                  })}
+                </p>
+                {onlineCount > 0 && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-600 ring-1 ring-emerald-200/60 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20">
+                    <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
+                    {onlineCount}명 접속 중
+                  </span>
+                )}
+              </div>
               <h2 className="mt-0.5 text-xl font-bold text-foreground">
                 {profile?.nickname
                   ? `${profile.nickname}님, 안녕하세요`
@@ -336,7 +346,7 @@ export default function DashboardPage(): ReactElement {
                       className="mt-5 inline-flex items-center gap-2 rounded-full bg-card px-7 py-3 text-sm font-bold text-foreground shadow-lg shadow-black/10 transition-all hover:shadow-xl active:scale-95"
                     >
                       <Camera className="h-4 w-4" />
-                      두피 촬영하기
+                      두피 사진 올리기
                     </Link>
                   </div>
                 </div>
@@ -386,7 +396,7 @@ export default function DashboardPage(): ReactElement {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <QuickAction
                 icon={<Camera className="h-5 w-5 text-foreground" />}
-                label="두피 촬영"
+                label="사진 업로드"
                 desc="AI 분석 시작하기"
                 href="/scan"
                 gradient="bg-foreground"

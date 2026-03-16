@@ -17,6 +17,12 @@ export interface ScalpRegion {
   h: number;
 }
 
+export interface AreaScores {
+  crown: number;
+  hairline: number;
+  density: number;
+}
+
 export interface GeminiAnalysisResponse {
   norwoodGrade: number;
   score: number;
@@ -26,6 +32,8 @@ export interface GeminiAnalysisResponse {
   scalpCondition: string;
   advice: string;
   scalpRegions: ScalpRegion[];
+  comparison?: string;
+  areaScores: AreaScores;
 }
 
 export interface AnalysisResultView {

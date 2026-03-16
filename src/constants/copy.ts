@@ -96,7 +96,7 @@ export const COPY = {
 
   // ── Board Names ──
   BOARD_NAME: {
-    medication_review: "약물 후기",
+    medication_review: "탈모약 후기",
     procedure_review: "시술 후기",
     qna: "Q&A",
     lounge: "자유게시판",
@@ -132,7 +132,7 @@ export const COPY = {
   // ── Navigation ──
   NAV_HOME: "홈",
   NAV_SCALP_CARE: "두피 관리",
-  NAV_SCAN: "촬영",
+  NAV_SCAN: "업로드",
   NAV_HISTORY: "기록",
   NAV_GUIDE: "분석 가이드",
   NAV_BOARD: "게시판",

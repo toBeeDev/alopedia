@@ -27,13 +27,13 @@ function getTrendBetween(
   previous: number,
 ): { icon: ReactElement; label: string; color: string } {
   const diff = current - previous;
-  if (diff > 2)
+  if (diff > 0)
     return {
       icon: <TrendingUp className="h-3.5 w-3.5" />,
       label: `+${diff.toFixed(1)}`,
       color: "text-emerald-500",
     };
-  if (diff < -2)
+  if (diff < 0)
     return {
       icon: <TrendingDown className="h-3.5 w-3.5" />,
       label: diff.toFixed(1),
@@ -41,7 +41,7 @@ function getTrendBetween(
     };
   return {
     icon: <Minus className="h-3.5 w-3.5" />,
-    label: "유지",
+    label: "동일",
     color: "text-muted-foreground/70",
   };
 }
@@ -232,6 +232,10 @@ export default function HistoryPage(): ReactElement {
               </div>
             )}
 
+            <p className="mb-4 rounded-xl bg-muted/60 px-4 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
+              AI 분석은 촬영 각도, 조명, 해상도 등에 따라 동일한 두피 상태에서도 점수 차이가 발생할 수 있습니다. 장기적인 추세를 참고해주세요.
+            </p>
+
             <h2 className="mb-3 text-sm font-semibold text-muted-foreground">
               분석 기록
             </h2>
@@ -268,95 +272,101 @@ export default function HistoryPage(): ReactElement {
                   },
                 );
 
+                const details = analysis?.details;
+
                 return (
                   <motion.div key={scan.id} variants={fadeSlideUp}>
                     <Link
                       href={`/history/${scan.id}`}
-                      className="group flex items-center gap-4 rounded-2xl bg-card p-4 shadow-sm transition-all hover:shadow-md"
+                      className="group flex flex-col rounded-2xl bg-card p-4 shadow-sm transition-all hover:shadow-md md:flex-row md:items-stretch md:gap-4"
                     >
-                      {/* 썸네일 */}
-                      <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-accent">
-                        {thumbnail ? (
-                          <Image
-                            src={thumbnail}
-                            alt={COPY.A11Y_SCALP_PHOTO}
-                            fill
-                            sizes="80px"
-                            className="object-cover transition-transform group-hover:scale-105"
-                          />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <Camera className="h-6 w-6 text-muted-foreground/70" />
-                          </div>
-                        )}
-                      </div>
-
-                      {/* 정보 */}
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          {gradeConfig && grade && (
-                            <span
-                              className="inline-flex shrink-0 items-center gap-1 rounded-full py-0.5 pl-0.5 pr-2.5 text-[11px] font-bold text-white"
-                              style={{
-                                backgroundColor: gradeConfig.color,
-                              }}
-                            >
-                              <EagleIcon grade={grade} size={18} />
-                              {gradeConfig.eagleLabel}
-                            </span>
-                          )}
-                          {score !== null && (
-                            <span className="text-base font-bold text-foreground">
-                              {score.toFixed(1)}점
-                            </span>
-                          )}
-                          {trend && (
-                            <span
-                              className={`inline-flex items-center gap-0.5 text-xs font-medium ${trend.color}`}
-                            >
-                              {trend.icon}
-                              {trend.label}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* 점수 바 */}
-                        {score !== null && (
-                          <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-accent">
-                            <div
-                              className="h-full rounded-full transition-all"
-                              style={{
-                                width: `${score}%`,
-                                backgroundColor:
-                                  gradeConfig?.color ?? "#171717",
-                              }}
+                      {/* 왼쪽: 썸네일 + 점수 정보 */}
+                      <div className="flex flex-1 items-center gap-4">
+                        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-accent">
+                          {thumbnail ? (
+                            <Image
+                              src={thumbnail}
+                              alt={COPY.A11Y_SCALP_PHOTO}
+                              fill
+                              sizes="80px"
+                              className="object-cover transition-transform group-hover:scale-105"
                             />
-                          </div>
-                        )}
-
-                        <div className="mt-1.5 flex items-center gap-2">
-                          <span className="text-xs text-muted-foreground/70">
-                            {dateStr}
-                          </span>
-                          {scan.status === "analyzing" && (
-                            <span className="text-xs font-medium text-foreground">
-                              분석 중...
-                            </span>
-                          )}
-                          {scan.status === "failed" && (
-                            <span className="text-xs font-medium text-red-500">
-                              분석 실패
-                            </span>
-                          )}
-                          {scan.images && scan.images.length > 0 && (
-                            <span className="text-[10px] text-muted-foreground/70">
-                              사진 {scan.images.length}장
-                            </span>
+                          ) : (
+                            <div className="flex h-full w-full items-center justify-center">
+                              <Camera className="h-6 w-6 text-muted-foreground/70" />
+                            </div>
                           )}
                         </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2">
+                            {gradeConfig && grade && (
+                              <span
+                                className="inline-flex shrink-0 items-center gap-1 rounded-full py-0.5 pl-0.5 pr-2.5 text-[11px] font-bold text-white"
+                                style={{ backgroundColor: gradeConfig.color }}
+                              >
+                                <EagleIcon grade={grade} size={18} />
+                                {gradeConfig.eagleLabel}
+                              </span>
+                            )}
+                            {score !== null && (
+                              <span className="text-base font-bold text-foreground">
+                                {score.toFixed(1)}점
+                              </span>
+                            )}
+                            {trend && (
+                              <span
+                                className={`inline-flex items-center gap-0.5 text-xs font-medium ${trend.color}`}
+                              >
+                                {trend.icon}
+                                {trend.label}
+                              </span>
+                            )}
+                          </div>
+
+                          {score !== null && (
+                            <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-accent md:h-1 md:w-2/3">
+                              <div
+                                className="h-full rounded-full transition-all"
+                                style={{
+                                  width: `${score}%`,
+                                  backgroundColor: gradeConfig?.color ?? "#171717",
+                                }}
+                              />
+                            </div>
+                          )}
+
+                          <div className="mt-1.5 flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground/70">{dateStr}</span>
+                            {scan.status === "analyzing" && (
+                              <span className="text-xs font-medium text-foreground">분석 중...</span>
+                            )}
+                            {scan.status === "failed" && (
+                              <span className="text-xs font-medium text-red-500">분석 실패</span>
+                            )}
+                            {scan.images && scan.images.length > 0 && (
+                              <span className="text-[10px] text-muted-foreground/70">
+                                사진 {scan.images.length}장
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* 모바일 화살표 */}
+                        <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground md:hidden" />
                       </div>
 
-                      <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground" />
+                      {/* 오른쪽: 종합 조언 (데스크탑에서 flex 반반) */}
+                      {details?.advice ? (
+                        <div className="mt-3 flex items-center border-t border-border/50 pt-3 md:mt-0 md:w-1/2 md:border-l md:border-t-0 md:pl-4 md:pt-0">
+                          <p className="line-clamp-3 flex-1 text-[11px] leading-relaxed text-muted-foreground md:line-clamp-4">
+                            {details.advice}
+                          </p>
+                          <ChevronRight className="ml-2 hidden h-5 w-5 shrink-0 text-muted-foreground/40 transition-colors group-hover:text-foreground md:block" />
+                        </div>
+                      ) : (
+                        <ChevronRight className="ml-2 hidden h-5 w-5 shrink-0 self-center text-muted-foreground/40 transition-colors group-hover:text-foreground md:block" />
+                      )}
                     </Link>
                   </motion.div>
                 );

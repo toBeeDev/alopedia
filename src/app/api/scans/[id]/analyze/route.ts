@@ -7,7 +7,7 @@ import { checkRateLimit } from "@/lib/rateLimit/memory";
 import { grantExp } from "@/lib/utils/grantExp";
 import { EXP_REWARDS } from "@/lib/utils/level";
 import { blurOutsideRegion } from "@/lib/image/blur";
-import type { ScanImage } from "@/types/database";
+import type { ScanImage, AnalysisDetail } from "@/types/database";
 
 /** POST /api/scans/:id/analyze — AI 분석 트리거 (server-only) */
 export async function POST(
@@ -34,12 +34,12 @@ export async function POST(
     );
   }
 
-  // Daily limit: 최대 2회/일 (개발 환경에서는 무제한)
-  const isDev = process.env.NODE_ENV === "development";
+  // Daily limit: 최대 2회/일 (개발/preview 환경에서는 무제한)
+  const isDev = process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const { count: todayCount, error: countError } = await supabase
+  const { error: countError } = await supabase
     .from("analyses")
     .select("id", { count: "exact", head: true })
     .eq("scan_id", scanId)
@@ -119,10 +119,29 @@ export async function POST(
       }),
     );
 
+    // 이전 분석 조회 (시계열 비교용)
+    const { data: previousAnalyses } = await supabase
+      .from("analyses")
+      .select("norwood_grade, score, details, scan_id, scans!inner(user_id)")
+      .eq("scans.user_id", user.id)
+      .neq("scan_id", scanId)
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    const prevAnalysis = previousAnalyses?.[0];
+    const previousAnalysisContext = prevAnalysis
+      ? {
+          grade: prevAnalysis.norwood_grade as number,
+          score: Number(prevAnalysis.score),
+          hairline: (prevAnalysis.details as AnalysisDetail).hairline,
+          density: (prevAnalysis.details as AnalysisDetail).density,
+        }
+      : undefined;
+
     // Gemini Vision API 호출
     console.log("[analyze] Calling Gemini API...");
     const model = getGeminiModel();
-    const prompt = buildAnalysisPrompt();
+    const prompt = buildAnalysisPrompt(previousAnalysisContext);
 
     const result = await model.generateContent([prompt, ...imageParts]);
     const responseText = result.response.text();
@@ -145,6 +164,8 @@ export async function POST(
           thickness: analysisResult.thickness,
           scalpCondition: analysisResult.scalpCondition,
           advice: analysisResult.advice,
+          ...(analysisResult.comparison ? { comparison: analysisResult.comparison } : {}),
+          areaScores: analysisResult.areaScores,
         },
         gemini_raw_response: responseText,
         model_version: "gemini-2.5-flash",

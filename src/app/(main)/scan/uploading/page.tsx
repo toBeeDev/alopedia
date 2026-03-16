@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { compressImage } from "@/lib/image/compressClient";
 import ResultCard from "@/components/analysis/ResultCard";
+import FeedbackButtons from "@/components/analysis/FeedbackButtons";
 import ShareAnalysisModal from "@/components/board/ShareAnalysisModal";
 import { useCreatePost } from "@/hooks/useBoardPosts";
 import { COPY } from "@/constants/copy";
@@ -136,7 +137,7 @@ export default function UploadingPage(): ReactElement {
   if (state === "done" && analysis) {
     const quickLinks = [
       { href: "/dashboard", label: "홈", icon: Home },
-      { href: "/scan", label: "다시 촬영", icon: Camera },
+      { href: "/scan", label: "다시 업로드", icon: Camera },
       { href: "/history", label: "기록 보기", icon: Clock },
       { href: "/board", label: "게시판", icon: MessageCircle },
     ];
@@ -151,8 +152,13 @@ export default function UploadingPage(): ReactElement {
           images={analysis.images}
         />
 
+        {/* 피드백 버튼 */}
+        <div className="mx-auto mt-4 max-w-4xl">
+          <FeedbackButtons scanId={analysis.scanId} />
+        </div>
+
         {/* 커뮤니티 공유 CTA */}
-        <div className="mx-auto mt-6 max-w-4xl">
+        <div className="mx-auto mt-4 max-w-4xl">
           {shareSuccess ? (
             <motion.div
               initial={{ opacity: 0, y: 8 }}
@@ -233,7 +239,7 @@ export default function UploadingPage(): ReactElement {
           onClick={() => router.push("/scan")}
           className="rounded-full bg-foreground px-6 py-3 text-sm font-semibold text-white hover:bg-foreground/85"
         >
-          다시 촬영하기
+          다시 업로드하기
         </button>
       </div>
     );

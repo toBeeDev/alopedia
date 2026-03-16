@@ -63,10 +63,13 @@ CREATE TABLE IF NOT EXISTS posts (
   vote_count INTEGER DEFAULT 0,
   comment_count INTEGER DEFAULT 0,
   is_adopted BOOLEAN DEFAULT false,
+  is_pinned BOOLEAN DEFAULT false,
+  delete_pin TEXT,
   norwood_grade SMALLINT,
   score NUMERIC(5,2),
   slug TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
+  created_at TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT posts_user_id_profiles_fkey FOREIGN KEY (user_id) REFERENCES profiles(id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS posts_slug_unique ON posts (slug) WHERE slug IS NOT NULL;
@@ -78,6 +81,7 @@ CREATE TABLE IF NOT EXISTS comments (
   parent_id UUID REFERENCES comments,
   content TEXT NOT NULL,
   vote_count INTEGER DEFAULT 0,
+  CONSTRAINT comments_user_id_profiles_fkey FOREIGN KEY (user_id) REFERENCES profiles(id),
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -99,6 +103,15 @@ CREATE TABLE IF NOT EXISTS achievements (
   UNIQUE(user_id, badge_code)
 );
 
+CREATE TABLE IF NOT EXISTS analysis_feedbacks (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  analysis_id UUID REFERENCES analyses ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES auth.users NOT NULL,
+  rating TEXT NOT NULL CHECK (rating IN ('accurate', 'too_high', 'too_low')),
+  created_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(analysis_id, user_id)
+);
+
 -- 2. RLS Policies
 -- ============================================================
 
@@ -109,6 +122,7 @@ ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE comments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE votes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE achievements ENABLE ROW LEVEL SECURITY;
+ALTER TABLE analysis_feedbacks ENABLE ROW LEVEL SECURITY;
 
 -- Profiles
 CREATE POLICY "Users can view own profile" ON profiles FOR SELECT USING (auth.uid() = id);
@@ -151,6 +165,11 @@ CREATE POLICY "Users can view own votes" ON votes FOR SELECT USING (auth.uid() =
 CREATE POLICY "Users can insert own votes" ON votes FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can delete own votes" ON votes FOR DELETE USING (auth.uid() = user_id);
 
+-- Analysis Feedbacks
+CREATE POLICY "Users can view own feedbacks" ON analysis_feedbacks FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own feedbacks" ON analysis_feedbacks FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own feedbacks" ON analysis_feedbacks FOR UPDATE USING (auth.uid() = user_id);
+
 -- Achievements
 CREATE POLICY "Users can view own achievements" ON achievements FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can insert own achievements" ON achievements FOR INSERT WITH CHECK (auth.uid() = user_id);
@@ -180,7 +199,7 @@ BEGIN
   INSERT INTO public.profiles (id, nickname, avatar_seed)
   VALUES (
     NEW.id,
-    '익명_' || LEFT(NEW.id::text, 8),
+    '익명독수리_' || LEFT(NEW.id::text, 8),
     NEW.id::text
   );
   RETURN NEW;

@@ -11,5 +11,8 @@ function getGeminiClient(): GoogleGenerativeAI {
 
 export function getGeminiModel(modelName: string = "gemini-2.5-flash") {
   const client = getGeminiClient();
-  return client.getGenerativeModel({ model: modelName });
+  return client.getGenerativeModel({
+    model: modelName,
+    generationConfig: { temperature: 0 },
+  });
 }

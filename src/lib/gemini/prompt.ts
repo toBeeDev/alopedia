@@ -40,6 +40,8 @@ export const SYSTEM_PROMPT = `당신은 두피 상태를 분석하는 전문 AI 
 3. **점수 앵커링**: 일반적인 20대 성인 남성의 건강한 두피를 95점으로 기준삼으세요. 여기서 관찰되는 징후만큼만 차감하세요.
 4. **사진 품질 보정**: 흐릿하거나 어두운 사진은 모발이 얇아 보일 수 있습니다. 사진 품질이 나쁜 경우 그것을 탈모 징후로 판단하지 마세요.
 5. **등급-점수 교차검증**: 먼저 등급을 결정하고, 그 등급의 점수 범위 내에서 점수를 부여하세요. 절대 등급과 점수 범위가 불일치해서는 안 됩니다.
+6. **헤어스타일 구분**: 페이드컷, 투블럭, 삭발, 스포츠컷 등 의도적으로 짧게 깎은 헤어스타일을 탈모로 오인하지 마세요. 측면/후면의 짧은 모발이 클리퍼로 균일하게 정리된 경우 이는 스타일링이지 탈모가 아닙니다. 탈모 판정은 자연스러운 모발 성장 영역(정수리, 전두부, 관자놀이 경계)의 밀도 변화만을 기준으로 하세요.
+7. **촬영 자세 보정**: 손으로 머리를 들어올리거나 당기는 사진은 헤어라인이 실제보다 후퇴되어 보일 수 있습니다. 자연 상태가 아닌 인위적 자세에서의 이마 노출을 탈모 징후로 과대 평가하지 마세요.
 
 ## 프라이버시 보호
 각 사진에서 두피/모발 영역의 bounding box를 제공하세요.
@@ -57,12 +59,39 @@ export const JSON_SCHEMA = `{
   "thickness": "string (한국어, 2-3문장)",
   "scalpCondition": "string (한국어, 2-3문장)",
   "advice": "string (한국어, 2-3문장, '진단합니다/치료가 필요합니다/약을 드세요' 등의 의료 표현 금지)",
+  "areaScores": {
+    "crown": number (0-100, 정수리 점수. 정수리 사진(index 0) 기반. 두피 비침 정도, 소용돌이 주변 밀도 평가),
+    "hairline": number (0-100, 헤어라인 점수. 전면/측면 사진(index 1,2) 기반. M자 후퇴 정도, 이마선 형태 평가),
+    "density": number (0-100, 모발 밀도 점수. 전체 사진 종합. 모발 간격, 굵기, 전체적 밀도감 평가)
+  },
+  "comparison": "string (한국어, 2-3문장, 이전 분석과 비교한 변화 요약. 이전 분석 정보가 없으면 null)",
   "scalpRegions": [
     { "imageIndex": 0, "x": 0.0, "y": 0.0, "w": 1.0, "h": 0.6 },
     { "imageIndex": 1, "x": 0.1, "y": 0.0, "w": 0.8, "h": 0.5 }
   ]
 }`;
 
-export function buildAnalysisPrompt(): string {
-  return `${SYSTEM_PROMPT}\n\n${JSON_SCHEMA}\n\n위 사진들을 분석하여 JSON으로 응답해주세요.`;
+interface PreviousAnalysis {
+  grade: number;
+  score: number;
+  hairline: string;
+  density: string;
+}
+
+export function buildAnalysisPrompt(previousAnalysis?: PreviousAnalysis): string {
+  let prompt = `${SYSTEM_PROMPT}\n\n${JSON_SCHEMA}\n\n`;
+
+  if (previousAnalysis) {
+    prompt += `## 이전 분석 결과 (비교 참고용)
+- 이전 등급: ${previousAnalysis.grade}, 점수: ${previousAnalysis.score}
+- 헤어라인: ${previousAnalysis.hairline}
+- 밀도: ${previousAnalysis.density}
+
+현재 사진과 비교하여 변화를 감지하고, comparison 필드에 요약해주세요.
+
+`;
+  }
+
+  prompt += "위 사진들을 분석하여 JSON으로 응답해주세요.";
+  return prompt;
 }

@@ -13,7 +13,7 @@ export async function GET(): Promise<NextResponse> {
   }
 
   // 병렬 조회: 분석 횟수, 게시글 수, 댓글 수, 최근 분석
-  const [scansResult, postsResult, commentsResult, latestAnalysis] =
+  const [scansResult, postsResult, commentsResult] =
     await Promise.all([
       supabase
         .from("scans")
@@ -28,12 +28,6 @@ export async function GET(): Promise<NextResponse> {
         .from("comments")
         .select("id", { count: "exact", head: true })
         .eq("user_id", user.id),
-      supabase
-        .from("analyses")
-        .select("norwood_grade, score, created_at")
-        .eq("scan_id.user_id" as never, user.id)
-        .order("created_at", { ascending: false })
-        .limit(1),
     ]);
 
   // 최근 분석은 join이 안 되므로 별도 조회

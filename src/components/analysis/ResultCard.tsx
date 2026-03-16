@@ -12,9 +12,11 @@ import {
   TrendingDown,
   TrendingUp,
   Minus,
+  ArrowLeftRight,
 } from "lucide-react";
 import GradeIndicator from "@/components/analysis/GradeIndicator";
 import HospitalPopup from "@/components/analysis/HospitalPopup";
+import AreaScoreChart from "@/components/analysis/AreaScoreChart";
 import { getGradeConfig } from "@/constants/gradeConfig";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail, ScanImage } from "@/types/database";
@@ -27,39 +29,49 @@ interface ResultCardProps {
   images?: ScanImage[];
 }
 
+type DetailKey = "hairline" | "density" | "thickness" | "scalpCondition" | "advice";
+
+const DETAIL_KEYS: DetailKey[] = [
+  "hairline",
+  "density",
+  "thickness",
+  "scalpCondition",
+  "advice",
+];
+
 const DETAIL_CONFIG: Record<
-  keyof AnalysisDetail,
+  DetailKey,
   { label: string; icon: typeof Ruler; color: string; bgColor: string }
 > = {
   hairline: {
     label: "헤어라인",
     icon: Ruler,
     color: "text-blue-500",
-    bgColor: "bg-blue-50",
+    bgColor: "bg-blue-50 dark:bg-blue-950/30",
   },
   density: {
     label: "모발 밀도",
     icon: Layers,
     color: "text-emerald-500",
-    bgColor: "bg-emerald-50",
+    bgColor: "bg-emerald-50 dark:bg-emerald-950/30",
   },
   thickness: {
     label: "모발 굵기",
     icon: CircleDot,
     color: "text-amber-500",
-    bgColor: "bg-amber-50",
+    bgColor: "bg-amber-50 dark:bg-amber-950/30",
   },
   scalpCondition: {
     label: "두피 상태",
     icon: ShieldCheck,
     color: "text-violet-500",
-    bgColor: "bg-violet-50",
+    bgColor: "bg-violet-50 dark:bg-violet-950/30",
   },
   advice: {
     label: "조언",
     icon: Lightbulb,
     color: "text-rose-500",
-    bgColor: "bg-rose-50",
+    bgColor: "bg-rose-50 dark:bg-rose-950/30",
   },
 };
 
@@ -88,7 +100,7 @@ function ScoreRing({
           cy="64"
           r={radius}
           fill="none"
-          stroke="#F1F5F9"
+          className="stroke-muted"
           strokeWidth="10"
         />
         <motion.circle
@@ -106,10 +118,10 @@ function ScoreRing({
         />
       </svg>
       <div className="absolute flex flex-col items-center">
-        <span className="text-3xl font-bold text-[#1E293B]">
+        <span className="text-3xl font-bold text-foreground">
           {score.toFixed(0)}
         </span>
-        <span className="text-xs text-[#94A3B8]">/ 100</span>
+        <span className="text-xs text-muted-foreground">/ 100</span>
       </div>
     </div>
   );
@@ -133,7 +145,7 @@ function ScoreBar({
       >
         <Icon className={`h-3.5 w-3.5 ${color}`} strokeWidth={2} />
       </div>
-      <span className="text-xs font-medium text-[#64748B]">{label}</span>
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
     </div>
   );
 }
@@ -190,7 +202,7 @@ export default function ResultCard({
           {/* ── Left Column: Score + Images ── */}
           <div className="flex flex-col gap-4 lg:w-[340px] lg:shrink-0">
             {/* Score Card */}
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
+            <div className="rounded-2xl bg-card p-6 shadow-sm">
               <GradeIndicator grade={grade} score={score} />
 
               <div className="mt-5 flex items-center justify-center">
@@ -198,19 +210,19 @@ export default function ResultCard({
               </div>
 
               {/* Score breakdown */}
-              <div className="mt-4 flex items-center justify-between rounded-xl bg-[#F8FAFC] px-4 py-3">
+              <div className="mt-4 flex items-center justify-between rounded-xl bg-muted/50 px-4 py-3">
                 <div className="flex items-center gap-2">
                   {getTrendIcon(score)}
-                  <span className="text-sm font-medium text-[#334155]">
+                  <span className="text-sm font-medium text-foreground">
                     {getTrendLabel(score)}
                   </span>
                 </div>
-                <span className="text-xs text-[#94A3B8]">{dateStr}</span>
+                <span className="text-xs text-muted-foreground">{dateStr}</span>
               </div>
 
               {/* Grade scale mini */}
               <div className="mt-4">
-                <div className="mb-2 flex justify-between text-[10px] text-[#94A3B8]">
+                <div className="mb-2 flex justify-between text-[10px] text-muted-foreground">
                   <span>정상</span>
                   <span>전문 상담</span>
                 </div>
@@ -229,16 +241,21 @@ export default function ResultCard({
               </div>
             </div>
 
+            {/* Area Scores */}
+            {details.areaScores && (
+              <AreaScoreChart areaScores={details.areaScores} />
+            )}
+
             {/* Uploaded Images */}
             {images && images.length > 0 && (
-              <div className="rounded-2xl bg-white p-5 shadow-sm">
-                <h3 className="mb-3 text-sm font-semibold text-[#334155]">
+              <div className="rounded-2xl bg-card p-5 shadow-sm">
+                <h3 className="mb-3 text-sm font-semibold text-foreground">
                   촬영 사진
                 </h3>
                 <div className="grid grid-cols-3 gap-2">
                   {images.map((img) => (
                     <div key={img.url} className="relative">
-                      <div className="relative aspect-square overflow-hidden rounded-xl bg-[#F1F5F9]">
+                      <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
                         <Image
                           src={img.thumbnailUrl}
                           alt={SCAN_TYPE_LABELS[img.type] ?? img.type}
@@ -247,7 +264,7 @@ export default function ResultCard({
                           unoptimized
                         />
                       </div>
-                      <p className="mt-1 text-center text-[10px] text-[#94A3B8]">
+                      <p className="mt-1 text-center text-[10px] text-muted-foreground">
                         {SCAN_TYPE_LABELS[img.type] ?? img.type}
                       </p>
                     </div>
@@ -257,8 +274,8 @@ export default function ResultCard({
             )}
 
             {/* Disclaimer - desktop only, inside left column */}
-            <div className="hidden rounded-xl border border-[#EEEFF2] bg-[#FAFAFA] px-4 py-3 text-center lg:block">
-              <p className="text-xs font-medium text-[#9DA0AE]">
+            <div className="hidden rounded-xl border border-border bg-muted/50 px-4 py-3 text-center lg:block">
+              <p className="text-xs font-medium text-muted-foreground">
                 {COPY.DISCLAIMER_SHORT}
               </p>
             </div>
@@ -267,17 +284,17 @@ export default function ResultCard({
           {/* ── Right Column: Analysis Details ── */}
           <div className="min-w-0 flex-1 space-y-4">
             {/* Headline */}
-            <div className="rounded-2xl bg-white p-6 shadow-sm">
-              <h2 className="text-xl font-bold text-[#1E293B]">
+            <div className="rounded-2xl bg-card p-6 shadow-sm">
+              <h2 className="text-xl font-bold text-foreground">
                 {COPY.GRADE_HEADLINE[grade] ?? "분석 완료"}
               </h2>
-              <p className="mt-1 text-sm text-[#64748B]">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {COPY.GRADE_DESCRIPTION[grade] ?? ""}
               </p>
 
               {/* Category icons row */}
               <div className="mt-4 flex flex-wrap gap-3">
-                {(Object.keys(DETAIL_CONFIG) as (keyof AnalysisDetail)[]).map(
+                {DETAIL_KEYS.map(
                   (key) => (
                     <ScoreBar key={key} {...DETAIL_CONFIG[key]} />
                   ),
@@ -286,7 +303,7 @@ export default function ResultCard({
             </div>
 
             {/* Detail cards */}
-            {(Object.keys(DETAIL_CONFIG) as (keyof AnalysisDetail)[]).map(
+            {DETAIL_KEYS.map(
               (key) => {
                 const {
                   label,
@@ -297,12 +314,12 @@ export default function ResultCard({
                 return (
                   <motion.div
                     key={key}
-                    className="rounded-2xl bg-white p-5 shadow-sm"
+                    className="rounded-2xl bg-card p-5 shadow-sm"
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{
                       duration: 0.3,
-                      delay: 0.1 * Object.keys(DETAIL_CONFIG).indexOf(key),
+                      delay: 0.1 * DETAIL_KEYS.indexOf(key),
                     }}
                   >
                     <div className="mb-3 flex items-center gap-3">
@@ -314,11 +331,11 @@ export default function ResultCard({
                           strokeWidth={1.8}
                         />
                       </div>
-                      <h3 className="text-base font-semibold text-[#1E293B]">
+                      <h3 className="text-base font-semibold text-foreground">
                         {label}
                       </h3>
                     </div>
-                    <p className="text-sm leading-relaxed text-[#64748B]">
+                    <p className="text-sm leading-relaxed text-muted-foreground">
                       {details[key]}
                     </p>
                   </motion.div>
@@ -326,9 +343,34 @@ export default function ResultCard({
               },
             )}
 
+            {/* Comparison card */}
+            {details.comparison && (
+              <motion.div
+                className="rounded-2xl bg-card p-5 shadow-sm"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.6 }}
+              >
+                <div className="mb-3 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-teal-50 dark:bg-teal-950/30">
+                    <ArrowLeftRight
+                      className="h-5 w-5 text-teal-500"
+                      strokeWidth={1.8}
+                    />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground">
+                    이전 대비 변화
+                  </h3>
+                </div>
+                <p className="text-sm leading-relaxed text-muted-foreground">
+                  {details.comparison}
+                </p>
+              </motion.div>
+            )}
+
             {/* Disclaimer - mobile only */}
-            <div className="rounded-xl border border-[#EEEFF2] bg-[#FAFAFA] px-4 py-3 text-center lg:hidden">
-              <p className="text-xs font-medium text-[#9DA0AE]">
+            <div className="rounded-xl border border-border bg-muted/50 px-4 py-3 text-center lg:hidden">
+              <p className="text-xs font-medium text-muted-foreground">
                 {COPY.DISCLAIMER_SHORT}
               </p>
             </div>

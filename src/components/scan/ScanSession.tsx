@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState, type ReactElement } from "react";
+import { useCallback, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Upload, RotateCcw, Scan, Camera, ImagePlus, X } from "lucide-react";
+import { Upload, RotateCcw, Scan, ImagePlus, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { useDailyRemaining } from "@/hooks/useDailyRemaining";
@@ -43,12 +43,7 @@ export default function ScanSession(): ReactElement {
   const router = useRouter();
   const { images, addImages, removeImage, reset } = useScanSessionStore();
   const { data: dailyData } = useDailyRemaining();
-  const [isIOS, setIsIOS] = useState(false);
   const isLimitReached = dailyData?.remaining === 0;
-
-  useEffect(() => {
-    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
-  }, []);
 
   const isFull = images.length >= MAX_IMAGES;
   const canSubmit = images.length >= MIN_IMAGES;
@@ -116,7 +111,7 @@ export default function ScanSession(): ReactElement {
           </div>
           <h1 className="text-xl font-bold text-foreground">두피 사진 업로드</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            두피 사진을 촬영하거나 갤러리에서 선택해주세요.
+            두피 사진을 선택해서 업로드해주세요.
           </p>
           {dailyData && (
             <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-muted px-3 py-1.5 ring-1 ring-border">
@@ -233,26 +228,12 @@ export default function ScanSession(): ReactElement {
                 </p>
               )}
 
-              {/* Action buttons */}
+              {/* Action button */}
               {!isFull && (
-                <div className="mt-3 flex gap-2">
-                  <label className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/85 active:scale-[0.98]">
-                    <Camera className="h-4 w-4" />
-                    촬영하기
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      {...(!isIOS ? { capture: "environment" } : {})}
-                      className="hidden"
-                      onChange={(e) => {
-                        if (e.target.files) handleFiles(Array.from(e.target.files));
-                        e.target.value = "";
-                      }}
-                    />
-                  </label>
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl bg-accent px-4 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-border active:scale-[0.98]">
+                <div className="mt-3">
+                  <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/85 active:scale-[0.98]">
                     <ImagePlus className="h-4 w-4" />
-                    갤러리
+                    사진 선택하기
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
