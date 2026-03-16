@@ -15,10 +15,14 @@ export function parseGeminiResponse(text: string): GeminiAnalysisResponse {
     throw new Error("Gemini 응답 형식이 올바르지 않습니다.");
   }
 
-  // 값 범위 클램핑
+  // 등급 클램핑
+  const grade = clamp(Math.round(parsed.norwoodGrade), 1, 5);
+  // 등급-점수 교차검증: 점수를 등급 범위 내로 강제 보정
+  const score = enforceGradeScoreSync(grade, parsed.score);
+
   return {
-    norwoodGrade: clamp(parsed.norwoodGrade, 1, 5),
-    score: clamp(parsed.score, 0, 100),
+    norwoodGrade: grade,
+    score,
     hairline: sanitizeText(parsed.hairline),
     density: sanitizeText(parsed.density),
     thickness: sanitizeText(parsed.thickness),
@@ -68,6 +72,29 @@ function parseScalpRegions(raw: unknown): ScalpRegion[] {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
+}
+
+/** 등급별 허용 점수 범위 — 등급과 점수가 불일치하면 점수를 보정 */
+const GRADE_SCORE_RANGE: Record<number, [number, number]> = {
+  1: [85, 100],
+  2: [68, 84],
+  3: [45, 67],
+  4: [25, 44],
+  5: [0, 24],
+};
+
+function enforceGradeScoreSync(grade: number, rawScore: number): number {
+  const [min, max] = GRADE_SCORE_RANGE[grade] ?? [0, 100];
+  const clamped = clamp(rawScore, 0, 100);
+
+  // 점수가 이미 등급 범위 내에 있으면 그대로 사용
+  if (clamped >= min && clamped <= max) return clamped;
+
+  // 범위 밖이면 가장 가까운 범위 끝으로 보정
+  console.warn(
+    `[parser] Grade-score mismatch: grade=${grade}, score=${rawScore} → clamped to [${min}, ${max}]`,
+  );
+  return clamped < min ? min : max;
 }
 
 function sanitizeText(text: string): string {
