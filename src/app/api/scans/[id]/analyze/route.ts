@@ -34,7 +34,8 @@ export async function POST(
     );
   }
 
-  // Daily limit: 최대 2회/일
+  // Daily limit: 최대 2회/일 (개발 환경에서는 무제한)
+  const isDev = process.env.NODE_ENV === "development";
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
@@ -52,7 +53,7 @@ export async function POST(
     .eq("status", "completed")
     .gte("analyses.created_at", todayStart.toISOString());
 
-  if (!countError && (dailyUserCount ?? 0) >= 2) {
+  if (!isDev && !countError && (dailyUserCount ?? 0) >= 2) {
     return NextResponse.json(
       {
         error: "오늘 분석 횟수(2회)를 모두 사용했어요. 내일 다시 시도해주세요.",

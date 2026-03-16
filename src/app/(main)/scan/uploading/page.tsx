@@ -7,11 +7,27 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Camera, Clock, MessageCircle, Home, Share2 } from "lucide-react";
 import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
+import { compressImage } from "@/lib/image/compressClient";
 import ResultCard from "@/components/analysis/ResultCard";
 import ShareAnalysisModal from "@/components/board/ShareAnalysisModal";
 import { useCreatePost } from "@/hooks/useBoardPosts";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail, ScanImage } from "@/types/database";
+
+/** 비-JSON 응답(413 등)을 안전하게 처리 */
+async function safeParseJson(
+  res: Response,
+): Promise<{ error?: string } | null> {
+  try {
+    return await res.json();
+  } catch {
+    const text = await res.text().catch(() => "");
+    if (res.status === 413 || text.includes("Request Entity Too Large")) {
+      return { error: "이미지 용량이 너무 커요. 더 작은 사진으로 다시 시도해주세요." };
+    }
+    return { error: `서버 오류가 발생했어요. (${res.status})` };
+  }
+}
 
 type UploadState = "uploading" | "analyzing" | "done" | "error";
 
@@ -45,14 +61,21 @@ export default function UploadingPage(): ReactElement {
 
     async function uploadAndAnalyze(): Promise<void> {
       try {
-        // 1. 업로드
+        // 1. 클라이언트 이미지 압축 + 업로드
         setState("uploading");
         const formData = new FormData();
         const scanTypes = ["top", "front", "side"] as const;
-        images.forEach((img, i) => {
-          const key = i < scanTypes.length ? scanTypes[i] : `extra_${i}`;
-          formData.append(key, img.blob, `${key}.jpg`);
-        });
+        await Promise.all(
+          images.map(async (img, i) => {
+            const key = i < scanTypes.length ? scanTypes[i] : `extra_${i}`;
+            const compressed = await compressImage(
+              img.blob instanceof File
+                ? img.blob
+                : new File([img.blob], `${key}.jpg`, { type: "image/jpeg" }),
+            );
+            formData.append(key, compressed, `${key}.jpg`);
+          }),
+        );
 
         const uploadRes = await fetch("/api/scans", {
           method: "POST",
@@ -60,8 +83,8 @@ export default function UploadingPage(): ReactElement {
         });
 
         if (!uploadRes.ok) {
-          const err = await uploadRes.json();
-          throw new Error(err.error ?? COPY.ERROR_ANALYSIS_FAILED);
+          const err = await safeParseJson(uploadRes);
+          throw new Error(err?.error ?? COPY.ERROR_ANALYSIS_FAILED);
         }
 
         const { scan } = await uploadRes.json();
@@ -73,8 +96,8 @@ export default function UploadingPage(): ReactElement {
         });
 
         if (!analyzeRes.ok) {
-          const err = await analyzeRes.json();
-          throw new Error(err.error ?? COPY.ERROR_ANALYSIS_FAILED);
+          const err = await safeParseJson(analyzeRes);
+          throw new Error(err?.error ?? COPY.ERROR_ANALYSIS_FAILED);
         }
 
         const { analysis: result, dailyRemaining } = await analyzeRes.json();
