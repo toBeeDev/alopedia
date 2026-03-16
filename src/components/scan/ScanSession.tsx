@@ -241,8 +241,8 @@ export default function ScanSession(): ReactElement {
                     촬영하기
                     <input
                       type="file"
-                      accept="image/jpeg,image/png,image/webp"
-                      {...(!isIOS ? { capture: "environment" } : {})}
+                      accept={isIOS ? "image/*" : "image/jpeg,image/png,image/webp"}
+                      {...(!isIOS ? { capture: "environment" } : { capture: "user" })}
                       className="hidden"
                       onChange={(e) => {
                         if (e.target.files) handleFiles(Array.from(e.target.files));
