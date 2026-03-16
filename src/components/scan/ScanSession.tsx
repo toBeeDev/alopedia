@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, type ReactElement } from "react";
+import { useCallback, useEffect, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Upload, RotateCcw, Scan, Camera, ImagePlus, X } from "lucide-react";
@@ -41,6 +41,11 @@ function createCapturedImage(file: File): Promise<CapturedImage> {
 export default function ScanSession(): ReactElement {
   const router = useRouter();
   const { images, addImages, removeImage, reset } = useScanSessionStore();
+  const [isIOS, setIsIOS] = useState(false);
+
+  useEffect(() => {
+    setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
+  }, []);
 
   const isFull = images.length >= MAX_IMAGES;
   const canSubmit = images.length >= MIN_IMAGES;
@@ -221,7 +226,7 @@ export default function ScanSession(): ReactElement {
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
-                      capture="environment"
+                      {...(!isIOS ? { capture: "environment" } : {})}
                       className="hidden"
                       onChange={(e) => {
                         if (e.target.files) handleFiles(Array.from(e.target.files));
