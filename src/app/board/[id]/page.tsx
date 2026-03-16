@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect, type ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -8,7 +8,6 @@ import {
   ArrowLeft,
   Feather,
   MessageCircle,
-  Megaphone,
   Send,
   Loader2,
   MoreVertical,

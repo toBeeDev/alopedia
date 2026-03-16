@@ -39,7 +39,7 @@ export async function POST(
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  const { count: todayCount, error: countError } = await supabase
+  const { error: countError } = await supabase
     .from("analyses")
     .select("id", { count: "exact", head: true })
     .eq("scan_id", scanId)
