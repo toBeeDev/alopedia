@@ -134,14 +134,18 @@ export default function DashboardPage(): ReactElement {
   const { data: profileData } = useProfile();
   const profile = profileData?.profile;
 
-  const latestScan = scans?.[0];
+  // 분석 완료된 스캔만 필터링
+  const completedScans = scans?.filter(
+    (s) => s.status === "completed" && s.analyses?.length > 0,
+  );
+  const latestScan = completedScans?.[0];
   const latestAnalysis = latestScan?.analyses?.[0];
   const gradeConfig = latestAnalysis
     ? getGradeConfig(latestAnalysis.norwood_grade)
     : null;
-  const scanCount = scans?.length ?? 0;
+  const scanCount = completedScans?.length ?? 0;
 
-  const prevAnalysis = scans?.[1]?.analyses?.[0];
+  const prevAnalysis = completedScans?.[1]?.analyses?.[0];
   const scoreDiff =
     latestAnalysis && prevAnalysis
       ? latestAnalysis.score - prevAnalysis.score
