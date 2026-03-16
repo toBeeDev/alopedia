@@ -25,11 +25,40 @@ export async function POST(
     return NextResponse.json({ error: "로그인이 필요해요." }, { status: 401 });
   }
 
-  // Rate limit: 10 analyses per minute
-  const rl = checkRateLimit(`analyze:${user.id}`, 10, 60_000);
+  // Rate limit: 3 analyses per minute (burst protection)
+  const rl = checkRateLimit(`analyze:${user.id}`, 3, 60_000);
   if (!rl.allowed) {
     return NextResponse.json(
       { error: "분석 요청이 너무 많아요. 잠시 후 다시 시도해주세요." },
+      { status: 429 },
+    );
+  }
+
+  // Daily limit: 최대 2회/일
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+
+  const { count: todayCount, error: countError } = await supabase
+    .from("analyses")
+    .select("id", { count: "exact", head: true })
+    .eq("scan_id", scanId)
+    .gte("created_at", todayStart.toISOString());
+
+  // scan_id 기준이 아닌 user 기준으로 하루 전체 분석 횟수 체크
+  const { count: dailyUserCount } = await supabase
+    .from("scans")
+    .select("id, analyses!inner(id)", { count: "exact", head: true })
+    .eq("user_id", user.id)
+    .eq("status", "completed")
+    .gte("analyses.created_at", todayStart.toISOString());
+
+  if (!countError && (dailyUserCount ?? 0) >= 2) {
+    return NextResponse.json(
+      {
+        error: "오늘 분석 횟수(2회)를 모두 사용했어요. 내일 다시 시도해주세요.",
+        code: "DAILY_LIMIT_REACHED",
+        remaining: 0,
+      },
       { status: 429 },
     );
   }
@@ -191,7 +220,8 @@ export async function POST(
     // Grant EXP for completed scan
     await grantExp(supabase, user.id, EXP_REWARDS.SCAN_COMPLETED);
 
-    return NextResponse.json({ analysis });
+    const dailyRemaining = Math.max(0, 2 - ((dailyUserCount ?? 0) + 1));
+    return NextResponse.json({ analysis, dailyRemaining });
   } catch (error) {
     console.error("[POST /api/scans/:id/analyze] Error:", error);
     await supabase

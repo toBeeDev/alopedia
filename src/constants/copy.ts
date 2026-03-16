@@ -61,6 +61,7 @@ export const COPY = {
   SHARE_ANALYSIS_IMAGE_WARNING:
     "사진은 익명으로 공유되며, EXIF 정보가 제거된 상태입니다.",
   SHARE_ANALYSIS_CTA: "게시판에 공유하기",
+  DAILY_ANALYSIS_LIMIT: "오늘 분석 횟수(2회)를 모두 사용했어요. 내일 다시 시도해주세요.",
 
   // ── Gamification ──
   STREAK_ACHIEVED: (days: number): string =>
