@@ -336,7 +336,7 @@ export default function DashboardPage(): ReactElement {
                       className="mt-5 inline-flex items-center gap-2 rounded-full bg-card px-7 py-3 text-sm font-bold text-foreground shadow-lg shadow-black/10 transition-all hover:shadow-xl active:scale-95"
                     >
                       <Camera className="h-4 w-4" />
-                      두피 촬영하기
+                      두피 사진 올리기
                     </Link>
                   </div>
                 </div>
@@ -386,7 +386,7 @@ export default function DashboardPage(): ReactElement {
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
               <QuickAction
                 icon={<Camera className="h-5 w-5 text-foreground" />}
-                label="두피 촬영"
+                label="사진 업로드"
                 desc="AI 분석 시작하기"
                 href="/scan"
                 gradient="bg-foreground"

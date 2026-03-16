@@ -3,6 +3,7 @@
 import { useState, memo, type ReactElement } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Feather,
@@ -19,6 +20,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import { COPY } from "@/constants/copy";
 import { getGradeConfig } from "@/constants/gradeConfig";
+import { getTagColor } from "@/constants/medications";
 import { EagleIcon } from "@/components/ui/eagle-icons";
 import { fadeSlideUp, staggerContainer } from "@/lib/motion";
 import { useAuth } from "@/hooks/useAuth";
@@ -248,21 +250,49 @@ const PostCard = memo(function PostCard({
 
       <h3 className="mb-1.5 text-sm font-bold text-foreground">{post.title}</h3>
       <p
-        className={`text-sm leading-relaxed text-muted-foreground ${blurred ? "select-none blur-[6px]" : ""}`}
+        className={`line-clamp-2 text-sm leading-relaxed text-muted-foreground ${blurred ? "select-none blur-[6px]" : ""}`}
       >
         {post.content}
       </p>
 
+      {/* 이미지 썸네일 */}
+      {post.images && post.images.length > 0 && (
+        <div className="mt-2 flex gap-1.5">
+          {post.images.slice(0, 3).map((img, idx) => (
+            <div
+              key={idx}
+              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-accent ${blurred ? "blur-[6px]" : ""}`}
+            >
+              <Image
+                src={(img.thumbnailUrl ?? img.url) as string}
+                alt={`첨부 이미지 ${idx + 1}`}
+                fill
+                sizes="64px"
+                className="object-cover"
+              />
+            </div>
+          ))}
+          {post.images.length > 3 && (
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-accent text-xs font-medium text-muted-foreground">
+              +{post.images.length - 3}
+            </div>
+          )}
+        </div>
+      )}
+
       {post.tags && post.tags.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
-          {post.tags.map((tag) => (
-            <span
-              key={tag}
-              className="rounded-full bg-accent px-2 py-0.5 text-[10px] text-muted-foreground/70"
-            >
-              #{tag}
-            </span>
-          ))}
+          {post.tags.map((tag) => {
+            const color = getTagColor(tag);
+            return (
+              <span
+                key={tag}
+                className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${color.bg} ${color.text}`}
+              >
+                #{tag}
+              </span>
+            );
+          })}
         </div>
       )}
 
@@ -315,13 +345,22 @@ export default function BoardPage(): ReactElement {
     title: string;
     content: string;
     deletePin: string;
+    images?: { url: string; thumbnailUrl: string }[];
+    medication?: string;
+    procedure?: string;
   }): void {
+    const tags: string[] = [];
+    if (formData.medication) tags.push(formData.medication);
+    if (formData.procedure) tags.push(formData.procedure);
+
     createPost.mutate(
       {
         board: formData.board as BoardType,
         title: formData.title,
         content: formData.content,
         deletePin: formData.deletePin,
+        images: formData.images,
+        tags: tags.length > 0 ? tags : undefined,
       },
       {
         onSuccess: () => setShowWrite(false),

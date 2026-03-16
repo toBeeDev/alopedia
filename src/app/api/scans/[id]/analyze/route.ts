@@ -34,8 +34,8 @@ export async function POST(
     );
   }
 
-  // Daily limit: 최대 2회/일 (개발 환경에서는 무제한)
-  const isDev = process.env.NODE_ENV === "development";
+  // Daily limit: 최대 2회/일 (개발/preview 환경에서는 무제한)
+  const isDev = process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 

@@ -24,7 +24,7 @@ export async function GET(): Promise<NextResponse> {
     .eq("status", "completed")
     .gte("analyses.created_at", todayStart.toISOString());
 
-  const isDev = process.env.NODE_ENV === "development";
+  const isDev = process.env.NODE_ENV === "development" || process.env.VERCEL_ENV === "preview";
   const used = count ?? 0;
   const remaining = isDev ? 999 : Math.max(0, DAILY_LIMIT - used);
   const limit = isDev ? 999 : DAILY_LIMIT;

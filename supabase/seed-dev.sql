@@ -63,10 +63,13 @@ CREATE TABLE IF NOT EXISTS posts (
   vote_count INTEGER DEFAULT 0,
   comment_count INTEGER DEFAULT 0,
   is_adopted BOOLEAN DEFAULT false,
+  is_pinned BOOLEAN DEFAULT false,
+  delete_pin TEXT,
   norwood_grade SMALLINT,
   score NUMERIC(5,2),
   slug TEXT,
-  created_at TIMESTAMPTZ DEFAULT now()
+  created_at TIMESTAMPTZ DEFAULT now(),
+  CONSTRAINT posts_user_id_profiles_fkey FOREIGN KEY (user_id) REFERENCES profiles(id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS posts_slug_unique ON posts (slug) WHERE slug IS NOT NULL;
@@ -78,6 +81,7 @@ CREATE TABLE IF NOT EXISTS comments (
   parent_id UUID REFERENCES comments,
   content TEXT NOT NULL,
   vote_count INTEGER DEFAULT 0,
+  CONSTRAINT comments_user_id_profiles_fkey FOREIGN KEY (user_id) REFERENCES profiles(id),
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -180,7 +184,7 @@ BEGIN
   INSERT INTO public.profiles (id, nickname, avatar_seed)
   VALUES (
     NEW.id,
-    '익명_' || LEFT(NEW.id::text, 8),
+    '익명독수리_' || LEFT(NEW.id::text, 8),
     NEW.id::text
   );
   RETURN NEW;
