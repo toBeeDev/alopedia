@@ -1,15 +1,24 @@
 "use client";
 
 import { useState, type ReactElement } from "react";
-import { X } from "lucide-react";
+import Image from "next/image";
+import { X, ImagePlus, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import { COPY } from "@/constants/copy";
+import { compressImage } from "@/lib/image/compressClient";
 
 export interface WritePostData {
   board: string;
   title: string;
   content: string;
   deletePin: string;
+  images?: { url: string; thumbnailUrl: string }[];
+}
+
+interface PreviewImage {
+  id: string;
+  file: File;
+  previewUrl: string;
 }
 
 interface WritePostModalProps {
@@ -17,6 +26,8 @@ interface WritePostModalProps {
   onSubmit: (data: WritePostData) => void;
   initial?: { board: string; title: string; content: string };
 }
+
+const MAX_IMAGES = 5;
 
 export default function WritePostModal({
   onClose,
@@ -29,8 +40,32 @@ export default function WritePostModal({
   const [content, setContent] = useState(initial?.content ?? "");
   const [deletePin, setDeletePin] = useState("");
   const [error, setError] = useState("");
+  const [previewImages, setPreviewImages] = useState<PreviewImage[]>([]);
+  const [uploading, setUploading] = useState(false);
 
-  function handleSubmit(): void {
+  function handleAddImages(files: FileList | null): void {
+    if (!files) return;
+    const remaining = MAX_IMAGES - previewImages.length;
+    const newFiles = Array.from(files).slice(0, remaining);
+
+    const newPreviews = newFiles.map((file) => ({
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      file,
+      previewUrl: URL.createObjectURL(file),
+    }));
+
+    setPreviewImages((prev) => [...prev, ...newPreviews]);
+  }
+
+  function handleRemoveImage(id: string): void {
+    setPreviewImages((prev) => {
+      const img = prev.find((p) => p.id === id);
+      if (img) URL.revokeObjectURL(img.previewUrl);
+      return prev.filter((p) => p.id !== id);
+    });
+  }
+
+  async function handleSubmit(): Promise<void> {
     if (title.trim().length < 2) {
       setError("제목은 2자 이상 입력해주세요.");
       return;
@@ -43,7 +78,46 @@ export default function WritePostModal({
       setError("삭제 비밀번호는 숫자 4자리로 입력해주세요.");
       return;
     }
-    onSubmit({ board, title, content, deletePin });
+
+    let uploadedImages: { url: string; thumbnailUrl: string }[] | undefined;
+
+    if (previewImages.length > 0) {
+      setUploading(true);
+      setError("");
+      try {
+        const formData = new FormData();
+        for (const img of previewImages) {
+          const compressed = await compressImage(img.file, {
+            maxWidth: 1280,
+            maxHeight: 1280,
+            quality: 0.8,
+          });
+          formData.append("images", compressed, `${img.id}.jpg`);
+        }
+
+        const res = await fetch("/api/board/images", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          setError(err.error ?? "이미지 업로드에 실패했어요.");
+          setUploading(false);
+          return;
+        }
+
+        const data = await res.json();
+        uploadedImages = data.images;
+      } catch {
+        setError("이미지 업로드 중 오류가 발생했어요.");
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
+    }
+
+    onSubmit({ board, title, content, deletePin, images: uploadedImages });
   }
 
   return (
@@ -59,7 +133,7 @@ export default function WritePostModal({
         animate={{ y: 0 }}
         exit={{ y: 100 }}
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-w-lg rounded-t-2xl bg-card p-6 shadow-xl sm:rounded-2xl"
+        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-card p-6 shadow-xl sm:rounded-2xl"
       >
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-base font-bold text-foreground">
@@ -107,6 +181,48 @@ export default function WritePostModal({
           className="mb-3 w-full resize-none rounded-xl border border-border px-4 py-3 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-foreground"
         />
 
+        {/* 이미지 첨부 */}
+        <div className="mb-3">
+          <div className="flex flex-wrap gap-2">
+            {previewImages.map((img) => (
+              <div
+                key={img.id}
+                className="group relative h-16 w-16 overflow-hidden rounded-lg"
+              >
+                <Image
+                  src={img.previewUrl}
+                  alt="첨부 이미지"
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(img.id)}
+                  className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+            {previewImages.length < MAX_IMAGES && (
+              <label className="flex h-16 w-16 cursor-pointer items-center justify-center rounded-lg border-2 border-dashed border-border text-muted-foreground/50 transition-colors hover:border-foreground hover:text-foreground">
+                <ImagePlus className="h-5 w-5" />
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  multiple
+                  className="hidden"
+                  onChange={(e) => handleAddImages(e.target.files)}
+                />
+              </label>
+            )}
+          </div>
+          <p className="mt-1.5 text-[11px] text-muted-foreground/50">
+            이미지 최대 {MAX_IMAGES}장 · JPG, PNG, WebP
+          </p>
+        </div>
+
         {!isEdit && (
           <div className="mb-4">
             <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
@@ -138,9 +254,11 @@ export default function WritePostModal({
           </button>
           <button
             onClick={handleSubmit}
-            className="rounded-full bg-foreground px-6 py-2.5 text-sm font-semibold text-background shadow-md shadow-black/15 transition-all hover:bg-foreground/85 active:scale-95"
+            disabled={uploading}
+            className="flex items-center gap-2 rounded-full bg-foreground px-6 py-2.5 text-sm font-semibold text-background shadow-md shadow-black/15 transition-all hover:bg-foreground/85 active:scale-95 disabled:opacity-50"
           >
-            {isEdit ? "수정하기" : "등록하기"}
+            {uploading && <Loader2 className="h-4 w-4 animate-spin" />}
+            {uploading ? "업로드 중..." : isEdit ? "수정하기" : "등록하기"}
           </button>
         </div>
       </motion.div>

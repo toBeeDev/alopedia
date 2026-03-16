@@ -317,31 +317,33 @@ export default function PostDetailPage(): ReactElement {
               </div>
             )}
 
-            {/* 공유된 이미지 */}
+            {/* 첨부 이미지 */}
             {post.images && post.images.length > 0 && (
-              <div className="mb-4 flex gap-2 overflow-x-auto scrollbar-none">
-                {post.images.map((img, idx) => {
-                  const blurClass =
-                    img.blurLevel === "heavy"
-                      ? "blur-[8px]"
-                      : img.blurLevel === "light"
-                        ? "blur-[3px]"
-                        : "";
-                  return (
-                    <div
-                      key={idx}
-                      className="relative h-24 w-24 shrink-0 overflow-hidden rounded-xl"
-                    >
-                      <Image
-                        src={img.thumbnailUrl ?? img.url}
-                        alt={`두피 사진 ${idx + 1}`}
-                        fill
-                        className={`object-cover ${blurClass}`}
-                        sizes="96px"
-                      />
-                    </div>
-                  );
-                })}
+              <div className="mb-4">
+                <div className={`grid gap-2 ${post.images.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
+                  {post.images.map((img, idx) => {
+                    const blurClass =
+                      img.blurLevel === "heavy"
+                        ? "blur-[8px]"
+                        : img.blurLevel === "light"
+                          ? "blur-[3px]"
+                          : "";
+                    return (
+                      <div
+                        key={idx}
+                        className={`relative overflow-hidden rounded-xl bg-accent ${post.images!.length === 1 ? "aspect-[4/3]" : "aspect-square"}`}
+                      >
+                        <Image
+                          src={(img.url ?? img.thumbnailUrl) as string}
+                          alt={`첨부 사진 ${idx + 1}`}
+                          fill
+                          className={`object-cover ${blurClass}`}
+                          sizes="(max-width: 640px) 50vw, 300px"
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
 

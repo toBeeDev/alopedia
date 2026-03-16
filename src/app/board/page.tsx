@@ -3,6 +3,7 @@
 import { useState, memo, type ReactElement } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   Feather,
@@ -248,10 +249,35 @@ const PostCard = memo(function PostCard({
 
       <h3 className="mb-1.5 text-sm font-bold text-foreground">{post.title}</h3>
       <p
-        className={`text-sm leading-relaxed text-muted-foreground ${blurred ? "select-none blur-[6px]" : ""}`}
+        className={`line-clamp-2 text-sm leading-relaxed text-muted-foreground ${blurred ? "select-none blur-[6px]" : ""}`}
       >
         {post.content}
       </p>
+
+      {/* 이미지 썸네일 */}
+      {post.images && post.images.length > 0 && (
+        <div className="mt-2 flex gap-1.5">
+          {post.images.slice(0, 3).map((img, idx) => (
+            <div
+              key={idx}
+              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-accent ${blurred ? "blur-[6px]" : ""}`}
+            >
+              <Image
+                src={(img.thumbnailUrl ?? img.url) as string}
+                alt={`첨부 이미지 ${idx + 1}`}
+                fill
+                sizes="64px"
+                className="object-cover"
+              />
+            </div>
+          ))}
+          {post.images.length > 3 && (
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-accent text-xs font-medium text-muted-foreground">
+              +{post.images.length - 3}
+            </div>
+          )}
+        </div>
+      )}
 
       {post.tags && post.tags.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1">
@@ -315,6 +341,7 @@ export default function BoardPage(): ReactElement {
     title: string;
     content: string;
     deletePin: string;
+    images?: { url: string; thumbnailUrl: string }[];
   }): void {
     createPost.mutate(
       {
@@ -322,6 +349,7 @@ export default function BoardPage(): ReactElement {
         title: formData.title,
         content: formData.content,
         deletePin: formData.deletePin,
+        images: formData.images,
       },
       {
         onSuccess: () => setShowWrite(false),
