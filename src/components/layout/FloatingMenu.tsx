@@ -16,7 +16,6 @@ import {
   LogOut,
   Stethoscope,
   ChevronDown,
-  ChevronLeft,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { COPY } from "@/constants/copy";

@@ -9,6 +9,7 @@ import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { compressImage } from "@/lib/image/compressClient";
 import ResultCard from "@/components/analysis/ResultCard";
+import FeedbackButtons from "@/components/analysis/FeedbackButtons";
 import ShareAnalysisModal from "@/components/board/ShareAnalysisModal";
 import { useCreatePost } from "@/hooks/useBoardPosts";
 import { COPY } from "@/constants/copy";
@@ -151,8 +152,13 @@ export default function UploadingPage(): ReactElement {
           images={analysis.images}
         />
 
+        {/* 피드백 버튼 */}
+        <div className="mx-auto mt-4 max-w-4xl">
+          <FeedbackButtons scanId={analysis.scanId} />
+        </div>
+
         {/* 커뮤니티 공유 CTA */}
-        <div className="mx-auto mt-6 max-w-4xl">
+        <div className="mx-auto mt-4 max-w-4xl">
           {shareSuccess ? (
             <motion.div
               initial={{ opacity: 0, y: 8 }}

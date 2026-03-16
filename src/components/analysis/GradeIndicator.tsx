@@ -33,12 +33,12 @@ export default function GradeIndicator({
           <span className="text-lg font-bold" style={{ color: config.color }}>
             {config.eagleLabel}
           </span>
-          <span className="rounded-full bg-white/60 px-2 py-0.5 text-[10px] font-medium text-[#9DA0AE]">
+          <span className="rounded-full bg-background/60 px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
             LV.{grade}
           </span>
         </div>
-        <p className="mt-1 text-sm text-[#676879]">
-          두피 건강 점수 <span className="font-semibold text-[#323338]">{score.toFixed(1)}</span>점
+        <p className="mt-1 text-sm text-muted-foreground">
+          두피 건강 점수 <span className="font-semibold text-foreground">{score.toFixed(1)}</span>점
         </p>
       </div>
     </div>

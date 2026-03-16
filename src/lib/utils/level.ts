@@ -1,7 +1,6 @@
 /** 레벨 시스템 유틸리티 */
 
 const EXP_PER_LEVEL = 100;
-const MAX_LEVEL = 99;
 
 /** 활동별 경험치 보상 */
 export const EXP_REWARDS = {
