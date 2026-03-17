@@ -80,9 +80,9 @@ export default function ShareButtons({
     setDownloaded(false);
   }
 
-  const handleDownload = useCallback((): void => {
+  const handleDownload = useCallback(async (): Promise<void> => {
     if (!previewBlob) return;
-    downloadResultImage(previewBlob);
+    await downloadResultImage(previewBlob);
     setDownloaded(true);
   }, [previewBlob]);
 
