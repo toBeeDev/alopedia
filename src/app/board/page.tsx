@@ -271,13 +271,16 @@ const PostCard = memo(function PostCard({
               <div
                 key={idx}
                 className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-accent ${blurred ? "blur-[6px]" : ""}`}
+                onContextMenu={(e) => e.preventDefault()}
+                draggable={false}
               >
                 <Image
                   src={url}
                   alt={`첨부 이미지 ${idx + 1}`}
                   fill
-                  className={`object-cover ${blurClass}`}
+                  className={`pointer-events-none object-cover ${blurClass}`}
                   sizes="64px"
+                  draggable={false}
                 />
               </div>
             );
