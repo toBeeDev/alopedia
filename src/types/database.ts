@@ -1,3 +1,5 @@
+import type { PhotoClassification } from "@/types/analysis";
+
 /** Supabase Database Types */
 
 export type ScanStatus = "pending" | "analyzing" | "completed" | "failed";
@@ -44,6 +46,7 @@ export interface AnalysisDetail {
   advice: string;
   comparison?: string;
   areaScores?: AreaScores;
+  photoClassification?: PhotoClassification[];
 }
 
 export interface AreaScores {

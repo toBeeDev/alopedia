@@ -1,4 +1,5 @@
-import type { GeminiAnalysisResponse, ScalpRegion, AreaScores } from "@/types/analysis";
+import type { GeminiAnalysisResponse, ScalpRegion, AreaScores, PhotoClassification } from "@/types/analysis";
+import { PHOTO_AREAS } from "@/types/analysis";
 
 /** Gemini 응답 텍스트에서 JSON 추출 및 검증 */
 export function parseGeminiResponse(text: string): GeminiAnalysisResponse {
@@ -37,6 +38,7 @@ export function parseGeminiResponse(text: string): GeminiAnalysisResponse {
     scalpCondition: sanitizeText(parsed.scalpCondition),
     advice: sanitizeMedicalText(parsed.advice),
     scalpRegions: parseScalpRegions(parsed.scalpRegions),
+    photoClassification: parsePhotoClassification(raw.photoClassification),
     comparison,
     areaScores: parseAreaScores(raw.areaScores, score),
   };
@@ -78,6 +80,23 @@ function parseScalpRegions(raw: unknown): ScalpRegion[] {
       w: clamp(r.w, 0, 1),
       h: clamp(r.h, 0, 1),
     }));
+}
+
+function parsePhotoClassification(raw: unknown): PhotoClassification[] {
+  if (!Array.isArray(raw)) return [];
+  const validAreas = new Set<string>(PHOTO_AREAS);
+  const validConfidences = new Set(["high", "medium", "low"]);
+  return raw
+    .filter(
+      (item): item is PhotoClassification =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof item.imageIndex === "number" &&
+        typeof item.area === "string" &&
+        validAreas.has(item.area) &&
+        typeof item.confidence === "string" &&
+        validConfidences.has(item.confidence),
+    );
 }
 
 function parseAreaScores(raw: unknown, fallbackScore: number): AreaScores {

@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import type { CapturedImage } from "@/types/scan";
-import { MAX_IMAGES } from "@/types/scan";
+import { MIN_IMAGES } from "@/types/scan";
 
 interface ScanSessionStore {
   images: CapturedImage[];
@@ -14,7 +14,7 @@ export const useScanSessionStore = create<ScanSessionStore>((set) => ({
 
   addImages: (newImages: CapturedImage[]): void =>
     set((state) => ({
-      images: [...state.images, ...newImages].slice(0, MAX_IMAGES),
+      images: [...state.images, ...newImages].slice(0, MIN_IMAGES),
     })),
 
   removeImage: (id: string): void =>

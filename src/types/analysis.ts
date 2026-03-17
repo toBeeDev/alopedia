@@ -17,6 +17,16 @@ export interface ScalpRegion {
   h: number;
 }
 
+export const PHOTO_AREAS = ["top", "front", "side"] as const;
+export type PhotoArea = typeof PHOTO_AREAS[number];
+export type PhotoConfidence = "high" | "medium" | "low";
+
+export interface PhotoClassification {
+  imageIndex: number;
+  area: PhotoArea;
+  confidence: PhotoConfidence;
+}
+
 export interface AreaScores {
   crown: number;
   hairline: number;
@@ -32,6 +42,7 @@ export interface GeminiAnalysisResponse {
   scalpCondition: string;
   advice: string;
   scalpRegions: ScalpRegion[];
+  photoClassification: PhotoClassification[];
   comparison?: string;
   areaScores: AreaScores;
 }

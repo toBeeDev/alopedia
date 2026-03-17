@@ -4,12 +4,13 @@ import { useEffect, useRef, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
-import { Camera, Clock, MessageCircle, Home, Share2 } from "lucide-react";
+import { Camera, Clock, MessageCircle, Home } from "lucide-react";
 import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { compressImage } from "@/lib/image/compressClient";
 import ResultCard from "@/components/analysis/ResultCard";
 import FeedbackButtons from "@/components/analysis/FeedbackButtons";
+import ShareButtons from "@/components/analysis/ShareButtons";
 import ShareAnalysisModal from "@/components/board/ShareAnalysisModal";
 import { useCreatePost } from "@/hooks/useBoardPosts";
 import { COPY } from "@/constants/copy";
@@ -65,10 +66,9 @@ export default function UploadingPage(): ReactElement {
         // 1. 클라이언트 이미지 압축 + 업로드
         setState("uploading");
         const formData = new FormData();
-        const scanTypes = ["top", "front", "side"] as const;
         await Promise.all(
           images.map(async (img, i) => {
-            const key = i < scanTypes.length ? scanTypes[i] : `extra_${i}`;
+            const key = `photo_${i}`;
             const compressed = await compressImage(
               img.blob instanceof File
                 ? img.blob
@@ -157,31 +157,16 @@ export default function UploadingPage(): ReactElement {
           <FeedbackButtons scanId={analysis.scanId} />
         </div>
 
-        {/* 커뮤니티 공유 CTA */}
+        {/* 공유 CTA */}
         <div className="mx-auto mt-4 max-w-4xl">
-          {shareSuccess ? (
-            <motion.div
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-50 px-6 py-4 text-sm font-medium text-emerald-700"
-            >
-              <span>게시판에 공유됐어요!</span>
-              <Link
-                href="/board"
-                className="underline underline-offset-2 hover:text-emerald-900"
-              >
-                게시판으로 이동
-              </Link>
-            </motion.div>
-          ) : (
-            <button
-              onClick={() => setShowShareModal(true)}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground px-6 py-4 text-sm font-semibold text-background shadow-md shadow-black/10 transition-all hover:bg-foreground/85 active:scale-[0.98]"
-            >
-              <Share2 className="h-4 w-4" strokeWidth={2} />
-              커뮤니티에 결과 공유하기
-            </button>
-          )}
+          <ShareButtons
+            grade={analysis.grade}
+            score={analysis.score}
+            details={analysis.details}
+            createdAt={analysis.createdAt}
+            onBoardShare={() => setShowShareModal(true)}
+            boardShared={shareSuccess}
+          />
         </div>
 
         {/* 남은 분석 횟수 안내 */}

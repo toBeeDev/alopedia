@@ -7,8 +7,6 @@ import { createThumbnail } from "@/lib/image/resize";
 import { validateResolution } from "@/lib/image/validate";
 import type { ScanImage } from "@/types/database";
 
-const SCAN_TYPES = ["top", "front", "side"] as const;
-
 /** POST /api/scans — 스캔 세션 생성 + 이미지 업로드 */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const supabase = await createClient();
@@ -25,9 +23,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const formData = await request.formData();
     const scanImages: ScanImage[] = [];
 
-    // 최소 1장 필수, 최대 6장 (top/front/side + extra)
-    const allKeys = [...SCAN_TYPES, ...Array.from(formData.keys()).filter((k) => k.startsWith("extra_"))];
-    const presentKeys = allKeys.filter((k) => formData.get(k) instanceof File);
+    // photo_0, photo_1, ... 순서로 업로드된 이미지 수집
+    const presentKeys = Array.from(formData.keys())
+      .filter((k) => k.startsWith("photo_") && formData.get(k) instanceof File)
+      .sort((a, b) => {
+        const ai = parseInt(a.split("_")[1], 10);
+        const bi = parseInt(b.split("_")[1], 10);
+        return ai - bi;
+      });
 
     if (presentKeys.length === 0) {
       return NextResponse.json(
@@ -108,7 +111,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       } = supabase.storage.from("scans").getPublicUrl(thumbPath);
 
       scanImages.push({
-        type: type as ScanImage["type"],
+        type,
         url: imageUrl,
         thumbnailUrl,
       });
