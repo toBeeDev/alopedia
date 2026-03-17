@@ -1,5 +1,4 @@
 import { getGradeConfig } from "@/constants/gradeConfig";
-import { COPY } from "@/constants/copy";
 import type { AnalysisDetail } from "@/types/database";
 
 interface ShareContentInput {
@@ -30,8 +29,6 @@ export function generateShareContent(data: ShareContentInput): ShareContentOutpu
     `▸ 모발 굵기: ${data.details.thickness}`,
     `▸ 두피 상태: ${data.details.scalpCondition}`,
     `▸ 조언: ${data.details.advice}`,
-    ``,
-    `${COPY.DISCLAIMER_SHORT}`,
   ].join("\n");
 
   const tags = ["AI분석", config.label, "두피관리"];

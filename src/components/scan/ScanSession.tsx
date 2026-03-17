@@ -7,7 +7,6 @@ import { Upload, RotateCcw, Scan, ImagePlus, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { useDailyRemaining } from "@/hooks/useDailyRemaining";
-import { COPY } from "@/constants/copy";
 import { fadeSlideUp } from "@/lib/motion";
 import type { CapturedImage, AllowedMimeType } from "@/types/scan";
 import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE_BYTES, MAX_IMAGES, MIN_IMAGES } from "@/types/scan";
@@ -277,9 +276,6 @@ export default function ScanSession(): ReactElement {
           )}
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground/70">
-          {COPY.DISCLAIMER_SHORT}
-        </p>
       </div>
     </div>
   );

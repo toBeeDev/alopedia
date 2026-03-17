@@ -3,11 +3,12 @@
 import { useEffect, useState, type ReactElement } from "react";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { ArrowLeft, Share2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import ResultCard from "@/components/analysis/ResultCard";
 import FeedbackButtons from "@/components/analysis/FeedbackButtons";
+import ShareButtons from "@/components/analysis/ShareButtons";
 import { COPY } from "@/constants/copy";
 import { useCreatePost } from "@/hooks/useBoardPosts";
 import type { AnalysisDetail, ScanImage, BoardType } from "@/types/database";
@@ -117,19 +118,14 @@ export default function ScanDetailPage(): ReactElement {
 
           {/* 공유 버튼 */}
           <div className="mt-4">
-            {shared ? (
-              <div className="rounded-xl bg-emerald-500/10 px-4 py-3 text-center text-sm font-medium text-emerald-600 dark:text-emerald-400">
-                게시판에 공유됐어요!
-              </div>
-            ) : (
-              <button
-                onClick={() => setShowShare(true)}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-card py-3.5 text-sm font-semibold text-foreground shadow-sm ring-1 ring-border transition-all hover:bg-accent active:scale-[0.98]"
-              >
-                <Share2 className="h-4 w-4" />
-                커뮤니티에 분석 결과 공유하기
-              </button>
-            )}
+            <ShareButtons
+              grade={analysis.norwood_grade}
+              score={Number(analysis.score)}
+              details={analysis.details as AnalysisDetail}
+              createdAt={analysis.created_at}
+              onBoardShare={() => setShowShare(true)}
+              boardShared={shared}
+            />
           </div>
         </>
       ) : (
