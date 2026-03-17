@@ -192,7 +192,7 @@ export default function ScanSession(): ReactElement {
                         <button
                           type="button"
                           onClick={() => handleRemove(img.id)}
-                          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                           aria-label="삭제"
                         >
                           <X className="h-3.5 w-3.5" />

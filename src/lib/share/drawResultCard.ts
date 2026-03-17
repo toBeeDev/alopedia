@@ -1,4 +1,4 @@
-/** Canvas-based result card image generator (780×1360 @2x → 390×680 logical) */
+/** Canvas-based result card image generator (@2x retina, dynamic height) */
 
 import { EAGLE_SVG_STRINGS } from "@/constants/eagleSvgStrings";
 import { GRADE_CONFIG, type GradeLevel } from "@/constants/gradeConfig";
@@ -13,10 +13,10 @@ interface DrawResultCardParams {
   createdAt: string;
 }
 
-const W = 780;
-const H = 1360;
 const SCALE = 2;
-const LW = W / SCALE; // 390 logical
+const LW = 390; // logical width
+const W = LW * SCALE;
+const PAD = 28;
 
 const GRADE_COLORS: Record<GradeLevel, string> = {
   1: "#22C55E",
@@ -79,6 +79,16 @@ function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
   });
 }
 
+/** 콘텐츠에 따른 논리 높이 계산 */
+function calcLogicalHeight(hasAreaScores: boolean): number {
+  // 헤더(48) + eagle(72~128) + score headline(160~192) + ring(220~340)
+  // + trend(370) + bar(390~418) + scale labels(436)
+  const base = 460;
+  const areaSection = hasAreaScores ? 20 + 36 * 3 : 0; // divider + 3 rows
+  const footer = 50; // divider + url + padding
+  return base + areaSection + footer;
+}
+
 export async function drawResultCard(
   params: DrawResultCardParams,
 ): Promise<Blob> {
@@ -86,55 +96,57 @@ export async function drawResultCard(
   const clampedGrade = Math.max(1, Math.min(5, Math.round(grade))) as GradeLevel;
   const gradeConfig = GRADE_CONFIG[clampedGrade];
 
+  const LH = calcLogicalHeight(!!areaScores);
+  const H = LH * SCALE;
+
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("Failed to get 2d context");
 
-  // Scale everything by 2x for retina
   ctx.scale(SCALE, SCALE);
 
   // ── Background ──
-  drawRoundedRect(ctx, 0, 0, LW, H / SCALE, 24);
+  drawRoundedRect(ctx, 0, 0, LW, LH, 24);
   ctx.fillStyle = "#FFFFFF";
   ctx.fill();
   ctx.clip();
 
   // ── Brand header ──
   ctx.fillStyle = "#111827";
-  ctx.font = "bold 22px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-  ctx.fillText("Alopedia", 28, 48);
+  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.fillText("Alopedia", PAD, 40);
 
   // ── Eagle icon ──
-  const eagleDrawSize = 56;
+  const eagleDrawSize = 44;
   try {
     const eagleImg = await loadSvgAsImage(
       EAGLE_SVG_STRINGS[clampedGrade],
       eagleDrawSize * SCALE,
     );
-    ctx.drawImage(eagleImg, 28, 72, eagleDrawSize, eagleDrawSize);
+    ctx.drawImage(eagleImg, PAD, 58, eagleDrawSize, eagleDrawSize);
   } catch {
-    // Eagle failed to load — skip icon, continue drawing
+    // skip
   }
 
   // Eagle label + level
   ctx.fillStyle = "#374151";
-  ctx.font = "600 16px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-  ctx.fillText(`${eagleLabel} LV.${clampedGrade}`, 92, 98);
+  ctx.font = "600 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.fillText(`${eagleLabel} LV.${clampedGrade}`, PAD + eagleDrawSize + 10, 82);
 
   // ── Score headline ──
   ctx.fillStyle = "#111827";
-  ctx.font = "500 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-  ctx.fillText("두피 건강 점수", 28, 160);
-  ctx.font = "bold 28px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-  ctx.fillText(`${score.toFixed(1)}점`, 28, 192);
+  ctx.font = "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.fillText("두피 건강 점수", PAD, 128);
+  ctx.font = "bold 24px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.fillText(`${score.toFixed(1)}점`, PAD, 156);
 
   // ── Score ring ──
   const ringCx = LW / 2;
-  const ringCy = 280;
-  const ringR = 60;
-  const ringLineWidth = 10;
+  const ringCy = 226;
+  const ringR = 48;
+  const ringLineWidth = 8;
 
   // Track
   ctx.beginPath();
@@ -157,53 +169,53 @@ export async function drawResultCard(
 
   // Score text inside ring
   ctx.fillStyle = color;
-  ctx.font = "bold 24px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.font = "bold 20px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
   ctx.textAlign = "center";
   ctx.fillText(`${Math.round(score)}`, ringCx, ringCy + 2);
   ctx.fillStyle = "#9CA3AF";
-  ctx.font = "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-  ctx.fillText("/100", ringCx, ringCy + 20);
+  ctx.font = "500 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.fillText("/100", ringCx, ringCy + 16);
   ctx.textAlign = "left";
 
   // ── Trend + date ──
-  const trendY = 370;
+  const trendY = 300;
   ctx.fillStyle = color;
-  ctx.font = "600 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-  ctx.fillText(`● ${gradeConfig.label}`, 28, trendY);
+  ctx.font = "600 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.fillText(`● ${gradeConfig.label}`, PAD, trendY);
 
   ctx.fillStyle = "#9CA3AF";
-  ctx.font = "400 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.font = "400 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
   ctx.textAlign = "right";
-  ctx.fillText(formatDate(createdAt), LW - 28, trendY);
+  ctx.fillText(formatDate(createdAt), LW - PAD, trendY);
   ctx.textAlign = "left";
 
   // ── Grade scale bar ──
-  const barY = trendY + 20;
-  const barH = 8;
-  const barGap = 4;
-  const barTotalWidth = LW - 56;
+  const barY = trendY + 16;
+  const barH = 6;
+  const barGap = 3;
+  const barTotalWidth = LW - PAD * 2;
   const barSegW = (barTotalWidth - barGap * 4) / 5;
 
   for (let i = 1; i <= 5; i++) {
-    const x = 28 + (i - 1) * (barSegW + barGap);
+    const x = PAD + (i - 1) * (barSegW + barGap);
     ctx.fillStyle =
       i <= clampedGrade
         ? GRADE_COLORS[i as GradeLevel]
         : "#E5E7EB";
-    drawRoundedRect(ctx, x, barY, barSegW, barH, 4);
+    drawRoundedRect(ctx, x, barY, barSegW, barH, 3);
     ctx.fill();
   }
 
   // Scale labels
   ctx.fillStyle = "#9CA3AF";
-  ctx.font = "400 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-  ctx.fillText("정상", 28, barY + barH + 18);
+  ctx.font = "400 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.fillText("정상", PAD, barY + barH + 16);
   ctx.textAlign = "right";
-  ctx.fillText("전문 상담", LW - 28, barY + barH + 18);
+  ctx.fillText("전문 상담", LW - PAD, barY + barH + 16);
   ctx.textAlign = "left";
 
   // ── Area scores (optional) ──
-  let nextY = barY + barH + 44;
+  let nextY = barY + barH + 36;
 
   if (areaScores) {
     const areas: { label: string; value: number }[] = [
@@ -214,22 +226,22 @@ export async function drawResultCard(
 
     // Divider
     ctx.fillStyle = "#F3F4F6";
-    ctx.fillRect(28, nextY, barTotalWidth, 1);
-    nextY += 20;
+    ctx.fillRect(PAD, nextY, barTotalWidth, 1);
+    nextY += 16;
 
     for (const area of areas) {
-      const labelW = 64;
-      const scoreBarX = 28 + labelW + 8;
-      const scoreBarW = barTotalWidth - labelW - 48;
+      const labelW = 56;
+      const scoreBarX = PAD + labelW + 8;
+      const scoreBarW = barTotalWidth - labelW - 40;
       const scoreFill = Math.min(area.value / 100, 1);
 
       // Label
       ctx.fillStyle = "#6B7280";
-      ctx.font = "500 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
-      ctx.fillText(area.label, 28, nextY + 12);
+      ctx.font = "500 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+      ctx.fillText(area.label, PAD, nextY + 11);
 
       // Bar track
-      drawRoundedRect(ctx, scoreBarX, nextY + 4, scoreBarW, 8, 4);
+      drawRoundedRect(ctx, scoreBarX, nextY + 4, scoreBarW, 7, 3.5);
       ctx.fillStyle = "#F3F4F6";
       ctx.fill();
 
@@ -239,9 +251,9 @@ export async function drawResultCard(
           ctx,
           scoreBarX,
           nextY + 4,
-          Math.max(scoreBarW * scoreFill, 8),
-          8,
-          4,
+          Math.max(scoreBarW * scoreFill, 7),
+          7,
+          3.5,
         );
         ctx.fillStyle = color;
         ctx.fill();
@@ -249,9 +261,9 @@ export async function drawResultCard(
 
       // Score number
       ctx.fillStyle = "#374151";
-      ctx.font = "bold 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+      ctx.font = "bold 12px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
       ctx.textAlign = "right";
-      ctx.fillText(String(Math.round(area.value)), LW - 28, nextY + 13);
+      ctx.fillText(String(Math.round(area.value)), LW - PAD, nextY + 12);
       ctx.textAlign = "left";
 
       nextY += 36;
@@ -259,17 +271,17 @@ export async function drawResultCard(
   }
 
   // ── Footer ──
-  const footerY = Math.max(nextY + 30, (H / SCALE) - 60);
+  const footerY = nextY + 10;
 
   // Divider
   ctx.fillStyle = "#F3F4F6";
-  ctx.fillRect(28, footerY - 16, barTotalWidth, 1);
+  ctx.fillRect(PAD, footerY, barTotalWidth, 1);
 
   // URL
   ctx.fillStyle = "#D1D5DB";
-  ctx.font = "400 11px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
+  ctx.font = "400 10px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif";
   ctx.textAlign = "center";
-  ctx.fillText("alopedia.kr", LW / 2, footerY + 4);
+  ctx.fillText("alopedia.kr", LW / 2, footerY + 18);
   ctx.textAlign = "left";
 
   return canvasToBlob(canvas);
