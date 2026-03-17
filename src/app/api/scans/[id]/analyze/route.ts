@@ -166,6 +166,7 @@ export async function POST(
           advice: analysisResult.advice,
           ...(analysisResult.comparison ? { comparison: analysisResult.comparison } : {}),
           areaScores: analysisResult.areaScores,
+          photoClassification: analysisResult.photoClassification,
         },
         gemini_raw_response: responseText,
         model_version: "gemini-2.5-flash",

@@ -66,10 +66,9 @@ export default function UploadingPage(): ReactElement {
         // 1. 클라이언트 이미지 압축 + 업로드
         setState("uploading");
         const formData = new FormData();
-        const scanTypes = ["top", "front", "side"] as const;
         await Promise.all(
           images.map(async (img, i) => {
-            const key = i < scanTypes.length ? scanTypes[i] : `extra_${i}`;
+            const key = `photo_${i}`;
             const compressed = await compressImage(
               img.blob instanceof File
                 ? img.blob
