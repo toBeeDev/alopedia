@@ -15,6 +15,7 @@ import {
   Pencil,
   Trash2,
   Loader2,
+  ImageIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
@@ -255,27 +256,44 @@ const PostCard = memo(function PostCard({
         {post.content}
       </p>
 
-      {/* 이미지 썸네일 */}
+      {/* 이미지 썸네일 프리뷰 */}
       {post.images && post.images.length > 0 && (
-        <div className="mt-2 flex gap-1.5">
-          {post.images.slice(0, 3).map((img, idx) => (
-            <div
-              key={idx}
-              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-accent ${blurred ? "blur-[6px]" : ""}`}
-            >
-              <Image
-                src={(img.thumbnailUrl ?? img.url) as string}
-                alt={`첨부 이미지 ${idx + 1}`}
-                fill
-                sizes="64px"
-                className="object-cover"
-              />
-            </div>
-          ))}
+        <div className="mt-2.5 flex items-center gap-1.5">
+          {post.images.slice(0, 3).map((img, idx) => {
+            const url = (img.thumbnailUrl ?? img.url) as string;
+            const blurClass =
+              img.blurLevel === "heavy"
+                ? "blur-[8px]"
+                : img.blurLevel === "light"
+                  ? "blur-[3px]"
+                  : "";
+            return (
+              <div
+                key={idx}
+                className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-accent ${blurred ? "blur-[6px]" : ""}`}
+              >
+                <Image
+                  src={url}
+                  alt={`첨부 이미지 ${idx + 1}`}
+                  fill
+                  className={`object-cover ${blurClass}`}
+                  sizes="64px"
+                />
+              </div>
+            );
+          })}
           {post.images.length > 3 && (
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-accent text-xs font-medium text-muted-foreground">
-              +{post.images.length - 3}
+            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-accent">
+              <span className="text-xs font-medium text-muted-foreground">
+                +{post.images.length - 3}
+              </span>
             </div>
+          )}
+          {post.images.some((img) => img.blurLevel) && (
+            <span className="ml-1 flex items-center gap-0.5 rounded-full bg-accent px-2 py-0.5 text-[10px] text-muted-foreground/70">
+              <ImageIcon className="h-3 w-3" />
+              블러
+            </span>
           )}
         </div>
       )}
