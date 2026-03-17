@@ -335,13 +335,16 @@ export default function PostDetailPage(): ReactElement {
                       <div
                         key={idx}
                         className={`relative overflow-hidden rounded-xl bg-accent ${post.images!.length === 1 ? "aspect-[4/3]" : "aspect-square"}`}
+                        onContextMenu={(e) => e.preventDefault()}
+                        draggable={false}
                       >
                         <Image
                           src={(img.url ?? img.thumbnailUrl) as string}
                           alt={`첨부 사진 ${idx + 1}`}
                           fill
-                          className={`object-cover ${blurClass}`}
+                          className={`pointer-events-none object-cover ${blurClass}`}
                           sizes="(max-width: 640px) 50vw, 300px"
+                          draggable={false}
                         />
                       </div>
                     );
