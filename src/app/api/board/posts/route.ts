@@ -27,7 +27,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   let query = supabase
     .from("posts")
-    .select("*, profiles!posts_user_id_profiles_fkey(nickname, avatar_seed, role)", {
+    .select("*, profiles!posts_user_id_profiles_fkey(nickname, avatar_seed, role), comments(count)", {
       count: "exact",
     })
     .order("is_pinned", { ascending: false })
@@ -48,8 +48,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     );
   }
 
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const mapped = (posts ?? []).map((p: any) => ({
+    ...p,
+    comment_count: p.comments?.[0]?.count ?? 0,
+    comments: undefined,
+  }));
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
   return NextResponse.json({
-    posts,
+    posts: mapped,
     pagination: {
       page,
       pageSize: PAGE_SIZE,

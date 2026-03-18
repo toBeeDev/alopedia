@@ -48,7 +48,10 @@ export async function GET(
     );
   }
 
-  return NextResponse.json({ post, comments });
+  return NextResponse.json({
+    post: { ...post, comment_count: comments?.length ?? 0 },
+    comments,
+  });
 }
 
 /** PATCH /api/board/posts/:id — 게시글 수정 (본인만) */

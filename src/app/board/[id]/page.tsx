@@ -371,7 +371,7 @@ export default function PostDetailPage(): ReactElement {
               </button>
               <span className="flex items-center gap-1">
                 <MessageCircle className="h-4 w-4" />
-                댓글 {post.comment_count}
+                댓글 {comments.length}
               </span>
             </div>
           </motion.article>
