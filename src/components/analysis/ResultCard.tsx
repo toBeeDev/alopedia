@@ -254,19 +254,17 @@ export default function ResultCard({
                 </h3>
                 <div className="grid grid-cols-3 gap-2">
                   {images.map((img) => (
-                    <div key={img.url} className="relative">
-                      <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
-                        <Image
-                          src={img.thumbnailUrl}
-                          alt={SCAN_TYPE_LABELS[img.type] ?? img.type}
-                          fill
-                          className="object-cover"
-                          unoptimized
-                        />
-                      </div>
-                      <p className="mt-1 text-center text-[10px] text-muted-foreground">
-                        {SCAN_TYPE_LABELS[img.type] ?? img.type}
-                      </p>
+                    <div
+                      key={img.url}
+                      className="relative aspect-square overflow-hidden rounded-xl bg-muted"
+                    >
+                      <Image
+                        src={img.thumbnailUrl}
+                        alt={SCAN_TYPE_LABELS[img.type] ?? "촬영 사진"}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
                     </div>
                   ))}
                 </div>

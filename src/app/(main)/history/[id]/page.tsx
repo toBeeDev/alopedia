@@ -79,7 +79,6 @@ export default function ScanDetailPage(): ReactElement {
     norwoodGrade: number;
     score: number;
     images?: Record<string, unknown>[];
-    deletePin: string;
   }): void {
     createPost.mutate(payload, {
       onSuccess: () => {

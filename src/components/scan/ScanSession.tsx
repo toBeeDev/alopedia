@@ -1,9 +1,9 @@
 "use client";
 
-import { useCallback, type ReactElement } from "react";
+import { useCallback, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Upload, RotateCcw, Scan, ImagePlus, X } from "lucide-react";
+import { Upload, RotateCcw, Scan, ImagePlus, X, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { useDailyRemaining } from "@/hooks/useDailyRemaining";
@@ -45,6 +45,7 @@ export default function ScanSession(): ReactElement {
   const { data: dailyData } = useDailyRemaining();
   const isLimitReached = dailyData?.remaining === 0;
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const isFull = images.length >= MIN_IMAGES;
   const canSubmit = images.length >= MIN_IMAGES;
 
@@ -251,14 +252,23 @@ export default function ScanSession(): ReactElement {
           <motion.button
             initial={{ opacity: 0 }}
             animate={{ opacity: canSubmit && !isLimitReached ? 1 : 0.4 }}
-            disabled={!canSubmit || isLimitReached}
-            onClick={() => router.push("/scan/uploading")}
+            disabled={!canSubmit || isLimitReached || isSubmitting}
+            onClick={() => {
+              setIsSubmitting(true);
+              router.push("/scan/uploading");
+            }}
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-4 text-base font-semibold text-background shadow-lg shadow-black/15 transition-all hover:bg-foreground/85 disabled:cursor-not-allowed disabled:shadow-none"
           >
-            <Upload className="h-5 w-5" />
+            {isSubmitting ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <Upload className="h-5 w-5" />
+            )}
             {isLimitReached
               ? "오늘 분석 횟수를 모두 사용했어요"
-              : "AI 분석 시작하기"}
+              : isSubmitting
+                ? "분석 준비 중..."
+                : "AI 분석 시작하기"}
           </motion.button>
 
           {images.length > 0 && (
