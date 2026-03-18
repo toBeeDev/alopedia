@@ -61,6 +61,33 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   const sanitized = nickname.trim();
 
+  // 주 1회 변경 제한 체크
+  const { data: currentProfile } = await supabase
+    .from("profiles")
+    .select("nickname, nickname_changed_at")
+    .eq("id", user.id)
+    .single();
+
+  if (currentProfile?.nickname === sanitized) {
+    return NextResponse.json({ profile: currentProfile });
+  }
+
+  if (currentProfile?.nickname_changed_at) {
+    const lastChanged = new Date(currentProfile.nickname_changed_at).getTime();
+    const sevenDays = 7 * 24 * 60 * 60 * 1000;
+    const nextAvailable = lastChanged + sevenDays;
+    if (Date.now() < nextAvailable) {
+      const nextDate = new Date(nextAvailable).toLocaleDateString("ko-KR", {
+        month: "long",
+        day: "numeric",
+      });
+      return NextResponse.json(
+        { error: `닉네임은 주 1회만 변경할 수 있어요. ${nextDate}부터 변경 가능해요.` },
+        { status: 429 },
+      );
+    }
+  }
+
   // Check uniqueness
   const { data: existing } = await supabase
     .from("profiles")
@@ -78,7 +105,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
   const { data: profile, error } = await supabase
     .from("profiles")
-    .update({ nickname: sanitized })
+    .update({ nickname: sanitized, nickname_changed_at: new Date().toISOString() })
     .eq("id", user.id)
     .select()
     .single();

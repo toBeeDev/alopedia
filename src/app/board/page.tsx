@@ -38,10 +38,6 @@ const WritePostModal = dynamic(
   () => import("@/components/board/WritePostModal"),
   { ssr: false },
 );
-const DeletePinModal = dynamic(
-  () => import("@/components/board/DeletePinModal"),
-  { ssr: false },
-);
 
 const TAB_ALL = "전체" as const;
 
@@ -359,13 +355,11 @@ export default function BoardPage(): ReactElement {
 
   const [showWrite, setShowWrite] = useState(false);
   const [editTarget, setEditTarget] = useState<BoardPost | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<BoardPost | null>(null);
 
   function handleWrite(formData: {
     board: string;
     title: string;
     content: string;
-    deletePin: string;
     images?: { url: string; thumbnailUrl: string }[];
     medication?: string;
     procedure?: string;
@@ -379,7 +373,6 @@ export default function BoardPage(): ReactElement {
         board: formData.board as BoardType,
         title: formData.title,
         content: formData.content,
-        deletePin: formData.deletePin,
         images: formData.images,
         tags: tags.length > 0 ? tags : undefined,
       },
@@ -408,17 +401,9 @@ export default function BoardPage(): ReactElement {
     );
   }
 
-  function handleDelete(pin: string): void {
-    if (!deleteTarget) return;
-    deletePost.mutate(
-      {
-        postId: deleteTarget.id,
-        deletePin: pin,
-      },
-      {
-        onSuccess: () => setDeleteTarget(null),
-      },
-    );
+  function handleDelete(postId: string): void {
+    if (!confirm("게시글을 삭제할까요?")) return;
+    deletePost.mutate({ postId });
   }
 
   function handleTabChange(tab: string): void {
@@ -501,7 +486,7 @@ export default function BoardPage(): ReactElement {
                     blurred={isGuest}
                     isOwner={isOwner}
                     onEdit={() => setEditTarget(post)}
-                    onDelete={() => setDeleteTarget(post)}
+                    onDelete={() => handleDelete(post.id)}
                   />
                 );
               })}
@@ -588,12 +573,6 @@ export default function BoardPage(): ReactElement {
               title: editTarget.title,
               content: editTarget.content,
             }}
-          />
-        )}
-        {deleteTarget && (
-          <DeletePinModal
-            onClose={() => setDeleteTarget(null)}
-            onConfirm={handleDelete}
           />
         )}
       </AnimatePresence>

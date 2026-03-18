@@ -177,22 +177,24 @@ export async function DELETE(
     );
   }
 
-  // Verify pin
-  const body = await request.json();
-  const { deletePin } = body as { deletePin: string };
+  // delete_pin이 설정된 경우에만 비밀번호 검증
+  if (post.delete_pin) {
+    const body = await request.json();
+    const { deletePin } = body as { deletePin: string };
 
-  if (!deletePin || !isValidPin(deletePin)) {
-    return NextResponse.json(
-      { error: "삭제 비밀번호 4자리를 입력해주세요." },
-      { status: 400 },
-    );
-  }
+    if (!deletePin || !isValidPin(deletePin)) {
+      return NextResponse.json(
+        { error: "삭제 비밀번호 4자리를 입력해주세요." },
+        { status: 400 },
+      );
+    }
 
-  if (post.delete_pin && !verifyPin(deletePin, post.delete_pin)) {
-    return NextResponse.json(
-      { error: "비밀번호가 일치하지 않아요." },
-      { status: 403 },
-    );
+    if (!verifyPin(deletePin, post.delete_pin)) {
+      return NextResponse.json(
+        { error: "비밀번호가 일치하지 않아요." },
+        { status: 403 },
+      );
+    }
   }
 
   const { error } = await supabase

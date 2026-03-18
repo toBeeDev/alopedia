@@ -65,7 +65,24 @@ export default function ProfilePage(): ReactElement {
     uploadAvatar.mutate(file);
   }
 
+  // 주 1회 닉네임 변경 제한
+  const nicknameChangeCooldown = (() => {
+    if (!profile?.nickname_changed_at) return null;
+    const lastChanged = new Date(profile.nickname_changed_at).getTime();
+    const nextAvailable = lastChanged + 7 * 24 * 60 * 60 * 1000;
+    if (Date.now() >= nextAvailable) return null;
+    return new Date(nextAvailable);
+  })();
+
   function startEditNickname(): void {
+    if (nicknameChangeCooldown) {
+      const dateStr = nicknameChangeCooldown.toLocaleDateString("ko-KR", {
+        month: "long",
+        day: "numeric",
+      });
+      setNicknameError(`${dateStr}부터 변경할 수 있어요.`);
+      return;
+    }
     setNicknameInput(profile?.nickname ?? "");
     setNicknameError("");
     setEditingNickname(true);

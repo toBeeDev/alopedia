@@ -32,10 +32,6 @@ const WritePostModal = dynamic(
   () => import("@/components/board/WritePostModal"),
   { ssr: false },
 );
-const DeletePinModal = dynamic(
-  () => import("@/components/board/DeletePinModal"),
-  { ssr: false },
-);
 
 /* ── Helpers ── */
 
@@ -70,7 +66,6 @@ export default function PostDetailPage(): ReactElement {
   const [commentInput, setCommentInput] = useState("");
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [showEdit, setShowEdit] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentInput, setEditCommentInput] = useState("");
@@ -129,10 +124,10 @@ export default function PostDetailPage(): ReactElement {
     );
   }
 
-  function handleDelete(pin: string): void {
-    if (!post) return;
+  function handleDelete(): void {
+    if (!post || !confirm("게시글을 삭제할까요?")) return;
     deletePost.mutate(
-      { postId: post.id, deletePin: pin },
+      { postId: post.id },
       { onSuccess: () => router.push("/board") },
     );
   }
@@ -260,7 +255,7 @@ export default function PostDetailPage(): ReactElement {
                           <button
                             onClick={() => {
                               setMenuOpen(false);
-                              setShowDelete(true);
+                              handleDelete();
                             }}
                             className="flex w-full items-center gap-2 px-3 py-2.5 text-xs text-red-500 hover:bg-red-50"
                           >
@@ -752,12 +747,6 @@ export default function PostDetailPage(): ReactElement {
               title: post.title,
               content: post.content,
             }}
-          />
-        )}
-        {showDelete && (
-          <DeletePinModal
-            onClose={() => setShowDelete(false)}
-            onConfirm={handleDelete}
           />
         )}
       </AnimatePresence>

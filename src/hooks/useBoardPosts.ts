@@ -68,7 +68,7 @@ export function useCreatePost() {
       norwoodGrade?: number;
       score?: number;
       images?: Record<string, unknown>[];
-      deletePin: string;
+      deletePin?: string;
     }) => {
       const res = await fetch("/api/board/posts", {
         method: "POST",
@@ -130,12 +130,12 @@ export function useDeletePost() {
       deletePin,
     }: {
       postId: string;
-      deletePin: string;
+      deletePin?: string;
     }) => {
       const res = await fetch(`/api/board/posts/${postId}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ deletePin }),
+        body: JSON.stringify({ deletePin: deletePin ?? "" }),
       });
       if (!res.ok) {
         const err = await res.json();

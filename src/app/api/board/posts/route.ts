@@ -90,7 +90,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     norwoodGrade?: number;
     score?: number;
     images?: Record<string, unknown>[];
-    deletePin: string;
+    deletePin?: string;
   };
 
   // Validation
@@ -109,12 +109,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!content || content.trim().length < 10 || content.trim().length > 5000) {
     return NextResponse.json(
       { error: "내용은 10~5000자로 입력해주세요." },
-      { status: 400 },
-    );
-  }
-  if (!deletePin || !isValidPin(deletePin)) {
-    return NextResponse.json(
-      { error: "삭제 비밀번호는 숫자 4자리로 입력해주세요." },
       { status: 400 },
     );
   }
@@ -143,7 +137,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       norwood_grade: norwoodGrade ?? null,
       score: score ?? null,
       images: images ?? null,
-      delete_pin: hashPin(deletePin),
+      delete_pin: deletePin ? hashPin(deletePin) : null,
       is_pinned: isAdmin,
     })
     .select()

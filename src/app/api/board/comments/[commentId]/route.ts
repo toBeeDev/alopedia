@@ -120,6 +120,19 @@ export async function DELETE(
     );
   }
 
+  // 자식 대댓글 먼저 삭제 (cascade)
+  const { error: childError } = await supabase
+    .from("comments")
+    .delete()
+    .eq("parent_id", commentId);
+
+  if (childError) {
+    return NextResponse.json(
+      { error: "대댓글 삭제에 실패했어요." },
+      { status: 500 },
+    );
+  }
+
   const { error } = await supabase
     .from("comments")
     .delete()
