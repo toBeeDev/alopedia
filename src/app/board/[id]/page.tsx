@@ -322,34 +322,40 @@ export default function PostDetailPage(): ReactElement {
 
             {/* 첨부 이미지 */}
             {post.images && post.images.length > 0 && (
-              <div className="mb-4">
-                <div className={`grid gap-2 ${post.images.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                  {post.images.map((img, idx) => {
-                    const blurClass =
-                      img.blurLevel === "heavy"
-                        ? "blur-[8px]"
-                        : img.blurLevel === "light"
-                          ? "blur-[3px]"
-                          : "";
-                    return (
-                      <div
-                        key={idx}
-                        className={`relative overflow-hidden rounded-xl bg-accent ${post.images!.length === 1 ? "aspect-[4/3]" : "aspect-square"}`}
-                        onContextMenu={(e) => e.preventDefault()}
+              <div className="mb-4 flex items-center gap-1.5">
+                {post.images.slice(0, 3).map((img, idx) => {
+                  const url = (img.thumbnailUrl ?? img.url) as string;
+                  const blurClass =
+                    img.blurLevel === "heavy"
+                      ? "blur-[8px]"
+                      : img.blurLevel === "light"
+                        ? "blur-[3px]"
+                        : "";
+                  return (
+                    <div
+                      key={idx}
+                      className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-accent"
+                      onContextMenu={(e) => e.preventDefault()}
+                      draggable={false}
+                    >
+                      <Image
+                        src={url}
+                        alt={`첨부 사진 ${idx + 1}`}
+                        fill
+                        className={`pointer-events-none object-cover ${blurClass}`}
+                        sizes="64px"
                         draggable={false}
-                      >
-                        <Image
-                          src={(img.url ?? img.thumbnailUrl) as string}
-                          alt={`첨부 사진 ${idx + 1}`}
-                          fill
-                          className={`pointer-events-none object-cover ${blurClass}`}
-                          sizes="(max-width: 640px) 50vw, 300px"
-                          draggable={false}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+                      />
+                    </div>
+                  );
+                })}
+                {post.images.length > 3 && (
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-accent">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      +{post.images.length - 3}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 

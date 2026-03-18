@@ -50,7 +50,7 @@ export function useCreateComment(postId: string) {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["postDetail", postId] });
+      queryClient.invalidateQueries({ queryKey: ["postDetail"] });
       queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
     },
   });
@@ -74,7 +74,7 @@ export function useUpdateComment(postId: string) {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["postDetail", postId] });
+      queryClient.invalidateQueries({ queryKey: ["postDetail"] });
     },
   });
 }
@@ -95,7 +95,7 @@ export function useDeleteComment(postId: string) {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["postDetail", postId] });
+      queryClient.invalidateQueries({ queryKey: ["postDetail"] });
       queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
     },
   });
