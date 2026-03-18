@@ -30,7 +30,6 @@ interface ShareAnalysisModalProps {
     norwoodGrade: number;
     score: number;
     images?: Record<string, unknown>[];
-    deletePin: string;
   }) => void;
 }
 
@@ -64,7 +63,6 @@ export default function ShareAnalysisModal({
   const [content, setContent] = useState(generated.content);
   const [includeImages, setIncludeImages] = useState(false);
   const [blurLevel, setBlurLevel] = useState<BlurLevel>("light");
-  const [deletePin, setDeletePin] = useState("");
   const [error, setError] = useState("");
 
   function handleSubmit(): void {
@@ -76,11 +74,6 @@ export default function ShareAnalysisModal({
       setError("내용은 10자 이상 입력해주세요.");
       return;
     }
-    if (!/^\d{4}$/.test(deletePin)) {
-      setError("삭제 비밀번호는 숫자 4자리로 입력해주세요.");
-      return;
-    }
-
     onSubmit({
       board: board as BoardType,
       title,
@@ -97,7 +90,6 @@ export default function ShareAnalysisModal({
             blurLevel: blurLevel !== "none" ? blurLevel : undefined,
           }))
         : undefined,
-      deletePin,
     });
   }
 
@@ -263,25 +255,6 @@ export default function ShareAnalysisModal({
             )}
           </div>
         )}
-
-        {/* 삭제 비밀번호 */}
-        <div className="mb-4">
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-            삭제 비밀번호 (숫자 4자리)
-          </label>
-          <input
-            type="password"
-            inputMode="numeric"
-            placeholder="••••"
-            value={deletePin}
-            onChange={(e) => {
-              const v = e.target.value.replace(/\D/g, "").slice(0, 4);
-              setDeletePin(v);
-            }}
-            maxLength={4}
-            className="w-32 rounded-xl border border-border bg-background px-4 py-3 text-center text-sm tracking-[0.3em] text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-foreground"
-          />
-        </div>
 
         {error && <p className="mb-3 text-xs text-red-500">{error}</p>}
 

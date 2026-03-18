@@ -15,7 +15,6 @@ import {
   Pencil,
   Trash2,
   Loader2,
-  ImageIcon,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
@@ -287,12 +286,6 @@ const PostCard = memo(function PostCard({
                 +{post.images.length - 3}
               </span>
             </div>
-          )}
-          {post.images.some((img) => img.blurLevel) && (
-            <span className="ml-1 flex items-center gap-0.5 rounded-full bg-accent px-2 py-0.5 text-[10px] text-muted-foreground/70">
-              <ImageIcon className="h-3 w-3" />
-              블러
-            </span>
           )}
         </div>
       )}

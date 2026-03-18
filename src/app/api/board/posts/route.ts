@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit } from "@/lib/rateLimit/memory";
-import { hashPin, isValidPin } from "@/lib/utils/pin";
 import { stripHtml } from "@/lib/utils/sanitize";
 import { generateSlug } from "@/lib/utils/slug";
 import { grantExp } from "@/lib/utils/grantExp";
@@ -81,7 +80,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const body = await request.json();
-  const { board, title, content, tags, scanId, norwoodGrade, score, images, deletePin } = body as {
+  const { board, title, content, tags, scanId, norwoodGrade, score, images } = body as {
     board: string;
     title: string;
     content: string;
@@ -90,7 +89,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     norwoodGrade?: number;
     score?: number;
     images?: Record<string, unknown>[];
-    deletePin?: string;
   };
 
   // Validation
@@ -137,7 +135,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       norwood_grade: norwoodGrade ?? null,
       score: score ?? null,
       images: images ?? null,
-      delete_pin: deletePin ? hashPin(deletePin) : null,
       is_pinned: isAdmin,
     })
     .select()

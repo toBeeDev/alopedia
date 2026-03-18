@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { verifyPin, isValidPin } from "@/lib/utils/pin";
 import type { BoardType } from "@/types/database";
 
 const VALID_BOARDS: BoardType[] = [
@@ -163,10 +162,10 @@ export async function DELETE(
     return NextResponse.json({ error: "로그인이 필요해요." }, { status: 401 });
   }
 
-  // Get post with pin hash
+  // Verify ownership
   const { data: post } = await supabase
     .from("posts")
-    .select("id, user_id, delete_pin")
+    .select("id, user_id")
     .eq("id", id)
     .eq("user_id", user.id)
     .single();
@@ -176,26 +175,6 @@ export async function DELETE(
       { error: "삭제 권한이 없어요." },
       { status: 403 },
     );
-  }
-
-  // delete_pin이 설정된 경우에만 비밀번호 검증
-  if (post.delete_pin) {
-    const body = await request.json();
-    const { deletePin } = body as { deletePin: string };
-
-    if (!deletePin || !isValidPin(deletePin)) {
-      return NextResponse.json(
-        { error: "삭제 비밀번호 4자리를 입력해주세요." },
-        { status: 400 },
-      );
-    }
-
-    if (!verifyPin(deletePin, post.delete_pin)) {
-      return NextResponse.json(
-        { error: "비밀번호가 일치하지 않아요." },
-        { status: 403 },
-      );
-    }
   }
 
   const { error } = await supabase
