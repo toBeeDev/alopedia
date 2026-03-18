@@ -395,7 +395,7 @@ export default function PostDetailPage(): ReactElement {
                 (r) => r.parent_id === comment.id,
               );
               const isCommentOwner = !!user && comment.user_id === user.id;
-              const canManageComment = isCommentOwner || isOwner;
+              const canManageComment = isCommentOwner;
 
               return (
                 <div key={comment.id} className="space-y-2">
@@ -530,7 +530,7 @@ export default function PostDetailPage(): ReactElement {
                   {/* 대댓글 */}
                   {commentReplies.map((reply) => {
                     const isReplyOwner = !!user && reply.user_id === user.id;
-                    const canManageReply = isReplyOwner || isOwner;
+                    const canManageReply = isReplyOwner;
 
                     return (
                       <div
