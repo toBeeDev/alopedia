@@ -16,6 +16,9 @@ import { useCreatePost } from "@/hooks/useBoardPosts";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail, ScanImage } from "@/types/database";
 
+/** Vercel Serverless Function body 제한 (4.5MB) */
+const VERCEL_BODY_LIMIT = 4.5 * 1024 * 1024;
+
 /** 비-JSON 응답(413 등)을 안전하게 처리 */
 async function safeParseJson(
   res: Response,
@@ -66,6 +69,7 @@ export default function UploadingPage(): ReactElement {
         // 1. 클라이언트 이미지 압축 + 업로드
         setState("uploading");
         const formData = new FormData();
+        const compressedBlobs: Blob[] = [];
         await Promise.all(
           images.map(async (img, i) => {
             const key = `photo_${i}`;
@@ -74,9 +78,19 @@ export default function UploadingPage(): ReactElement {
                 ? img.blob
                 : new File([img.blob], `${key}.jpg`, { type: "image/jpeg" }),
             );
+            compressedBlobs.push(compressed);
             formData.append(key, compressed, `${key}.jpg`);
           }),
         );
+
+        // 압축 후 전체 용량 체크 (Vercel 4.5MB body 제한)
+        const totalSize = compressedBlobs.reduce((sum, b) => sum + b.size, 0);
+        if (totalSize > VERCEL_BODY_LIMIT) {
+          const sizeMB = (totalSize / (1024 * 1024)).toFixed(1);
+          throw new Error(
+            `압축 후에도 이미지 총 용량(${sizeMB}MB)이 너무 커요. 더 작은 사진으로 다시 시도해주세요.`,
+          );
+        }
 
         const uploadRes = await fetch("/api/scans", {
           method: "POST",

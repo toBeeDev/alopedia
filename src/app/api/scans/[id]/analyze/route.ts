@@ -169,7 +169,7 @@ export async function POST(
           photoClassification: analysisResult.photoClassification,
         },
         gemini_raw_response: responseText,
-        model_version: "gemini-2.5-flash",
+        model_version: "gemini-3.1-pro-preview",
       })
       .select()
       .single();

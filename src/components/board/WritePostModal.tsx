@@ -12,7 +12,6 @@ export interface WritePostData {
   board: string;
   title: string;
   content: string;
-  deletePin: string;
   images?: { url: string; thumbnailUrl: string }[];
   medication?: string;
   procedure?: string;
@@ -163,7 +162,6 @@ export default function WritePostModal({
   const [board, setBoard] = useState(initial?.board ?? "lounge");
   const [title, setTitle] = useState(initial?.title ?? "");
   const [content, setContent] = useState(initial?.content ?? "");
-  const [deletePin, setDeletePin] = useState("");
   const [error, setError] = useState("");
   const [medication, setMedication] = useState("");
   const [procedure, setProcedure] = useState("");
@@ -209,11 +207,6 @@ export default function WritePostModal({
       setError("시술 유형을 선택해주세요.");
       return;
     }
-    if (!isEdit && !/^\d{4}$/.test(deletePin)) {
-      setError("삭제 비밀번호는 숫자 4자리로 입력해주세요.");
-      return;
-    }
-
     let uploadedImages: { url: string; thumbnailUrl: string }[] | undefined;
 
     if (previewImages.length > 0) {
@@ -256,7 +249,6 @@ export default function WritePostModal({
       board,
       title,
       content,
-      deletePin,
       images: uploadedImages,
       medication: board === "medication_review" ? medication : undefined,
       procedure: board === "procedure_review" ? procedure : undefined,
@@ -388,26 +380,6 @@ export default function WritePostModal({
             이미지 최대 {MAX_IMAGES}장 · JPG, PNG, WebP
           </p>
         </div>
-
-        {!isEdit && (
-          <div className="mb-4">
-            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-              삭제 비밀번호 (숫자 4자리)
-            </label>
-            <input
-              type="password"
-              inputMode="numeric"
-              placeholder="••••"
-              value={deletePin}
-              onChange={(e) => {
-                const v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                setDeletePin(v);
-              }}
-              maxLength={4}
-              className="w-32 rounded-xl border border-border px-4 py-3 text-center text-sm tracking-[0.3em] text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-foreground"
-            />
-          </div>
-        )}
 
         {error && <p className="mb-3 text-xs text-red-500">{error}</p>}
 

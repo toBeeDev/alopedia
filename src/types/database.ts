@@ -144,6 +144,7 @@ export interface DbProfile {
   avatar_seed: string | null;
   avatar_url: string | null;
   last_check_in: string | null;
+  nickname_changed_at: string | null;
   created_at: string;
 }
 

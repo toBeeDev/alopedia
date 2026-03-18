@@ -32,10 +32,6 @@ const WritePostModal = dynamic(
   () => import("@/components/board/WritePostModal"),
   { ssr: false },
 );
-const DeletePinModal = dynamic(
-  () => import("@/components/board/DeletePinModal"),
-  { ssr: false },
-);
 
 /* ── Helpers ── */
 
@@ -70,7 +66,6 @@ export default function PostDetailPage(): ReactElement {
   const [commentInput, setCommentInput] = useState("");
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [showEdit, setShowEdit] = useState(false);
-  const [showDelete, setShowDelete] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editCommentInput, setEditCommentInput] = useState("");
@@ -129,10 +124,10 @@ export default function PostDetailPage(): ReactElement {
     );
   }
 
-  function handleDelete(pin: string): void {
-    if (!post) return;
+  function handleDelete(): void {
+    if (!post || !confirm("게시글을 삭제할까요?")) return;
     deletePost.mutate(
-      { postId: post.id, deletePin: pin },
+      { postId: post.id },
       { onSuccess: () => router.push("/board") },
     );
   }
@@ -260,7 +255,7 @@ export default function PostDetailPage(): ReactElement {
                           <button
                             onClick={() => {
                               setMenuOpen(false);
-                              setShowDelete(true);
+                              handleDelete();
                             }}
                             className="flex w-full items-center gap-2 px-3 py-2.5 text-xs text-red-500 hover:bg-red-50"
                           >
@@ -322,34 +317,40 @@ export default function PostDetailPage(): ReactElement {
 
             {/* 첨부 이미지 */}
             {post.images && post.images.length > 0 && (
-              <div className="mb-4">
-                <div className={`grid gap-2 ${post.images.length === 1 ? "grid-cols-1" : "grid-cols-2"}`}>
-                  {post.images.map((img, idx) => {
-                    const blurClass =
-                      img.blurLevel === "heavy"
-                        ? "blur-[8px]"
-                        : img.blurLevel === "light"
-                          ? "blur-[3px]"
-                          : "";
-                    return (
-                      <div
-                        key={idx}
-                        className={`relative overflow-hidden rounded-xl bg-accent ${post.images!.length === 1 ? "aspect-[4/3]" : "aspect-square"}`}
-                        onContextMenu={(e) => e.preventDefault()}
+              <div className="mb-4 flex items-center gap-1.5">
+                {post.images.slice(0, 3).map((img, idx) => {
+                  const url = (img.thumbnailUrl ?? img.url) as string;
+                  const blurClass =
+                    img.blurLevel === "heavy"
+                      ? "blur-[8px]"
+                      : img.blurLevel === "light"
+                        ? "blur-[3px]"
+                        : "";
+                  return (
+                    <div
+                      key={idx}
+                      className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-accent"
+                      onContextMenu={(e) => e.preventDefault()}
+                      draggable={false}
+                    >
+                      <Image
+                        src={url}
+                        alt={`첨부 사진 ${idx + 1}`}
+                        fill
+                        className={`pointer-events-none object-cover ${blurClass}`}
+                        sizes="64px"
                         draggable={false}
-                      >
-                        <Image
-                          src={(img.url ?? img.thumbnailUrl) as string}
-                          alt={`첨부 사진 ${idx + 1}`}
-                          fill
-                          className={`pointer-events-none object-cover ${blurClass}`}
-                          sizes="(max-width: 640px) 50vw, 300px"
-                          draggable={false}
-                        />
-                      </div>
-                    );
-                  })}
-                </div>
+                      />
+                    </div>
+                  );
+                })}
+                {post.images.length > 3 && (
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-accent">
+                    <span className="text-xs font-medium text-muted-foreground">
+                      +{post.images.length - 3}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 
@@ -746,12 +747,6 @@ export default function PostDetailPage(): ReactElement {
               title: post.title,
               content: post.content,
             }}
-          />
-        )}
-        {showDelete && (
-          <DeletePinModal
-            onClose={() => setShowDelete(false)}
-            onConfirm={handleDelete}
           />
         )}
       </AnimatePresence>

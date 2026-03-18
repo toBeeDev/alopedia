@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS profiles (
   avatar_seed TEXT,
   role TEXT DEFAULT 'user',
   last_check_in TIMESTAMPTZ,
+  nickname_changed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
