@@ -12,7 +12,8 @@ interface BoardDetailLayoutProps {
 export async function generateMetadata({
   params,
 }: BoardDetailLayoutProps): Promise<Metadata> {
-  const { id } = await params;
+  const { id: rawId } = await params;
+  const id = decodeURIComponent(rawId);
   const supabase = await createClient();
 
   const isUuid =
