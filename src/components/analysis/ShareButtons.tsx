@@ -7,6 +7,7 @@ import Link from "next/link";
 import { drawResultCard } from "@/lib/share/drawResultCard";
 import { downloadResultImage } from "@/lib/share/shareResult";
 import { shareViaKakao } from "@/lib/share/kakaoShare";
+import { generateKakaoShareContent } from "@/lib/utils/shareContent";
 import { getGradeConfig } from "@/constants/gradeConfig";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail } from "@/types/database";
@@ -89,16 +90,16 @@ export default function ShareButtons({
   const handleKakaoShare = useCallback(async (): Promise<void> => {
     if (!previewBlob) return;
     try {
-      const config = getGradeConfig(grade);
+      const kakaoContent = generateKakaoShareContent(grade);
       await shareViaKakao({
         blob: previewBlob,
-        title: `${config.eagleLabel} ${score.toFixed(1)}점 — AI 두피 분석 결과`,
-        description: `${COPY.GRADE_DESCRIPTION[grade]} Alopedia에서 무료로 분석해보세요.`,
+        title: kakaoContent.title,
+        description: kakaoContent.description,
       });
     } catch {
       // SDK 미초기화 등 — 무시
     }
-  }, [previewBlob, grade, score]);
+  }, [previewBlob, grade]);
 
   return (
     <>
@@ -192,7 +193,7 @@ export default function ShareButtons({
                     className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-[#FEE500] px-4 py-3 text-sm font-semibold text-[#191919] transition-all hover:bg-[#FDD835] active:scale-[0.98]"
                   >
                     <KakaoIcon className="h-4.5 w-4.5" />
-                    카카오톡 공유
+                    {COPY.KAKAO_SHARE_CTA}
                   </button>
                   <button
                     onClick={handleDownload}
