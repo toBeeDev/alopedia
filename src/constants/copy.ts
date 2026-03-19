@@ -190,4 +190,40 @@ export const COPY = {
   A11Y_VOTE: (count: number): string =>
     `이 글에 공감하기, 현재 ${count}명 공감`,
   A11Y_SCALP_PHOTO: "본인의 두피 촬영 이미지",
+
+  // ── SEO Landing ──
+  SEO_CTA_DEFAULT: "우리 독수리가 두피를 분석해줄게요",
+  SEO_CTA_SUB: "회원가입 없이 바로 체험 — 30초면 끝!",
+  SEO_DISCLAIMER: "AI 참고용 분석이며 의료 진단을 대체하지 않습니다.",
+
+  // ── Kakao Share ──
+  KAKAO_SHARE_DESCRIPTION: "독수리가 내 두피를 봤는데... 너도 한번 해볼래?",
+  KAKAO_SHARE_BUTTON: "나도 AI 두피 분석 받아보기",
+  KAKAO_SHARE_CTA: "친구한테 보내기",
+
+  // ── Guest Trial ──
+  GUEST_HERO_TITLE: "독수리가 두피를 봐드릴게요",
+  GUEST_HERO_DESC: "회원가입 없이 딱 1번! 독수리가 두피 상태를 살펴볼게요.",
+  GUEST_ALREADY_USED: "독수리가 이미 한 번 봐드렸어요",
+  GUEST_ALREADY_USED_DESC: "가입하면 독수리가 매일 두피를 챙겨줄 수 있어요!",
+  GUEST_SIGNUP_CTA: "독수리네 둥지에 가입하기",
+  GUEST_DISMISS: "다음에 올게요",
+  GUEST_LIMIT_ERROR: "무료 체험은 1회만 가능해요. 둥지에 가입하면 매일 만날 수 있어요!",
+  GUEST_ANALYZING: "독수리가 두피를 꼼꼼히 살펴보는 중...",
+  GUEST_COMPRESSING: "독수리가 사진을 정리하고 있어요...",
+  GUEST_RESULT_TITLE: "독수리의 분석이 끝났어요!",
+  GUEST_RESULT_SAVE: "기록을 저장하고 변화를 추적하고 싶다면?",
+
+  // ── Monthly Report ──
+  REPORT_BANNER_TITLE: "독수리가 월간 리포트를 가져왔어요",
+  REPORT_BANNER_CTA: "리포트 보기",
+  REPORT_GRADE_UP: "깃털이 풍성해지고 있어요!",
+  REPORT_GRADE_DOWN: "독수리가 조금 걱정하고 있어요",
+  REPORT_GRADE_SAME: "꾸준히 잘 유지하고 있어요!",
+  REPORT_SCANS: (count: number): string => `이번 달 ${count}회 독수리와 만남`,
+  REPORT_IMPROVEMENT: (diff: number): string =>
+    diff > 0 ? `점수 ${diff.toFixed(1)}점 올랐어요!` : diff < 0 ? `점수 ${Math.abs(diff).toFixed(1)}점 내려갔어요` : "점수 변화 없음",
+  REPORT_STREAK: (current: number, best: number): string =>
+    `${current}일 연속 방문 (최고 ${best}일!)`,
+  REPORT_CTA_SCAN: "이번 달도 독수리와 함께 기록하기",
 } as const;

@@ -26,6 +26,7 @@ import { getGradeConfig } from "@/constants/gradeConfig";
 import { EagleIcon } from "@/components/ui/eagle-icons";
 import { COPY } from "@/constants/copy";
 import { fadeSlideUp, staggerContainer } from "@/lib/motion";
+import MonthlyReportBanner from "@/components/dashboard/MonthlyReportBanner";
 
 /* ── Community posts data ── */
 
@@ -233,6 +234,9 @@ export default function DashboardPage(): ReactElement {
               </div>
             </motion.div>
           )}
+
+          {/* ── Monthly Report Banner ── */}
+          <MonthlyReportBanner />
 
           {/* ── 2. 메인 분석 카드 (Hero) ── */}
           {latestAnalysis && gradeConfig ? (

@@ -1,5 +1,20 @@
 import { getGradeConfig } from "@/constants/gradeConfig";
+import { COPY } from "@/constants/copy";
 import type { AnalysisDetail } from "@/types/database";
+
+interface KakaoShareContentOutput {
+  title: string;
+  description: string;
+}
+
+/** 카카오톡 바이럴 공유용 콘텐츠 — 점수/등급 숫자 노출 없이 호기심 유발 */
+export function generateKakaoShareContent(grade: number): KakaoShareContentOutput {
+  const config = getGradeConfig(grade);
+  return {
+    title: `너도 혹시... ${config.eagleLabel}? 🦅`,
+    description: COPY.KAKAO_SHARE_DESCRIPTION,
+  };
+}
 
 interface ShareContentInput {
   norwoodGrade: number;
@@ -29,6 +44,8 @@ export function generateShareContent(data: ShareContentInput): ShareContentOutpu
     `▸ 모발 굵기: ${data.details.thickness}`,
     `▸ 두피 상태: ${data.details.scalpCondition}`,
     `▸ 조언: ${data.details.advice}`,
+    ``,
+    `${COPY.DISCLAIMER_SHORT}`,
   ].join("\n");
 
   const tags = ["AI분석", config.label, "두피관리"];

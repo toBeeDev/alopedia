@@ -16,7 +16,7 @@ export async function shareViaKakao(params: {
   const uploaded = await window.Kakao.Share.uploadImage({ file: [file] });
   const imageUrl = uploaded.infos.original.url;
 
-  const siteUrl = "https://alopedia.kr";
+  const tryUrl = "https://alopedia.kr/try";
 
   window.Kakao.Share.sendDefault({
     objectType: "feed",
@@ -24,12 +24,12 @@ export async function shareViaKakao(params: {
       title: params.title,
       description: params.description,
       imageUrl,
-      link: { mobileWebUrl: siteUrl, webUrl: siteUrl },
+      link: { mobileWebUrl: tryUrl, webUrl: tryUrl },
     },
     buttons: [
       {
-        title: "나도 분석하기",
-        link: { mobileWebUrl: siteUrl, webUrl: siteUrl },
+        title: "나도 AI 두피 분석 받아보기",
+        link: { mobileWebUrl: tryUrl, webUrl: tryUrl },
       },
     ],
   });
