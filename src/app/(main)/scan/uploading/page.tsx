@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { Camera, Clock, MessageCircle, Home } from "lucide-react";
 import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
@@ -12,6 +12,7 @@ import ResultCard from "@/components/analysis/ResultCard";
 import FeedbackButtons from "@/components/analysis/FeedbackButtons";
 import ShareButtons from "@/components/analysis/ShareButtons";
 import ShareAnalysisModal from "@/components/board/ShareAnalysisModal";
+import AnalyzingLoader from "@/components/scan/AnalyzingLoader";
 import { useCreatePost } from "@/hooks/useBoardPosts";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail, ScanImage } from "@/types/database";
@@ -244,18 +245,10 @@ export default function UploadingPage(): ReactElement {
     );
   }
 
-  // 업로드/분석 중 로딩
+  // 업로드/분석 중 로딩 — 독수리 애니메이션
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6">
-      <motion.div
-        className="mb-6 h-16 w-16 rounded-full border-4 border-foreground/20 border-t-foreground"
-        animate={{ rotate: 360 }}
-        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-      />
-      <p className="text-lg font-semibold text-foreground">
-        {state === "uploading" ? "사진을 업로드하고 있어요..." : COPY.SCAN_ANALYZING}
-      </p>
-      <p className="mt-2 text-sm text-muted-foreground/70">{COPY.SCAN_UPLOAD_WARN}</p>
-    </div>
+    <AnalyzingLoader
+      message={state === "uploading" ? "독수리가 사진을 받고 있어요..." : COPY.SCAN_ANALYZING}
+    />
   );
 }

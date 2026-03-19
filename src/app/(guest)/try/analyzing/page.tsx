@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
 import { Camera, Home } from "lucide-react";
 import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
@@ -10,7 +9,7 @@ import { compressImage } from "@/lib/image/compressClient";
 import { markGuestUsed } from "@/lib/guest/guestLimit";
 import ResultCard from "@/components/analysis/ResultCard";
 import GuestResultCta from "@/components/guest/GuestResultCta";
-import { EagleIcon } from "@/components/ui/eagle-icons";
+import AnalyzingLoader from "@/components/scan/AnalyzingLoader";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail } from "@/types/database";
 
@@ -157,18 +156,8 @@ export default function GuestAnalyzingPage(): ReactElement {
 
   // Loading — 독수리 애니메이션
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6">
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-        className="mb-4"
-      >
-        <EagleIcon grade={3} size={64} />
-      </motion.div>
-      <p className="text-lg font-semibold text-foreground">
-        {state === "compressing" ? COPY.GUEST_COMPRESSING : COPY.GUEST_ANALYZING}
-      </p>
-      <p className="mt-2 text-sm text-muted-foreground/70">{COPY.SCAN_UPLOAD_WARN}</p>
-    </div>
+    <AnalyzingLoader
+      message={state === "compressing" ? COPY.GUEST_COMPRESSING : COPY.GUEST_ANALYZING}
+    />
   );
 }
