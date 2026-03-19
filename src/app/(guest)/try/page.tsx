@@ -9,15 +9,16 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { hasGuestUsed } from "@/lib/guest/guestLimit";
 import { EagleIcon } from "@/components/ui/eagle-icons";
+import { CrownAreaIcon, FrontAreaIcon, SideAreaIcon } from "@/components/ui/scan-area-icons";
 import { COPY } from "@/constants/copy";
 import { fadeSlideUp } from "@/lib/motion";
 import type { CapturedImage, AllowedMimeType } from "@/types/scan";
 import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE_BYTES, MAX_IMAGES, MIN_IMAGES } from "@/types/scan";
 
 const TIPS = [
-  { emoji: "🔵", text: "정수리 — 꼭대기를 내려다보는 각도" },
-  { emoji: "🟢", text: "전면이마 — 헤어라인이 보이는 정면" },
-  { emoji: "🟡", text: "측면이마 — 관자놀이 부근 측면" },
+  { icon: CrownAreaIcon, text: "정수리 — 꼭대기를 내려다보는 각도" },
+  { icon: FrontAreaIcon, text: "전면이마 — 헤어라인이 보이는 정면" },
+  { icon: SideAreaIcon, text: "측면이마 — 관자놀이 부근 측면" },
 ];
 
 function createCapturedImage(file: File): Promise<CapturedImage> {
@@ -161,19 +162,16 @@ export default function GuestTryPage(): ReactElement {
                   필수 {MIN_IMAGES}장
                 </span>
               </div>
-              <div className="flex flex-col gap-1.5">
-                {TIPS.map((tip, idx) => (
-                  <div key={tip.emoji} className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{tip.emoji}</span>
+              <div className="flex flex-col gap-2">
+                {TIPS.map((tip) => (
+                  <div key={tip.text} className="flex items-center gap-2.5 text-xs text-muted-foreground">
+                    <tip.icon size={24} className="shrink-0" />
                     <span>{tip.text}</span>
-                    {idx < MIN_IMAGES && (
-                      <span className="text-[10px] font-medium text-foreground/40">필수</span>
-                    )}
                   </div>
                 ))}
               </div>
-              <p className="mt-2.5 text-[11px] leading-relaxed text-muted-foreground/60">
-                위 순서대로 {MIN_IMAGES}장을 업로드하면 AI가 더 정확하게 분석해요.
+              <p className="mt-3 rounded-lg bg-foreground/5 px-3 py-2 text-center text-[11px] font-medium leading-relaxed text-foreground/70">
+                순서 상관없이 {MIN_IMAGES}장을 업로드하면 AI가 부위를 자동으로 판별해요
               </p>
             </div>
 
