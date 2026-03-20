@@ -5,8 +5,10 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Upload, RotateCcw, Scan, ImagePlus, X, Loader2 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { toast } from "sonner";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { useDailyRemaining } from "@/hooks/useDailyRemaining";
+import { COPY } from "@/constants/copy";
 import { fadeSlideUp } from "@/lib/motion";
 import { CrownAreaIcon, FrontAreaIcon, SideAreaIcon } from "@/components/ui/scan-area-icons";
 import type { CapturedImage, AllowedMimeType } from "@/types/scan";
@@ -53,11 +55,11 @@ export default function ScanSession(): ReactElement {
     async (files: File[]): Promise<void> => {
       const valid = files.filter((file) => {
         if (!ALLOWED_MIME_TYPES.includes(file.type as AllowedMimeType)) {
-          alert("JPEG, PNG, WebP 이미지만 업로드할 수 있어요.");
+          toast.error(COPY.SCAN_UPLOAD_INVALID_TYPE);
           return false;
         }
         if (file.size > MAX_FILE_SIZE_BYTES) {
-          alert("10MB 이하의 이미지만 업로드할 수 있어요.");
+          toast.error(COPY.SCAN_UPLOAD_TOO_LARGE);
           return false;
         }
         return true;
@@ -68,7 +70,7 @@ export default function ScanSession(): ReactElement {
         const captured = await Promise.all(valid.map(createCapturedImage));
         addImages(captured);
       } catch {
-        alert("이미지를 불러올 수 없습니다.");
+        toast.error(COPY.SCAN_UPLOAD_LOAD_ERROR);
       }
     },
     [addImages],

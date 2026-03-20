@@ -10,15 +10,16 @@ import { useScanSessionStore } from "@/stores/scanSession";
 import { hasGuestUsed } from "@/lib/guest/guestLimit";
 import { EagleIcon } from "@/components/ui/eagle-icons";
 import { CrownAreaIcon, FrontAreaIcon, SideAreaIcon } from "@/components/ui/scan-area-icons";
+import { toast } from "sonner";
 import { COPY } from "@/constants/copy";
 import { fadeSlideUp } from "@/lib/motion";
 import type { CapturedImage, AllowedMimeType } from "@/types/scan";
 import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE_BYTES, MAX_IMAGES, MIN_IMAGES } from "@/types/scan";
 
 const TIPS = [
-  { icon: CrownAreaIcon, text: "정수리 — 꼭대기를 내려다보는 각도" },
-  { icon: FrontAreaIcon, text: "전면이마 — 헤어라인이 보이는 정면" },
-  { icon: SideAreaIcon, text: "측면이마 — 관자놀이 부근 측면" },
+  { icon: CrownAreaIcon, text: COPY.SCAN_TIP_CROWN },
+  { icon: FrontAreaIcon, text: COPY.SCAN_TIP_FRONT },
+  { icon: SideAreaIcon, text: COPY.SCAN_TIP_SIDE },
 ];
 
 function createCapturedImage(file: File): Promise<CapturedImage> {
@@ -58,11 +59,11 @@ export default function GuestTryPage(): ReactElement {
     async (files: File[]): Promise<void> => {
       const valid = files.filter((file) => {
         if (!ALLOWED_MIME_TYPES.includes(file.type as AllowedMimeType)) {
-          alert("JPEG, PNG, WebP 이미지만 업로드할 수 있어요.");
+          toast.error(COPY.SCAN_UPLOAD_INVALID_TYPE);
           return false;
         }
         if (file.size > MAX_FILE_SIZE_BYTES) {
-          alert("10MB 이하의 이미지만 업로드할 수 있어요.");
+          toast.error(COPY.SCAN_UPLOAD_TOO_LARGE);
           return false;
         }
         return true;
@@ -73,7 +74,7 @@ export default function GuestTryPage(): ReactElement {
         const captured = await Promise.all(valid.map(createCapturedImage));
         addImages(captured);
       } catch {
-        alert("이미지를 불러올 수 없습니다.");
+        toast.error(COPY.SCAN_UPLOAD_LOAD_ERROR);
       }
     },
     [addImages],
@@ -156,10 +157,10 @@ export default function GuestTryPage(): ReactElement {
             <div className="border-b border-accent px-5 py-4">
               <div className="mb-2 flex items-center justify-between">
                 <p className="text-xs font-semibold text-foreground">
-                  촬영 가이드
+                  {COPY.SCAN_GUIDE_LABEL}
                 </p>
                 <span className="rounded-full bg-foreground/5 px-2 py-0.5 text-[10px] font-bold text-foreground/60">
-                  필수 {MIN_IMAGES}장
+                  {COPY.SCAN_REQUIRED_BADGE(MIN_IMAGES)}
                 </span>
               </div>
               <div className="flex flex-col gap-2">
@@ -171,7 +172,7 @@ export default function GuestTryPage(): ReactElement {
                 ))}
               </div>
               <p className="mt-3 rounded-lg bg-foreground/5 px-3 py-2 text-center text-[11px] font-medium leading-relaxed text-foreground/70">
-                순서 상관없이 {MIN_IMAGES}장을 업로드하면 AI가 부위를 자동으로 판별해요
+                {COPY.SCAN_AUTO_DETECT(MIN_IMAGES)}
               </p>
             </div>
 
@@ -183,10 +184,10 @@ export default function GuestTryPage(): ReactElement {
                     <Upload className="h-5 w-5 text-muted-foreground/70" />
                   </div>
                   <p className="text-sm font-medium text-muted-foreground">
-                    사진을 드래그하거나 아래 버튼으로 추가
+                    {COPY.SCAN_DROP_HINT}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground/70">
-                    JPG, PNG, WebP · 최대 10MB · 최대 {MAX_IMAGES}장
+                    {COPY.SCAN_FILE_SPEC(MAX_IMAGES)}
                   </p>
                 </div>
               ) : (
@@ -211,7 +212,7 @@ export default function GuestTryPage(): ReactElement {
                         <button
                           type="button"
                           onClick={() => handleRemove(img.id)}
-                          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white opacity-0 transition-opacity group-hover:opacity-100"
+                          className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/50 text-white opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
                           aria-label="삭제"
                         >
                           <X className="h-3.5 w-3.5" />
@@ -242,7 +243,7 @@ export default function GuestTryPage(): ReactElement {
               {/* Counter */}
               {images.length > 0 && (
                 <p className="mt-2 text-right text-xs text-muted-foreground/70">
-                  {images.length}/{MAX_IMAGES}장
+                  {COPY.SCAN_COUNTER(images.length, MAX_IMAGES)}
                 </p>
               )}
 
@@ -251,7 +252,7 @@ export default function GuestTryPage(): ReactElement {
                 <div className="mt-3">
                   <label className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl bg-foreground py-2.5 text-sm font-semibold text-background transition-colors hover:bg-foreground/85 active:scale-[0.98]">
                     <ImagePlus className="h-4 w-4" />
-                    사진 선택하기
+                    {COPY.SCAN_SELECT_PHOTOS}
                     <input
                       type="file"
                       accept="image/jpeg,image/png,image/webp"
@@ -279,7 +280,7 @@ export default function GuestTryPage(): ReactElement {
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-foreground py-4 text-base font-semibold text-background shadow-lg shadow-black/15 transition-all hover:bg-foreground/85 disabled:cursor-not-allowed disabled:shadow-none"
           >
             <Upload className="h-5 w-5" />
-            AI 분석 시작하기
+            {COPY.SCAN_START_ANALYSIS}
           </motion.button>
 
           {images.length > 0 && (
@@ -288,7 +289,7 @@ export default function GuestTryPage(): ReactElement {
               className="flex w-full items-center justify-center gap-2 py-3 text-sm text-muted-foreground transition-colors hover:text-foreground"
             >
               <RotateCcw className="h-4 w-4" />
-              전체 초기화
+              {COPY.SCAN_RESET}
             </button>
           )}
         </div>
