@@ -2,7 +2,7 @@
 
 import { useState, useEffect, type ReactElement } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import FallbackImage from "@/components/ui/fallback-image";
 import {
   Ruler,
   Layers,
@@ -258,7 +258,7 @@ export default function ResultCard({
                       key={img.url}
                       className="relative aspect-square overflow-hidden rounded-xl bg-muted"
                     >
-                      <Image
+                      <FallbackImage
                         src={img.thumbnailUrl}
                         alt={SCAN_TYPE_LABELS[img.type] ?? "촬영 사진"}
                         fill

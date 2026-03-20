@@ -5,17 +5,22 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence } from "framer-motion";
 import { Camera, Clock, MessageCircle, Home } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { compressImage } from "@/lib/image/compressClient";
 import ResultCard from "@/components/analysis/ResultCard";
 import FeedbackButtons from "@/components/analysis/FeedbackButtons";
-import ShareButtons from "@/components/analysis/ShareButtons";
 import ShareAnalysisModal from "@/components/board/ShareAnalysisModal";
 import AnalyzingLoader from "@/components/scan/AnalyzingLoader";
 import { useCreatePost } from "@/hooks/useBoardPosts";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail, ScanImage } from "@/types/database";
+
+const ShareButtons = dynamic(
+  () => import("@/components/analysis/ShareButtons"),
+  { ssr: false },
+);
 
 /** Vercel Serverless Function body 제한 (4.5MB) */
 const VERCEL_BODY_LIMIT = 4.5 * 1024 * 1024;

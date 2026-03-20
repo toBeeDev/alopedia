@@ -276,6 +276,7 @@ export default function WritePostModal({
           </h2>
           <button
             onClick={onClose}
+            aria-label="닫기"
             className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-accent"
           >
             <X className="h-5 w-5 text-muted-foreground/70" />
@@ -327,6 +328,7 @@ export default function WritePostModal({
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           maxLength={100}
+          aria-label="게시글 제목"
           className="mb-3 w-full rounded-xl border border-border px-4 py-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-foreground"
         />
 
@@ -336,6 +338,7 @@ export default function WritePostModal({
           onChange={(e) => setContent(e.target.value)}
           maxLength={5000}
           rows={6}
+          aria-label="게시글 내용"
           className="mb-3 w-full resize-none rounded-xl border border-border px-4 py-3 text-sm leading-relaxed text-foreground outline-none placeholder:text-muted-foreground/50 focus:border-foreground"
         />
 
@@ -357,6 +360,7 @@ export default function WritePostModal({
                 <button
                   type="button"
                   onClick={() => handleRemoveImage(img.id)}
+                  aria-label="첨부 이미지 삭제"
                   className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white"
                 >
                   <X className="h-3 w-3" />
@@ -371,6 +375,7 @@ export default function WritePostModal({
                   accept="image/jpeg,image/png,image/webp"
                   multiple
                   className="hidden"
+                  aria-label="이미지 첨부"
                   onChange={(e) => handleAddImages(e.target.files)}
                 />
               </label>

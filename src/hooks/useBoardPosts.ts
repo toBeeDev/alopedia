@@ -43,7 +43,7 @@ interface BoardPostsResponse {
 export function useBoardPosts(board?: BoardType, page = 1) {
   return useQuery<BoardPostsResponse>({
     queryKey: ["boardPosts", board, page],
-    queryFn: async () => {
+    queryFn: async (): Promise<BoardPostsResponse> => {
       const params = new URLSearchParams();
       if (board) params.set("board", board);
       params.set("page", String(page));
@@ -51,6 +51,7 @@ export function useBoardPosts(board?: BoardType, page = 1) {
       if (!res.ok) throw new Error("게시글을 불러올 수 없어요.");
       return res.json();
     },
+    staleTime: 1000 * 60 * 2,
   });
 }
 

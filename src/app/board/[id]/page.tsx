@@ -3,7 +3,7 @@
 import { useState, type ReactElement } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
+import FallbackImage from "@/components/ui/fallback-image";
 import {
   ArrowLeft,
   Feather,
@@ -333,7 +333,7 @@ export default function PostDetailPage(): ReactElement {
                       onContextMenu={(e) => e.preventDefault()}
                       draggable={false}
                     >
-                      <Image
+                      <FallbackImage
                         src={url}
                         alt={`첨부 사진 ${idx + 1}`}
                         fill

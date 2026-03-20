@@ -188,7 +188,7 @@ function HandWrittenTitle({
           transition={{ delay: 2.4, duration: 0.6 }}
         >
           <Link
-            href="/board"
+            href="/check"
             className="group flex items-center gap-1.5 rounded-full border border-foreground/20 px-6 py-2.5 text-sm font-semibold text-foreground/60 transition-all hover:border-foreground/40 hover:text-foreground/80"
           >
             {COPY.HERO_BROWSE_CTA}

@@ -8,11 +8,15 @@ import { AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import ResultCard from "@/components/analysis/ResultCard";
 import FeedbackButtons from "@/components/analysis/FeedbackButtons";
-import ShareButtons from "@/components/analysis/ShareButtons";
 import { COPY } from "@/constants/copy";
 import { useCreatePost } from "@/hooks/useBoardPosts";
 import type { AnalysisDetail, ScanImage, BoardType } from "@/types/database";
 import type { ScanWithAnalysis } from "@/hooks/useScanHistory";
+
+const ShareButtons = dynamic(
+  () => import("@/components/analysis/ShareButtons"),
+  { ssr: false },
+);
 
 const ShareAnalysisModal = dynamic(
   () => import("@/components/board/ShareAnalysisModal"),

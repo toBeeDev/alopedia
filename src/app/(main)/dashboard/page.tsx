@@ -1,6 +1,6 @@
 "use client";
 
-import { type ReactElement } from "react";
+import { type ReactElement, useMemo } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -139,9 +139,13 @@ export default function DashboardPage(): ReactElement {
   const onlineCount = useOnlineCount();
   const profile = profileData?.profile;
 
-  // 분석 완료된 스캔만 필터링
-  const completedScans = scans?.filter(
-    (s) => s.status === "completed" && s.analyses?.length > 0,
+  // 분석 완료된 스캔만 필터링 (메모이제이션)
+  const completedScans = useMemo(
+    () =>
+      scans?.filter(
+        (s) => s.status === "completed" && s.analyses?.length > 0,
+      ),
+    [scans],
   );
   const latestScan = completedScans?.[0];
   const latestAnalysis = latestScan?.analyses?.[0];
@@ -166,8 +170,8 @@ export default function DashboardPage(): ReactElement {
           className="space-y-6"
         >
           {/* ── 1. 인사 헤더 ── */}
-          <motion.div variants={fadeSlideUp} className="flex items-center justify-between">
-            <div>
+          <motion.div variants={fadeSlideUp} className="flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <p className="text-[13px] text-muted-foreground/70">
                   {new Date().toLocaleDateString("ko-KR", {
@@ -177,22 +181,22 @@ export default function DashboardPage(): ReactElement {
                   })}
                 </p>
                 {onlineCount > 0 && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-600 ring-1 ring-emerald-200/60 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-600 ring-1 ring-emerald-200/60 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20">
                     <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-500" />
                     {onlineCount}명 접속 중
                   </span>
                 )}
               </div>
-              <h2 className="mt-0.5 text-xl font-bold text-foreground">
+              <h2 className="mt-0.5 truncate text-xl font-bold text-foreground">
                 {profile?.nickname
                   ? `${profile.nickname}님, 안녕하세요`
                   : "안녕하세요"}
               </h2>
             </div>
             {profile?.streak_current ? (
-              <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-50 to-amber-50 px-3 py-1.5 ring-1 ring-orange-100 dark:from-orange-500/10 dark:to-amber-500/10 dark:ring-orange-500/20">
+              <div className="flex shrink-0 items-center gap-1.5 rounded-full bg-gradient-to-r from-orange-50 to-amber-50 px-3 py-1.5 ring-1 ring-orange-100 dark:from-orange-500/10 dark:to-amber-500/10 dark:ring-orange-500/20">
                 <Flame className="h-4 w-4 text-orange-500" />
-                <span className="text-xs font-bold text-orange-600 dark:text-orange-400">
+                <span className="whitespace-nowrap text-xs font-bold text-orange-600 dark:text-orange-400">
                   {profile.streak_current}일 연속
                 </span>
               </div>

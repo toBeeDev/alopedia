@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, type ReactElement } from "react";
-import Image from "next/image";
+import FallbackImage from "@/components/ui/fallback-image";
 import { X, Share2, ImageIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { COPY } from "@/constants/copy";
@@ -235,7 +235,7 @@ export default function ShareAnalysisModal({
                         key={idx}
                         className="relative h-16 w-16 shrink-0 overflow-hidden rounded-lg"
                       >
-                        <Image
+                        <FallbackImage
                           src={img.thumbnailUrl}
                           alt={`두피 사진 ${idx + 1}`}
                           fill

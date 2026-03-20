@@ -214,6 +214,25 @@ export const COPY = {
   GUEST_RESULT_TITLE: "독수리의 분석이 끝났어요!",
   GUEST_RESULT_SAVE: "기록을 저장하고 변화를 추적하고 싶다면?",
 
+  // ── Scan / Upload ──
+  SCAN_TIP_CROWN: "정수리 — 꼭대기를 내려다보는 각도",
+  SCAN_TIP_FRONT: "전면이마 — 헤어라인이 보이는 정면",
+  SCAN_TIP_SIDE: "측면이마 — 관자놀이 부근 측면",
+  SCAN_GUIDE_LABEL: "촬영 가이드",
+  SCAN_REQUIRED_BADGE: (count: number): string => `필수 ${count}장`,
+  SCAN_AUTO_DETECT: (count: number): string =>
+    `순서 상관없이 ${count}장을 업로드하면 AI가 부위를 자동으로 판별해요`,
+  SCAN_DROP_HINT: "사진을 드래그하거나 아래 버튼으로 추가",
+  SCAN_FILE_SPEC: (maxImages: number): string =>
+    `JPG, PNG, WebP · 최대 10MB · 최대 ${maxImages}장`,
+  SCAN_COUNTER: (current: number, max: number): string => `${current}/${max}장`,
+  SCAN_SELECT_PHOTOS: "사진 선택하기",
+  SCAN_START_ANALYSIS: "AI 분석 시작하기",
+  SCAN_RESET: "전체 초기화",
+  SCAN_UPLOAD_INVALID_TYPE: "JPEG, PNG, WebP 이미지만 업로드할 수 있어요.",
+  SCAN_UPLOAD_TOO_LARGE: "10MB 이하의 이미지만 업로드할 수 있어요.",
+  SCAN_UPLOAD_LOAD_ERROR: "이미지를 불러올 수 없습니다.",
+
   // ── Monthly Report ──
   REPORT_BANNER_TITLE: "독수리가 월간 리포트를 가져왔어요",
   REPORT_BANNER_CTA: "리포트 보기",
