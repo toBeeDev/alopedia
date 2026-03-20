@@ -18,5 +18,6 @@ export function useScanHistory() {
   return useQuery<ScanWithAnalysis[]>({
     queryKey: ["scanHistory"],
     queryFn: fetchScanHistory,
+    staleTime: 1000 * 60 * 5,
   });
 }

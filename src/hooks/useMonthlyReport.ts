@@ -16,7 +16,7 @@ export function useMonthlyReport(): ReturnType<
   return useQuery({
     queryKey: ["monthlyReport", "latest"],
     queryFn: fetchLatestReport,
-    staleTime: 5 * 60 * 1000,
+    staleTime: 1000 * 60 * 10,
   });
 }
 

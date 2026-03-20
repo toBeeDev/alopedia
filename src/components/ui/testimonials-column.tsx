@@ -32,6 +32,7 @@ export function TestimonialsColumn({
           repeatType: "loop",
         }}
         className="flex flex-col gap-4 pb-4"
+        style={{ willChange: "transform" }}
       >
         {[...new Array(2).fill(0)].map((_, index) => (
           <React.Fragment key={index}>
