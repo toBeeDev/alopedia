@@ -119,6 +119,30 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
+  // Tags validation
+  if (tags !== undefined) {
+    if (!Array.isArray(tags) || !tags.every((t): t is string => typeof t === "string")) {
+      return NextResponse.json(
+        { error: "태그는 문자열 배열이어야 해요." },
+        { status: 400 },
+      );
+    }
+    if (tags.length > 5) {
+      return NextResponse.json(
+        { error: "태그는 최대 5개까지 입력할 수 있어요." },
+        { status: 400 },
+      );
+    }
+    if (tags.some((t) => t.length > 20)) {
+      return NextResponse.json(
+        { error: "각 태그는 20자 이내로 입력해주세요." },
+        { status: 400 },
+      );
+    }
+  }
+
+  const sanitizedTags = (tags ?? []).map((t) => stripHtml(t).trim()).filter(Boolean);
+
   // Check if user is admin → auto-pin
   const { data: profile } = await supabase
     .from("profiles")
@@ -138,7 +162,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       board,
       title: stripHtml(title.trim()),
       content: stripHtml(content.trim()),
-      tags: tags ?? [],
+      tags: sanitizedTags,
       scan_id: scanId ?? null,
       norwood_grade: norwoodGrade ?? null,
       score: score ?? null,

@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { stripHtml } from "@/lib/utils/sanitize";
 import type { BoardType } from "@/types/database";
 
 const VALID_BOARDS: BoardType[] = [
@@ -110,7 +111,7 @@ export async function PATCH(
         { status: 400 },
       );
     }
-    updates.title = title.trim();
+    updates.title = stripHtml(title.trim());
   }
   if (content !== undefined) {
     if (content.trim().length < 10 || content.trim().length > 5000) {
@@ -119,10 +120,28 @@ export async function PATCH(
         { status: 400 },
       );
     }
-    updates.content = content.trim();
+    updates.content = stripHtml(content.trim());
   }
   if (tags !== undefined) {
-    updates.tags = tags;
+    if (!Array.isArray(tags) || !tags.every((t): t is string => typeof t === "string")) {
+      return NextResponse.json(
+        { error: "태그는 문자열 배열이어야 해요." },
+        { status: 400 },
+      );
+    }
+    if (tags.length > 5) {
+      return NextResponse.json(
+        { error: "태그는 최대 5개까지 입력할 수 있어요." },
+        { status: 400 },
+      );
+    }
+    if (tags.some((t) => t.length > 20)) {
+      return NextResponse.json(
+        { error: "각 태그는 20자 이내로 입력해주세요." },
+        { status: 400 },
+      );
+    }
+    updates.tags = tags.map((t) => stripHtml(t).trim()).filter(Boolean);
   }
 
   if (Object.keys(updates).length === 0) {
