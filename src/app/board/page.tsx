@@ -3,7 +3,7 @@
 import { useState, memo, type ReactElement } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import Image from "next/image";
+import FallbackImage from "@/components/ui/fallback-image";
 import { useRouter } from "next/navigation";
 import {
   Feather,
@@ -269,7 +269,7 @@ const PostCard = memo(function PostCard({
                 onContextMenu={(e) => e.preventDefault()}
                 draggable={false}
               >
-                <Image
+                <FallbackImage
                   src={url}
                   alt={`첨부 이미지 ${idx + 1}`}
                   fill

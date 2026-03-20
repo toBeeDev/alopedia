@@ -2,7 +2,7 @@
 
 import { useRef, useState, type ReactElement, type ChangeEvent } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
+import FallbackImage from "@/components/ui/fallback-image";
 import {
   LogOut,
   Camera,
@@ -131,7 +131,7 @@ export default function ProfilePage(): ReactElement {
               className="group relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-accent"
             >
               {profile?.avatar_url ? (
-                <Image
+                <FallbackImage
                   src={profile.avatar_url}
                   alt="프로필 사진"
                   fill

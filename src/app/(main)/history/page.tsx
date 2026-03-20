@@ -1,7 +1,7 @@
 "use client";
 
 import { type ReactElement, useMemo } from "react";
-import Image from "next/image";
+import FallbackImage from "@/components/ui/fallback-image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -284,7 +284,7 @@ export default function HistoryPage(): ReactElement {
                       <div className="flex flex-1 items-center gap-4">
                         <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-accent">
                           {thumbnail ? (
-                            <Image
+                            <FallbackImage
                               src={thumbnail}
                               alt={COPY.A11Y_SCALP_PHOTO}
                               fill
