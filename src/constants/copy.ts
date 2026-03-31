@@ -49,21 +49,8 @@ export const COPY = {
   ERROR_PHOTO_INVALID:
     "두피가 잘 보이지 않아요. 가이드에 맞춰 다시 촬영해주세요.",
   EMPTY_HISTORY: "아직 기록이 없어요. 첫 번째 두피 분석을 시작해볼까요?",
-  EMPTY_POSTS: "아직 작성된 글이 없어요. 첫 번째 후기를 남겨보세요!",
-  BOARD_NOTICE_BADGE: "공지",
-  BOARD_ADMIN_BADGE: "운영자",
-  BOARD_PREVIEW_TITLE: "다른 분들의 후기를 미리 볼 수 있어요",
-  BOARD_PREVIEW_LOGIN_CTA: "로그인하고 전체 보기",
-  BOARD_PREVIEW_LOGIN_DESC:
-    "로그인하면 모든 후기를 자세히 읽고, 직접 후기를 남길 수 있어요.",
-  SHARE_ANALYSIS_TITLE: "분석 결과 공유하기",
-  SHARE_ANALYSIS_INCLUDE_IMAGES: "두피 사진 포함하기",
-  SHARE_ANALYSIS_IMAGE_WARNING:
-    "사진은 익명으로 공유되며, EXIF 정보가 제거된 상태입니다.",
-  SHARE_ANALYSIS_CTA: "게시판에 공유하기",
   DAILY_ANALYSIS_LIMIT: "오늘 분석 횟수(2회)를 모두 사용했어요. 내일 다시 시도해주세요.",
   SHARE_IMAGE_CTA: "분석 결과 공유하기",
-  SHARE_BOARD_CTA: "게시판 글 올리기",
   SHARE_IMAGE_GENERATING: "이미지 생성 중...",
   SHARE_IMAGE_DOWNLOADED: "이미지가 저장됐어요",
 
@@ -74,37 +61,11 @@ export const COPY = {
     `레벨 ${level} 달성! 두피 관리 습관이 자리잡고 있어요.`,
   BADGE_EARNED: (badge: string): string => `'${badge}' 뱃지를 획득했어요!`,
 
-  // ── Community ──
-  POST_CREATED: "후기가 등록됐어요. 다른 분들에게 큰 도움이 될 거예요.",
-  COMMENT_NOTIFICATION: "내 글에 새 댓글이 달렸어요.",
-  ADOPTION_NOTIFICATION: "내 답변이 채택됐어요!",
-
   // ── Auth ──
   LOGIN_TITLE: "로그인",
   SIGNUP_TITLE: "회원가입",
   LOGIN_CTA: "시작하기",
   LOGOUT: "로그아웃",
-
-  // ── Board Point System (깃털) ──
-  FEATHER_UNIT: "깃털",
-  FEATHER_POST_REWARD: 10,
-  FEATHER_COMMENT_REWARD: 2,
-  FEATHER_BEST_REWARD: 50,
-  FEATHER_LIKE_ACTION: "깃털 투척",
-  FEATHER_REPORT_ACTION: "깃털 날리기",
-
-  // ── Board Community Slang ──
-  BOARD_SLANG_RICH_ALERT: "풍성충 침입 경보!",
-  BOARD_SLANG_KING_ADVICE: "제왕의 조언",
-  BOARD_SLANG_SAVE_OP: "깃털 사수 작전",
-
-  // ── Board Names ──
-  BOARD_NAME: {
-    medication_review: "탈모약 후기",
-    procedure_review: "시술 후기",
-    qna: "Q&A",
-    lounge: "자유게시판",
-  } as Record<string, string>,
 
   // ── Hero / Landing ──
   HERO_TITLE: "AI로 시작하는",
@@ -126,9 +87,9 @@ export const COPY = {
   FEATURE_TRACK_TITLE: "변화 추적",
   FEATURE_TRACK_DESC:
     "타임라인과 비교 슬라이더로 두피 상태 변화를 한눈에 확인하세요.",
-  FEATURE_COMMUNITY_TITLE: "익명 커뮤니티",
+  FEATURE_COMMUNITY_TITLE: "헤어 다이어리",
   FEATURE_COMMUNITY_DESC:
-    "약물, 시술 후기를 익명으로 공유하고 실질적인 정보를 나눠보세요.",
+    "매일 두피 상태를 기록하고, AI 분석과 함께 변화를 추적하세요. 공개하면 다른 분들과 경험을 나눌 수 있어요.",
   FEATURE_RECORD_TITLE: "꾸준한 기록",
   FEATURE_RECORD_DESC:
     "스트릭, 뱃지, 레벨 시스템으로 두피 관리 습관을 만들어갑니다.",
@@ -139,7 +100,7 @@ export const COPY = {
   NAV_SCAN: "업로드",
   NAV_HISTORY: "기록",
   NAV_GUIDE: "분석 가이드",
-  NAV_BOARD: "게시판",
+  NAV_DIARY: "헤어 다이어리",
   NAV_PROFILE: "프로필",
   NAV_HOSPITAL: "병원 찾기",
   NAV_OPEN: "메뉴 열기",
@@ -148,7 +109,7 @@ export const COPY = {
   // ── Page Titles ──
   PAGE_TITLE_HISTORY: "분석 기록",
   PAGE_TITLE_DASHBOARD: "대시보드",
-  PAGE_TITLE_BOARD: "커뮤니티",
+  PAGE_TITLE_DIARY: "헤어 다이어리",
   PAGE_TITLE_GUIDE: "분석 방법",
   PAGE_TITLE_PROFILE: "프로필",
 
@@ -187,8 +148,6 @@ export const COPY = {
   A11Y_GRADE: (grade: number, label: string): string =>
     `두피 상태 등급 ${grade}단계, ${label}`,
   A11Y_STREAK: (days: number): string => `연속 기록 ${days}일째`,
-  A11Y_VOTE: (count: number): string =>
-    `이 글에 공감하기, 현재 ${count}명 공감`,
   A11Y_SCALP_PHOTO: "본인의 두피 촬영 이미지",
 
   // ── SEO Landing ──
@@ -245,4 +204,47 @@ export const COPY = {
   REPORT_STREAK: (current: number, best: number): string =>
     `${current}일 연속 방문 (최고 ${best}일!)`,
   REPORT_CTA_SCAN: "이번 달도 독수리와 함께 기록하기",
+
+  // ── Diary ──
+  DIARY_EMPTY: "아직 기록이 없어요. 오늘 첫 번째 다이어리를 작성해보세요!",
+  DIARY_ENTRY_SAVED: "오늘의 다이어리가 저장됐어요.",
+  DIARY_ENTRY_UPDATED: "다이어리가 수정됐어요.",
+  DIARY_ENTRY_DELETED: "다이어리가 삭제됐어요.",
+  DIARY_ALREADY_EXISTS: "오늘은 이미 기록했어요.",
+  DIARY_EDIT_CTA: "수정하기",
+  DIARY_ADD_CTA: "오늘 기록하기",
+  DIARY_STREAK: (days: number): string => `연속 ${days}일 기록 중!`,
+  DIARY_MEMO_PLACEHOLDER: "오늘 두피 상태나 느낌을 자유롭게 적어보세요...",
+  DIARY_PUBLIC_LABEL: "모두에게 공개",
+  DIARY_PHOTO_PUBLIC_LABEL: "사진도 공개",
+  DIARY_CHECKLIST_MEDICATION: "약물",
+  DIARY_CHECKLIST_TREATMENT: "시술",
+  DIARY_CHECKLIST_LIFESTYLE: "생활습관",
+
+  // ── Diary Public Feed ──
+  DIARY_PUBLIC_TITLE: "공개 다이어리",
+  DIARY_PUBLIC_EMPTY: "아직 공개된 다이어리가 없어요.",
+  DIARY_PHOTO_BLURRED: "사진 비공개",
+
+  // ── Diary Report (Premium) ──
+  DIARY_REPORT_TITLE: "분석 리포트",
+  DIARY_REPORT_SCORE_TREND: "점수 추이",
+  DIARY_REPORT_BEFORE_AFTER: "Before / After 비교",
+  DIARY_REPORT_CHECKLIST_STATS: "체크리스트 통계",
+  DIARY_REPORT_LOCKED_TITLE: "프리미엄 기능이에요",
+  DIARY_REPORT_LOCKED_DESC: "무료 체험 기간이 끝났어요. 구독하면 리포트, 비교, 통계를 확인할 수 있어요.",
+  DIARY_REPORT_SUBSCRIBE_CTA: "구독하기",
+  DIARY_REPORT_TRIAL_REMAINING: (days: number): string => `무료 체험 ${days}일 남음`,
+
+  // ── Contact ──
+  CONTACT_TITLE: "문의하기",
+  CONTACT_SUBJECT_PLACEHOLDER: "제목을 입력해주세요",
+  CONTACT_BODY_PLACEHOLDER: "궁금한 점이나 건의사항을 적어주세요",
+  CONTACT_EMAIL_LABEL: "답변받을 이메일",
+  CONTACT_SUBMIT: "문의 보내기",
+  CONTACT_SUCCESS: "문의가 접수됐어요. 빠르게 답변드릴게요!",
+
+  // ── Terms ──
+  TERMS_AGREE: "이용약관 동의 (필수)",
+  PRIVACY_AGREE: "개인정보처리방침 동의 (필수)",
 } as const;
