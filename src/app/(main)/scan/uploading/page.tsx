@@ -3,17 +3,14 @@
 import { useEffect, useRef, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
-import { AnimatePresence } from "framer-motion";
-import { Camera, Clock, MessageCircle, Home } from "lucide-react";
+import { Camera, Clock, BookOpen, Home } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useScanSessionStore } from "@/stores/scanSession";
 import { compressImage } from "@/lib/image/compressClient";
 import ResultCard from "@/components/analysis/ResultCard";
 import FeedbackButtons from "@/components/analysis/FeedbackButtons";
-import ShareAnalysisModal from "@/components/board/ShareAnalysisModal";
 import AnalyzingLoader from "@/components/scan/AnalyzingLoader";
-import { useCreatePost } from "@/hooks/useBoardPosts";
 import { COPY } from "@/constants/copy";
 import type { AnalysisDetail, ScanImage } from "@/types/database";
 
@@ -149,17 +146,13 @@ export default function UploadingPage(): ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [showShareModal, setShowShareModal] = useState(false);
-  const [shareSuccess, setShareSuccess] = useState(false);
-  const createPost = useCreatePost();
-
   // 분석 완료 — 결과 카드 표시
   if (state === "done" && analysis) {
     const quickLinks = [
       { href: "/dashboard", label: "홈", icon: Home },
       { href: "/scan", label: "다시 업로드", icon: Camera },
       { href: "/history", label: "기록 보기", icon: Clock },
-      { href: "/board", label: "게시판", icon: MessageCircle },
+      { href: "/diary", label: "다이어리", icon: BookOpen },
     ];
 
     return (
@@ -184,8 +177,7 @@ export default function UploadingPage(): ReactElement {
             score={analysis.score}
             details={analysis.details}
             createdAt={analysis.createdAt}
-            onBoardShare={() => setShowShareModal(true)}
-            boardShared={shareSuccess}
+            scanId={analysis.scanId}
           />
         </div>
 
@@ -208,29 +200,6 @@ export default function UploadingPage(): ReactElement {
           ))}
         </div>
 
-        {/* 공유 모달 */}
-        <AnimatePresence>
-          {showShareModal && (
-            <ShareAnalysisModal
-              data={{
-                scanId: analysis.scanId,
-                norwoodGrade: analysis.grade,
-                score: analysis.score,
-                details: analysis.details,
-                images: analysis.images,
-              }}
-              onClose={() => setShowShareModal(false)}
-              onSubmit={(payload) => {
-                createPost.mutate(payload, {
-                  onSuccess: () => {
-                    setShowShareModal(false);
-                    setShareSuccess(true);
-                  },
-                });
-              }}
-            />
-          )}
-        </AnimatePresence>
       </div>
     );
   }

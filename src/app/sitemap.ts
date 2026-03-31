@@ -1,9 +1,8 @@
 import type { MetadataRoute } from "next";
-import { createClient } from "@/lib/supabase/server";
 
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://alopedia.kr";
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+export default function sitemap(): MetadataRoute.Sitemap {
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: SITE_URL,
@@ -12,7 +11,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1,
     },
     {
-      url: `${SITE_URL}/board`,
+      url: `${SITE_URL}/diary/public`,
       lastModified: new Date(),
       changeFrequency: "daily",
       priority: 0.8,
@@ -31,25 +30,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // Dynamic board post pages
-  try {
-    const supabase = await createClient();
-    const { data: posts } = await supabase
-      .from("posts")
-      .select("slug, created_at")
-      .not("slug", "is", null)
-      .order("created_at", { ascending: false })
-      .limit(200);
-
-    const postPages: MetadataRoute.Sitemap = (posts ?? []).map((post: { slug: string; created_at: string }) => ({
-      url: `${SITE_URL}/board/${post.slug}`,
-      lastModified: new Date(post.created_at),
-      changeFrequency: "weekly" as const,
-      priority: 0.7,
-    }));
-
-    return [...staticPages, ...postPages];
-  } catch {
-    return staticPages;
-  }
+  return staticPages;
 }

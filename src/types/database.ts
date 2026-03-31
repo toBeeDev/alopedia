@@ -3,10 +3,8 @@ import type { PhotoClassification } from "@/types/analysis";
 /** Supabase Database Types */
 
 export type ScanStatus = "pending" | "analyzing" | "completed" | "failed";
-export type BoardType = "medication_review" | "procedure_review" | "qna" | "lounge";
 export type TreatmentType = "medication" | "procedure" | "supplement" | "shampoo";
-export type VoteTargetType = "post" | "comment" | "scan";
-export type VoteType = "up" | "empathy";
+export type VoteTargetType = "scan";
 
 export type UserRole = "user" | "admin";
 
@@ -21,6 +19,8 @@ export interface Profile {
   avatarSeed: string | null;
   avatarUrl: string | null;
   createdAt: string;
+  diaryPremiumUntil: string | null;
+  termsAgreedAt: string | null;
 }
 
 export interface ScanImage {
@@ -87,44 +87,6 @@ export interface Treatment {
   isActive: boolean;
 }
 
-export interface Post {
-  id: string;
-  slug: string;
-  userId: string;
-  board: BoardType;
-  title: string;
-  content: string;
-  tags: string[];
-  images: Record<string, unknown>[] | null;
-  scanId: string | null;
-  norwoodGrade: number | null;
-  score: number | null;
-  voteCount: number;
-  commentCount: number;
-  isAdopted: boolean;
-  isPinned: boolean;
-  createdAt: string;
-}
-
-export interface Comment {
-  id: string;
-  postId: string;
-  userId: string;
-  parentId: string | null;
-  content: string;
-  voteCount: number;
-  createdAt: string;
-}
-
-export interface Vote {
-  id: string;
-  userId: string;
-  targetType: VoteTargetType;
-  targetId: string;
-  voteType: VoteType;
-  createdAt: string;
-}
-
 export interface Achievement {
   id: string;
   userId: string;
@@ -146,6 +108,8 @@ export interface DbProfile {
   last_check_in: string | null;
   nickname_changed_at: string | null;
   created_at: string;
+  diary_premium_until: string | null;
+  terms_agreed_at: string | null;
 }
 
 export interface DbScan {
@@ -178,44 +142,6 @@ export interface DbTreatment {
   dosage: string | null;
   notes: string | null;
   is_active: boolean;
-}
-
-export interface DbPost {
-  id: string;
-  slug: string;
-  user_id: string;
-  board: BoardType;
-  title: string;
-  content: string;
-  tags: string[];
-  images: Record<string, unknown>[] | null;
-  scan_id: string | null;
-  norwood_grade: number | null;
-  score: number | null;
-  vote_count: number;
-  comment_count: number;
-  is_adopted: boolean;
-  is_pinned: boolean;
-  created_at: string;
-}
-
-export interface DbComment {
-  id: string;
-  post_id: string;
-  user_id: string;
-  parent_id: string | null;
-  content: string;
-  vote_count: number;
-  created_at: string;
-}
-
-export interface DbVote {
-  id: string;
-  user_id: string;
-  target_type: VoteTargetType;
-  target_id: string;
-  vote_type: VoteType;
-  created_at: string;
 }
 
 export interface DbAchievement {

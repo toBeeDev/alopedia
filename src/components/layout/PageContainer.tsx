@@ -11,7 +11,7 @@ export default function PageContainer({
 }: PageContainerProps): ReactElement {
   return (
     <div
-      className={`mx-auto px-6 sm:px-8 md:max-w-2xl md:px-12 lg:max-w-4xl xl:max-w-5xl ${className}`}
+      className={`mx-auto w-full flex-1 px-6 sm:px-8 md:max-w-2xl md:px-12 lg:max-w-4xl xl:max-w-5xl ${className}`}
     >
       {children}
     </div>

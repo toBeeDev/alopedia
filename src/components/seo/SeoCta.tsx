@@ -17,9 +17,6 @@ export default function SeoCta({ text }: SeoCtaProps): React.ReactElement {
         {text}
       </Link>
       <p className="text-sm text-muted-foreground">{COPY.SEO_CTA_SUB}</p>
-      <p className="mt-2 max-w-md text-center text-xs text-muted-foreground">
-        {COPY.DISCLAIMER_SHORT}
-      </p>
     </div>
   );
 }

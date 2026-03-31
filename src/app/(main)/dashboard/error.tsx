@@ -17,7 +17,6 @@ export default function DashboardError({ reset }: ErrorBoundaryProps): ReactElem
         <h2 className="text-lg font-semibold text-gray-900">
           {COPY.ERROR_NETWORK}
         </h2>
-        <p className="text-sm text-gray-500">{COPY.DISCLAIMER_SHORT}</p>
       </div>
       <button
         type="button"

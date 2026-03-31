@@ -52,8 +52,7 @@ export function useUpdateNickname() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
-      queryClient.invalidateQueries({ queryKey: ["postDetail"] });
+      queryClient.invalidateQueries({ queryKey: ["diary"] });
     },
   });
 }
@@ -79,8 +78,7 @@ export function useUploadAvatar() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["profile"] });
-      queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
-      queryClient.invalidateQueries({ queryKey: ["postDetail"] });
+      queryClient.invalidateQueries({ queryKey: ["diary"] });
     },
   });
 }

@@ -15,7 +15,7 @@ export default function AnalyzingLoader({
   subMessage,
 }: AnalyzingLoaderProps): ReactElement {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-6">
+    <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background px-6 overflow-hidden overscroll-none touch-none">
       <motion.div
         animate={{ y: [0, -10, 0] }}
         transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
