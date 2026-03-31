@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import FloatingMenu from "@/components/layout/FloatingMenu";
 import type { ReactElement, ReactNode } from "react";
 
-export const dynamic = "force-dynamic";
-
 const SITE_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://alopedia.kr";
 
 export const metadata: Metadata = {

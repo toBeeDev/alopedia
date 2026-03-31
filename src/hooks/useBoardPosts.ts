@@ -39,9 +39,13 @@ interface BoardPostsResponse {
   pagination: Pagination;
 }
 
+const STALE_TIME = 1000 * 60 * 5; // 5 minutes
+
 /** 게시글 목록 조회 */
 export function useBoardPosts(board?: BoardType, page = 1) {
-  return useQuery<BoardPostsResponse>({
+  const queryClient = useQueryClient();
+
+  const query = useQuery<BoardPostsResponse>({
     queryKey: ["boardPosts", board, page],
     queryFn: async (): Promise<BoardPostsResponse> => {
       const params = new URLSearchParams();
@@ -51,8 +55,29 @@ export function useBoardPosts(board?: BoardType, page = 1) {
       if (!res.ok) throw new Error("게시글을 불러올 수 없어요.");
       return res.json();
     },
-    staleTime: 1000 * 60 * 2,
+    staleTime: STALE_TIME,
+    gcTime: 1000 * 60 * 10,
+    placeholderData: (prev) => prev,
   });
+
+  // Prefetch next page
+  const totalPages = query.data?.pagination.totalPages ?? 0;
+  if (page < totalPages) {
+    const nextParams = new URLSearchParams();
+    if (board) nextParams.set("board", board);
+    nextParams.set("page", String(page + 1));
+    queryClient.prefetchQuery({
+      queryKey: ["boardPosts", board, page + 1],
+      queryFn: async (): Promise<BoardPostsResponse> => {
+        const res = await fetch(`/api/board/posts?${nextParams}`);
+        if (!res.ok) throw new Error("게시글을 불러올 수 없어요.");
+        return res.json();
+      },
+      staleTime: STALE_TIME,
+    });
+  }
+
+  return query;
 }
 
 /** 게시글 작성 */
@@ -81,8 +106,10 @@ export function useCreatePost() {
       }
       return res.json();
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
+    onSuccess: (_data, variables) => {
+      // Only invalidate the relevant board + "all" board (page 1)
+      queryClient.invalidateQueries({ queryKey: ["boardPosts", variables.board] });
+      queryClient.invalidateQueries({ queryKey: ["boardPosts", undefined, 1] });
     },
   });
 }

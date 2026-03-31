@@ -56,15 +56,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   }));
   /* eslint-enable @typescript-eslint/no-explicit-any */
 
-  return NextResponse.json({
-    posts: mapped,
-    pagination: {
-      page,
-      pageSize: PAGE_SIZE,
-      total: count ?? 0,
-      totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
+  return NextResponse.json(
+    {
+      posts: mapped,
+      pagination: {
+        page,
+        pageSize: PAGE_SIZE,
+        total: count ?? 0,
+        totalPages: Math.ceil((count ?? 0) / PAGE_SIZE),
+      },
     },
-  });
+    {
+      headers: {
+        "Cache-Control": "public, s-maxage=30, stale-while-revalidate=60",
+      },
+    },
+  );
 }
 
 /** POST /api/board/posts — 게시글 작성 */
@@ -179,8 +186,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // Grant EXP for post creation
-  await grantExp(supabase, user.id, EXP_REWARDS.POST_CREATED);
+  // Grant EXP fire-and-forget (non-blocking)
+  grantExp(supabase, user.id, EXP_REWARDS.POST_CREATED).catch(() => {});
 
   return NextResponse.json({ post }, { status: 201 });
 }

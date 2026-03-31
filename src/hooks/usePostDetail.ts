@@ -29,6 +29,7 @@ export function usePostDetail(slugOrId: string) {
       }>;
     },
     enabled: !!slugOrId,
+    staleTime: 1000 * 60 * 5,
   });
 }
 
@@ -50,8 +51,8 @@ export function useCreateComment(postId: string) {
       return res.json();
     },
     onSuccess: () => {
+      // Only refetch this post's detail (includes comments)
       queryClient.invalidateQueries({ queryKey: ["postDetail"] });
-      queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
     },
   });
 }
@@ -96,6 +97,7 @@ export function useDeleteComment(postId: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["postDetail"] });
+      // Also invalidate board list since comment_count changed
       queryClient.invalidateQueries({ queryKey: ["boardPosts"] });
     },
   });

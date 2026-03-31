@@ -23,6 +23,7 @@ export async function GET(
   const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   const column = isUuid ? "id" : "slug";
 
+  // Fetch post first (need post.id for comments query when using slug)
   const { data: post, error: postError } = await supabase
     .from("posts")
     .select("*, profiles!posts_user_id_profiles_fkey(nickname, avatar_seed, role)")
@@ -36,22 +37,16 @@ export async function GET(
     );
   }
 
-  const { data: comments, error: commentsError } = await supabase
+  // Fetch comments (now we have post.id)
+  const { data: comments } = await supabase
     .from("comments")
     .select("*, profiles!comments_user_id_profiles_fkey(nickname, avatar_seed)")
     .eq("post_id", post.id)
     .order("created_at", { ascending: true });
 
-  if (commentsError) {
-    return NextResponse.json(
-      { error: "댓글을 불러올 수 없어요." },
-      { status: 500 },
-    );
-  }
-
   return NextResponse.json({
     post: { ...post, comment_count: comments?.length ?? 0 },
-    comments,
+    comments: comments ?? [],
   });
 }
 

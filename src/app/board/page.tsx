@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, memo, type ReactElement } from "react";
+import { useState, useCallback, memo, type ReactElement } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import FallbackImage from "@/components/ui/fallback-image";
@@ -186,8 +186,8 @@ const PostCard = memo(function PostCard({
   post: BoardPost;
   blurred: boolean;
   isOwner: boolean;
-  onEdit: () => void;
-  onDelete: () => void;
+  onEdit: (post: BoardPost) => void;
+  onDelete: (postId: string) => void;
 }): ReactElement {
   const boardLabel = COPY.BOARD_NAME[post.board] ?? post.board;
 
@@ -240,7 +240,7 @@ const PostCard = memo(function PostCard({
                 </span>
               );
             })()}
-          {isOwner && <PostMenu onEdit={onEdit} onDelete={onDelete} />}
+          {isOwner && <PostMenu onEdit={() => onEdit(post)} onDelete={() => onDelete(post.id)} />}
         </div>
       </div>
 
@@ -394,10 +394,14 @@ export default function BoardPage(): ReactElement {
     );
   }
 
-  function handleDelete(postId: string): void {
+  const handleSetEditTarget = useCallback((post: BoardPost) => {
+    setEditTarget(post);
+  }, []);
+
+  const handleDeletePost = useCallback((postId: string) => {
     if (!confirm("게시글을 삭제할까요?")) return;
     deletePost.mutate({ postId });
-  }
+  }, [deletePost]);
 
   function handleTabChange(tab: string): void {
     setActiveTab(tab);
@@ -478,8 +482,8 @@ export default function BoardPage(): ReactElement {
                     post={post}
                     blurred={isGuest}
                     isOwner={isOwner}
-                    onEdit={() => setEditTarget(post)}
-                    onDelete={() => handleDelete(post.id)}
+                    onEdit={handleSetEditTarget}
+                    onDelete={handleDeletePost}
                   />
                 );
               })}

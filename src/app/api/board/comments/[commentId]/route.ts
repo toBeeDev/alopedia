@@ -145,16 +145,18 @@ export async function DELETE(
     );
   }
 
-  // Sync comment_count
+  // Sync comment_count (count + update must be sequential, but run after delete)
   const { count } = await supabase
     .from("comments")
     .select("*", { count: "exact", head: true })
     .eq("post_id", comment.post_id);
 
-  await supabase
+  // Fire-and-forget: don't block response on count update
+  supabase
     .from("posts")
     .update({ comment_count: count ?? 0 })
-    .eq("id", comment.post_id);
+    .eq("id", comment.post_id)
+    .then(() => {});
 
   return NextResponse.json({ success: true });
 }

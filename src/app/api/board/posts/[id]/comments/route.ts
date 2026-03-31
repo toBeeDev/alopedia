@@ -74,19 +74,19 @@ export async function POST(
     );
   }
 
-  // Increment comment_count on post
-  const { count } = await supabase
-    .from("comments")
-    .select("*", { count: "exact", head: true })
-    .eq("post_id", postId);
+  // Increment comment_count and grant EXP in parallel
+  const [{ count }] = await Promise.all([
+    supabase
+      .from("comments")
+      .select("*", { count: "exact", head: true })
+      .eq("post_id", postId),
+    grantExp(supabase, user.id, EXP_REWARDS.COMMENT_CREATED),
+  ]);
 
   await supabase
     .from("posts")
     .update({ comment_count: count ?? 0 })
     .eq("id", postId);
-
-  // Grant EXP for comment creation
-  await grantExp(supabase, user.id, EXP_REWARDS.COMMENT_CREATED);
 
   return NextResponse.json({ comment }, { status: 201 });
 }
