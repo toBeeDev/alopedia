@@ -7,7 +7,6 @@ import {
   Home,
   Camera,
   Clock,
-  MessageCircle,
   User,
   BookOpen,
   MapPin,
@@ -51,7 +50,7 @@ const NAV_ENTRIES: NavEntry[] = [
       { href: "/guide", label: COPY.NAV_GUIDE, icon: BookOpen },
     ],
   },
-  { href: "/board", label: COPY.NAV_BOARD, icon: MessageCircle },
+  { href: "/diary", label: COPY.NAV_DIARY, icon: BookOpen },
   { href: "/hospital", label: COPY.NAV_HOSPITAL, icon: MapPin },
   { href: "/profile", label: COPY.NAV_PROFILE, icon: User },
 ];

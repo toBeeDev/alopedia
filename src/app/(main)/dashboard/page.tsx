@@ -11,7 +11,6 @@ import {
   Calendar,
   Flame,
   BarChart3,
-  MessageCircle,
   BookOpen,
   User,
 } from "lucide-react";
@@ -417,10 +416,10 @@ export default function DashboardPage(): ReactElement {
                 gradient="bg-emerald-500"
               />
               <QuickAction
-                icon={<MessageCircle className="h-5 w-5 text-amber-500" />}
-                label="커뮤니티"
-                desc="후기 & 정보 공유"
-                href="/board"
+                icon={<BookOpen className="h-5 w-5 text-amber-500" />}
+                label="헤어 다이어리"
+                desc="오늘의 두피 기록"
+                href="/diary"
                 gradient="bg-amber-500"
               />
               <QuickAction
@@ -459,7 +458,7 @@ export default function DashboardPage(): ReactElement {
                 </p>
               </div>
               <Link
-                href="/board"
+                href="/diary/public"
                 className="flex items-center gap-1 text-xs font-medium text-foreground hover:underline"
               >
                 전체 보기
