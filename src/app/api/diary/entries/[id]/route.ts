@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { mapDiaryEntry, mapAnalysis } from "@/lib/utils/mapDiaryEntry";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -43,7 +44,46 @@ export async function GET(
     }
   }
 
-  return NextResponse.json({ entry, analysis });
+  // Increment view count (fire-and-forget)
+  await supabase.rpc("increment_view_count", { entry_id: id }).then(null, () => {
+    // Fallback: direct update if RPC doesn't exist
+    supabase
+      .from("diary_entries")
+      .update({ view_count: (entry.view_count ?? 0) + 1 })
+      .eq("id", id)
+      .then(null, () => {});
+  });
+
+  // Check if current user liked this entry
+  const {
+    data: { user: currentUser },
+  } = await supabase.auth.getUser();
+  let liked = false;
+  if (currentUser) {
+    const { data: likeRow } = await supabase
+      .from("diary_likes")
+      .select("id")
+      .eq("entry_id", id)
+      .eq("user_id", currentUser.id)
+      .maybeSingle();
+    liked = !!likeRow;
+  }
+
+  const mapped = mapDiaryEntry(entry as unknown as Record<string, unknown>);
+  if (analysis) {
+    mapped.analysis = mapAnalysis(analysis as unknown as Record<string, unknown>) ?? undefined;
+  }
+
+  return NextResponse.json({
+    entry: mapped,
+    analysis: mapAnalysis(analysis as unknown as Record<string, unknown>),
+    liked,
+    stats: {
+      viewCount: (entry.view_count ?? 0) + 1,
+      likeCount: entry.like_count ?? 0,
+      commentCount: entry.comment_count ?? 0,
+    },
+  });
 }
 
 /** PATCH /api/diary/entries/:id — 일기 수정 (소유자만) */
@@ -62,9 +102,11 @@ export async function PATCH(
   }
 
   let body: {
+    title?: string;
     memo?: string;
     isPublic?: boolean;
     isPhotoPublic?: boolean;
+    blurLevel?: string;
     checklists?: { category: string; item: string; checked: boolean }[];
   };
 
@@ -74,15 +116,15 @@ export async function PATCH(
     return NextResponse.json({ error: "올바른 요청 형식이 아니에요." }, { status: 400 });
   }
 
-  const { memo, isPublic, isPhotoPublic, checklists } = body;
+  const { title, memo, isPublic, isPhotoPublic, blurLevel, checklists } = body;
 
-  // 부분 업데이트 필드 구성
   const updates: Record<string, unknown> = {};
+  if (title !== undefined) updates.title = title;
   if (memo !== undefined) updates.memo = memo;
   if (isPublic !== undefined) updates.is_public = isPublic;
   if (isPhotoPublic !== undefined) updates.is_photo_public = isPhotoPublic;
+  if (blurLevel !== undefined) updates.blur_level = blurLevel;
 
-  // 소유자 확인 + 업데이트 (user_id 조건 포함)
   const { data: entry, error: updateError } = await supabase
     .from("diary_entries")
     .update(updates)
@@ -102,7 +144,6 @@ export async function PATCH(
     return NextResponse.json({ error: "일기 수정에 실패했어요." }, { status: 500 });
   }
 
-  // 체크리스트 교체: 기존 삭제 후 새로 삽입
   if (checklists !== undefined) {
     const { error: deleteError } = await supabase
       .from("diary_checklists")
@@ -133,7 +174,7 @@ export async function PATCH(
     }
   }
 
-  return NextResponse.json({ entry });
+  return NextResponse.json({ entry: mapDiaryEntry(entry as unknown as Record<string, unknown>) });
 }
 
 /** DELETE /api/diary/entries/:id — 일기 삭제 (소유자만) */

@@ -294,9 +294,6 @@ export default function GuestTryPage(): ReactElement {
           )}
         </div>
 
-        <p className="mt-6 text-center text-xs text-muted-foreground/70">
-          {COPY.DISCLAIMER_SHORT}
-        </p>
       </div>
     </div>
   );

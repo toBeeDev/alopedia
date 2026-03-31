@@ -2,7 +2,7 @@
 
 import { type ReactElement, useMemo } from "react";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { fadeSlideUp } from "@/lib/motion";
 import type { DiaryCalendarDot } from "@/types/diary";
 
@@ -10,20 +10,21 @@ interface Props {
   year: number;
   month: number; // 1-12
   dots: DiaryCalendarDot[];
+  selectedDate: string | null;
   onDateClick: (date: string) => void;
   onPrevMonth: () => void;
   onNextMonth: () => void;
-  todayEntry: string | null; // entry id if exists
+  onToday: () => void;
 }
 
 const WEEKDAYS = ["일", "월", "화", "수", "목", "금", "토"] as const;
 
-const GRADE_COLORS: Record<number, string> = {
-  1: "#22C55E",
-  2: "#EAB308",
-  3: "#F97316",
-  4: "#EF4444",
-  5: "#A855F7",
+const GRADE_DOT: Record<number, string> = {
+  1: "bg-green-500",
+  2: "bg-yellow-500",
+  3: "bg-orange-500",
+  4: "bg-red-500",
+  5: "bg-purple-500",
 };
 
 function formatDateStr(year: number, month: number, day: number): string {
@@ -36,10 +37,11 @@ export default function DiaryCalendar({
   year,
   month,
   dots,
+  selectedDate,
   onDateClick,
   onPrevMonth,
   onNextMonth,
-  todayEntry,
+  onToday,
 }: Props): ReactElement {
   const today = useMemo(() => {
     const d = new Date();
@@ -64,55 +66,85 @@ export default function DiaryCalendar({
     [year, month],
   );
 
-  const cells = useMemo(() => {
-    const result: Array<{ day: number | null }> = [];
-    for (let i = 0; i < firstDayOffset; i++) {
-      result.push({ day: null });
+  // Previous month trailing days
+  const prevMonthDays = useMemo(() => {
+    const prevLastDay = new Date(year, month - 1, 0).getDate();
+    const days: number[] = [];
+    for (let i = firstDayOffset - 1; i >= 0; i--) {
+      days.push(prevLastDay - i);
     }
-    for (let d = 1; d <= daysInMonth; d++) {
-      result.push({ day: d });
+    return days;
+  }, [year, month, firstDayOffset]);
+
+  // Next month leading days
+  const nextMonthDays = useMemo(() => {
+    const totalCells = prevMonthDays.length + daysInMonth;
+    const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    const days: number[] = [];
+    for (let i = 1; i <= remaining; i++) {
+      days.push(i);
     }
-    return result;
-  }, [firstDayOffset, daysInMonth]);
+    return days;
+  }, [prevMonthDays.length, daysInMonth]);
 
   return (
     <motion.div
       variants={fadeSlideUp}
       initial="hidden"
       animate="visible"
-      className="rounded-2xl bg-card shadow-sm ring-1 ring-border overflow-hidden"
+      className="flex flex-col"
     >
-      {/* Month navigation header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+      {/* Header: month nav centered + 오늘 button */}
+      <div className="flex items-center justify-between mb-5">
         <button
           type="button"
-          aria-label="이전 달"
-          onClick={onPrevMonth}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:scale-95"
+          onClick={onToday}
+          className="rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
         >
-          <ChevronLeft className="h-4 w-4" />
+          오늘
         </button>
 
-        <span className="text-sm font-bold text-foreground">
-          {year}년 {month}월
-        </span>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            aria-label="이전 달"
+            onClick={onPrevMonth}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:scale-95"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
 
-        <button
-          type="button"
-          aria-label="다음 달"
-          onClick={onNextMonth}
-          className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:scale-95"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
+          <span className="text-base font-bold text-foreground min-w-[100px] text-center">
+            {year}년 {month}월
+          </span>
+
+          <button
+            type="button"
+            aria-label="다음 달"
+            onClick={onNextMonth}
+            className="flex h-7 w-7 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:scale-95"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Spacer to balance "오늘" button width */}
+        <div className="w-[42px]" />
       </div>
 
       {/* Weekday row */}
-      <div className="grid grid-cols-7 px-3 pt-3">
-        {WEEKDAYS.map((day) => (
+      <div className="grid grid-cols-7 mb-1">
+        {WEEKDAYS.map((day, i) => (
           <div
             key={day}
-            className="flex items-center justify-center pb-2 text-[11px] font-medium text-muted-foreground"
+            className={[
+              "flex items-center justify-center py-2 text-xs font-semibold",
+              i === 0
+                ? "text-red-400"
+                : i === 6
+                  ? "text-blue-400"
+                  : "text-muted-foreground/50",
+            ].join(" ")}
           >
             {day}
           </div>
@@ -120,59 +152,102 @@ export default function DiaryCalendar({
       </div>
 
       {/* Day grid */}
-      <div className="grid grid-cols-7 gap-y-1 px-3 pb-4">
-        {cells.map((cell, idx) => {
-          if (cell.day === null) {
-            return <div key={`blank-${idx}`} className="aspect-square" />;
-          }
+      <div className="grid grid-cols-7">
+        {/* Previous month trailing days */}
+        {prevMonthDays.map((day) => (
+          <div
+            key={`prev-${day}`}
+            className="flex flex-col items-center justify-center py-2.5"
+          >
+            <span className="text-sm text-muted-foreground/30">{day}</span>
+          </div>
+        ))}
 
-          const dateStr = formatDateStr(year, month, cell.day);
+        {/* Current month days */}
+        {Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
+          const dateStr = formatDateStr(year, month, day);
           const dot = dotMap.get(dateStr);
           const isToday = dateStr === today;
-          const dotColor =
-            dot?.norwoodGrade != null
-              ? (GRADE_COLORS[dot.norwoodGrade] ?? null)
-              : null;
+          const isSelected = dateStr === selectedDate;
+          const grade = dot?.norwoodGrade ?? null;
+          const hasEntry = dot?.hasEntry ?? false;
+          const isFuture = dateStr > today;
 
           return (
             <button
               key={dateStr}
               type="button"
-              aria-label={`${year}년 ${month}월 ${cell.day}일`}
-              onClick={() => onDateClick(dateStr)}
+              aria-label={`${month}월 ${day}일`}
+              onClick={() => !isFuture && onDateClick(dateStr)}
+              disabled={isFuture}
               className={[
-                "aspect-square flex flex-col items-center justify-center gap-0.5 rounded-lg transition-colors",
-                "hover:bg-muted active:scale-95",
-                isToday
-                  ? "ring-2 ring-primary ring-offset-1 ring-offset-card"
-                  : "",
-              ]
-                .filter(Boolean)
-                .join(" ")}
+                "flex flex-col items-center justify-center py-2.5 transition-colors group relative",
+                isFuture ? "cursor-default" : "",
+              ].join(" ")}
             >
               <span
                 className={[
-                  "text-xs leading-none",
-                  isToday ? "font-bold text-primary" : "font-medium text-foreground",
-                ].join(" ")}
+                  "flex h-9 w-9 items-center justify-center rounded-full text-sm transition-all",
+                  // Future: dimmed
+                  isFuture
+                    ? "text-muted-foreground/25 font-normal"
+                    : "",
+                  // Selected (not today): muted filled circle
+                  !isFuture && isSelected && !isToday
+                    ? "bg-muted-foreground/20 text-foreground font-bold ring-2 ring-muted-foreground/30"
+                    : "",
+                  // Today + selected: primary filled
+                  !isFuture && isToday && isSelected
+                    ? "bg-primary text-primary-foreground font-bold"
+                    : "",
+                  // Today (not selected): outlined ring
+                  !isFuture && isToday && !isSelected
+                    ? "ring-2 ring-primary text-primary font-bold"
+                    : "",
+                  // Has entry but not selected/today
+                  !isFuture && !isSelected && !isToday && hasEntry
+                    ? "font-semibold text-foreground"
+                    : "",
+                  // Default past/present
+                  !isFuture && !isSelected && !isToday && !hasEntry
+                    ? "font-medium text-foreground/70 group-hover:bg-muted"
+                    : "",
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
               >
-                {cell.day}
+                {day}
               </span>
 
-              {/* Dot or Plus icon */}
-              {dotColor != null ? (
+              {/* Entry dot indicator */}
+              {hasEntry && !isFuture && (
                 <span
-                  className="h-1.5 w-1.5 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: dotColor }}
+                  className={[
+                    "absolute bottom-1 h-1 w-1 rounded-full",
+                    isToday || isSelected ? "bg-background/60" : "",
+                    grade !== null && !isToday && !isSelected
+                      ? GRADE_DOT[grade]
+                      : !isToday && !isSelected
+                        ? "bg-primary"
+                        : "",
+                  ]
+                    .filter(Boolean)
+                    .join(" ")}
                 />
-              ) : isToday && todayEntry === null ? (
-                <Plus className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-              ) : (
-                <span className="h-1.5 w-1.5 flex-shrink-0" />
               )}
             </button>
           );
         })}
+
+        {/* Next month leading days */}
+        {nextMonthDays.map((day) => (
+          <div
+            key={`next-${day}`}
+            className="flex flex-col items-center justify-center py-2.5"
+          >
+            <span className="text-sm text-muted-foreground/30">{day}</span>
+          </div>
+        ))}
       </div>
     </motion.div>
   );

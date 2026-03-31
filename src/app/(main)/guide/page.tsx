@@ -365,17 +365,6 @@ export default function GuidePage(): ReactElement {
           </section>
 
           {/* ── Disclaimer ── */}
-          <motion.div
-            variants={fadeSlideUp}
-            className="rounded-xl border border-border bg-muted px-4 py-3 text-center"
-          >
-            <p className="text-xs font-medium text-muted-foreground/70">
-              {COPY.DISCLAIMER_SHORT}
-            </p>
-            <p className="mt-1 text-[10px] text-muted-foreground/70">
-              {COPY.DISCLAIMER_FULL}
-            </p>
-          </motion.div>
         </motion.div>
       </PageContainer>
     </div>

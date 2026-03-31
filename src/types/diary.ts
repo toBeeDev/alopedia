@@ -41,9 +41,11 @@ export interface DiaryEntry {
   userId: string;
   scanId: string | null;
   date: string;
+  title: string | null;
   memo: string | null;
   isPublic: boolean;
   isPhotoPublic: boolean;
+  blurLevel: "none" | "low" | "medium" | "high";
   createdAt: string;
   updatedAt: string;
   checklists?: DiaryChecklist[];
@@ -60,6 +62,21 @@ export interface DiaryEntry {
     nickname: string;
     avatarSeed: string | null;
   };
+  viewCount?: number;
+  likeCount?: number;
+  commentCount?: number;
+}
+
+export interface DiaryComment {
+  id: string;
+  entryId: string;
+  userId: string;
+  content: string;
+  createdAt: string;
+  profile: {
+    nickname: string;
+    avatarSeed: string | null;
+  } | null;
 }
 
 export interface DiaryCalendarDot {
@@ -90,6 +107,7 @@ export interface DbDiaryEntry {
   user_id: string;
   scan_id: string | null;
   date: string;
+  title: string | null;
   memo: string | null;
   is_public: boolean;
   is_photo_public: boolean;

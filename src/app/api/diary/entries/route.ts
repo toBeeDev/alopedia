@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { mapDiaryEntry } from "@/lib/utils/mapDiaryEntry";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const PAGE_SIZE = 20;
@@ -15,7 +16,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const offset = (page - 1) * PAGE_SIZE;
 
   if (isPublic) {
-    // 공개 피드: 인증 불필요, 페이지네이션 적용
     const { data: entries, error } = await supabase
       .from("diary_entries")
       .select(
@@ -30,7 +30,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ error: "피드를 불러올 수 없어요." }, { status: 500 });
     }
 
-    return NextResponse.json({ entries, page, pageSize: PAGE_SIZE });
+    const mapped = (entries ?? []).map((e: Record<string, unknown>) =>
+      mapDiaryEntry(e),
+    );
+    return NextResponse.json({ entries: mapped, page, pageSize: PAGE_SIZE });
   }
 
   // 내 일기: 인증 필요
@@ -48,7 +51,6 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .order("date", { ascending: false });
 
   if (month) {
-    // month 필터: YYYY-MM → YYYY-MM-01 ~ YYYY-MM-31 범위
     const from = `${month}-01`;
     const [year, mon] = month.split("-").map(Number);
     const lastDay = new Date(year, mon, 0).getDate();
@@ -63,7 +65,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "일기를 불러올 수 없어요." }, { status: 500 });
   }
 
-  return NextResponse.json({ entries });
+  return NextResponse.json({
+    entries: (entries ?? []).map((e: Record<string, unknown>) => mapDiaryEntry(e)),
+  });
 }
 
 /** POST /api/diary/entries — 일기 생성 */
@@ -80,9 +84,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   let body: {
     scanId?: string;
     date: string;
+    title?: string;
     memo?: string;
     isPublic?: boolean;
     isPhotoPublic?: boolean;
+    blurLevel?: string;
     checklists?: { category: string; item: string; checked: boolean }[];
   };
 
@@ -92,9 +98,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "올바른 요청 형식이 아니에요." }, { status: 400 });
   }
 
-  const { scanId, date, memo, isPublic, isPhotoPublic, checklists } = body;
+  const { scanId, date, title, memo, isPublic, isPhotoPublic, blurLevel, checklists } = body;
 
-  // 날짜 형식 검증 (YYYY-MM-DD)
   if (!date || !DATE_REGEX.test(date)) {
     return NextResponse.json(
       { error: "날짜 형식이 올바르지 않아요. YYYY-MM-DD 형식으로 입력해주세요." },
@@ -102,7 +107,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // 중복 체크 (user_id + date unique)
   const { data: existing, error: dupError } = await supabase
     .from("diary_entries")
     .select("id")
@@ -122,16 +126,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     );
   }
 
-  // 일기 생성
   const { data: entry, error: insertError } = await supabase
     .from("diary_entries")
     .insert({
       user_id: user.id,
       scan_id: scanId ?? null,
       date,
+      title: title ?? null,
       memo: memo ?? null,
       is_public: isPublic ?? false,
       is_photo_public: isPhotoPublic ?? false,
+      blur_level: blurLevel ?? "medium",
     })
     .select()
     .single();
@@ -141,7 +146,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "일기 저장에 실패했어요." }, { status: 500 });
   }
 
-  // 체크리스트 삽입
   if (checklists && checklists.length > 0) {
     const checklistRows = checklists.map((c) => ({
       entry_id: entry.id,
@@ -156,9 +160,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (checklistError) {
       console.error("[POST /api/diary/entries] checklist insert error:", checklistError);
-      // 체크리스트 실패해도 일기는 반환 (부분 성공 허용)
     }
   }
 
-  return NextResponse.json({ entry }, { status: 201 });
+  return NextResponse.json({ entry: mapDiaryEntry(entry as unknown as Record<string, unknown>) }, { status: 201 });
 }

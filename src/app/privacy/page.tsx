@@ -159,7 +159,7 @@ export default function PrivacyPage(): ReactElement {
               },
               {
                 label: "건강 기록:",
-                text: "헤어 다이어리 체크리스트(약물·시술·생활습관 여부)",
+                text: "둥지 일기 체크리스트(약물·시술·생활습관 여부)",
               },
               {
                 label: "메모:",

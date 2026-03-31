@@ -23,8 +23,8 @@ export default async function MainLayout({
 
   return (
     <CheckInProvider>
-      <div className="min-h-screen bg-background">
-        <main className="pt-14 lg:pt-0">{children}</main>
+      <div className="flex min-h-screen flex-col bg-background">
+        <main className="flex-1 flex flex-col pt-14 lg:pt-0">{children}</main>
         <LightFooter />
         <FloatingMenu />
       </div>

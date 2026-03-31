@@ -29,10 +29,14 @@ export default function DiaryNewPage(): ReactElement {
   const { mutateAsync, isPending } = useCreateDiaryEntry();
 
   const scanIdFromUrl = searchParams.get("scanId");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = (() => {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  })();
 
   const [todayScan, setTodayScan] = useState<TodayScan | null>(null);
   const [scanLoading, setScanLoading] = useState(true);
+  const [previewBlur, setPreviewBlur] = useState<string>("");
   const [linkedScanId, setLinkedScanId] = useState<string | undefined>(
     scanIdFromUrl ?? undefined,
   );
@@ -70,11 +74,12 @@ export default function DiaryNewPage(): ReactElement {
         }
 
         // Otherwise find today's latest completed scan
-        const todayScans = scans.filter(
-          (s) =>
-            s.status === "completed" &&
-            s.created_at.startsWith(today),
-        );
+        const todayScans = scans.filter((s) => {
+          if (s.status !== "completed") return false;
+          const d = new Date(s.created_at);
+          const localDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          return localDate === today;
+        });
 
         if (todayScans.length > 0) {
           const latest = todayScans[0]; // already sorted desc
@@ -99,9 +104,11 @@ export default function DiaryNewPage(): ReactElement {
   }, [user, scanIdFromUrl, today]);
 
   async function handleSubmit(data: {
+    title: string;
     memo: string;
     isPublic: boolean;
     isPhotoPublic: boolean;
+    blurLevel: "none" | "low" | "medium" | "high";
     checklists: { category: string; item: string; checked: boolean }[];
   }): Promise<void> {
     const result = await mutateAsync({
@@ -113,6 +120,28 @@ export default function DiaryNewPage(): ReactElement {
     const entryId = (result as { entry?: { id?: string } })?.entry?.id;
     router.push(entryId ? `/diary/${entryId}` : "/diary");
   }
+
+  // If today's entry already exists, redirect to edit
+  useEffect(() => {
+    if (!user) return;
+    async function checkExisting(): Promise<void> {
+      try {
+        const month = today.slice(0, 7);
+        const res = await fetch(`/api/diary/entries?month=${month}`);
+        if (!res.ok) return;
+        const { entries } = await res.json();
+        const existing = (entries ?? []).find(
+          (e: { date: string }) => e.date === today,
+        );
+        if (existing) {
+          router.replace(`/diary/${existing.id}/edit`);
+        }
+      } catch {
+        // ignore
+      }
+    }
+    checkExisting();
+  }, [user, today, router]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -163,17 +192,18 @@ export default function DiaryNewPage(): ReactElement {
                   </span>
                 )}
               </div>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="flex gap-2">
                 {todayScan.images.slice(0, 3).map((img, i) => (
                   <div
                     key={i}
-                    className="relative aspect-square overflow-hidden rounded-xl bg-muted"
+                    className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-muted"
                   >
                     <Image
                       src={img.thumbnailUrl}
                       alt={`두피 사진 ${i + 1}`}
                       fill
-                      className="object-cover"
+                      className={`object-cover transition-all duration-300 ${previewBlur}`}
+                      sizes="80px"
                     />
                   </div>
                 ))}
@@ -205,6 +235,15 @@ export default function DiaryNewPage(): ReactElement {
           onSubmit={handleSubmit}
           isSubmitting={isPending}
           submitLabel="다이어리 저장"
+          onBlurChange={(level) => {
+            if (level === "none") {
+              setPreviewBlur("");
+            } else {
+              setPreviewBlur(
+                level === "low" ? "blur-sm" : level === "high" ? "blur-2xl" : "blur-lg",
+              );
+            }
+          }}
         />
       </motion.div>
     </PageContainer>

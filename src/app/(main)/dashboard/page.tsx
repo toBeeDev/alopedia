@@ -417,7 +417,7 @@ export default function DashboardPage(): ReactElement {
               />
               <QuickAction
                 icon={<BookOpen className="h-5 w-5 text-amber-500" />}
-                label="헤어 다이어리"
+                label="둥지 일기"
                 desc="오늘의 두피 기록"
                 href="/diary"
                 gradient="bg-amber-500"
@@ -451,10 +451,10 @@ export default function DashboardPage(): ReactElement {
             <div className="mb-4 flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-foreground">
-                  다른 분들의 경험
+                  둥지 일기
                 </h3>
                 <p className="mt-0.5 text-[11px] text-muted-foreground/70">
-                  커뮤니티에서 공유된 후기를 확인해보세요
+                  다른 독수리들의 두피 관리 기록을 확인해보세요
                 </p>
               </div>
               <Link

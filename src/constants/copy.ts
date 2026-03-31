@@ -53,7 +53,7 @@ export const COPY = {
   SHARE_IMAGE_CTA: "분석 결과 공유하기",
   SHARE_IMAGE_GENERATING: "이미지 생성 중...",
   SHARE_IMAGE_DOWNLOADED: "이미지가 저장됐어요",
-  SHARE_DIARY_CTA: "다이어리에 공유하기",
+  SHARE_DIARY_CTA: "둥지 일기에 공유하기",
 
   // ── Gamification ──
   STREAK_ACHIEVED: (days: number): string =>
@@ -88,7 +88,7 @@ export const COPY = {
   FEATURE_TRACK_TITLE: "변화 추적",
   FEATURE_TRACK_DESC:
     "타임라인과 비교 슬라이더로 두피 상태 변화를 한눈에 확인하세요.",
-  FEATURE_COMMUNITY_TITLE: "헤어 다이어리",
+  FEATURE_COMMUNITY_TITLE: "둥지 일기",
   FEATURE_COMMUNITY_DESC:
     "매일 두피 상태를 기록하고, AI 분석과 함께 변화를 추적하세요. 공개하면 다른 분들과 경험을 나눌 수 있어요.",
   FEATURE_RECORD_TITLE: "꾸준한 기록",
@@ -101,7 +101,7 @@ export const COPY = {
   NAV_SCAN: "업로드",
   NAV_HISTORY: "기록",
   NAV_GUIDE: "분석 가이드",
-  NAV_DIARY: "헤어 다이어리",
+  NAV_DIARY: "둥지 일기",
   NAV_PROFILE: "프로필",
   NAV_HOSPITAL: "병원 찾기",
   NAV_OPEN: "메뉴 열기",
@@ -110,7 +110,7 @@ export const COPY = {
   // ── Page Titles ──
   PAGE_TITLE_HISTORY: "분석 기록",
   PAGE_TITLE_DASHBOARD: "대시보드",
-  PAGE_TITLE_DIARY: "헤어 다이어리",
+  PAGE_TITLE_DIARY: "둥지 일기",
   PAGE_TITLE_GUIDE: "분석 방법",
   PAGE_TITLE_PROFILE: "프로필",
 
@@ -207,10 +207,10 @@ export const COPY = {
   REPORT_CTA_SCAN: "이번 달도 독수리와 함께 기록하기",
 
   // ── Diary ──
-  DIARY_EMPTY: "아직 기록이 없어요. 오늘 첫 번째 다이어리를 작성해보세요!",
-  DIARY_ENTRY_SAVED: "오늘의 다이어리가 저장됐어요.",
-  DIARY_ENTRY_UPDATED: "다이어리가 수정됐어요.",
-  DIARY_ENTRY_DELETED: "다이어리가 삭제됐어요.",
+  DIARY_EMPTY: "아직 기록이 없어요. 오늘 첫 번째 둥지 일기를 작성해보세요!",
+  DIARY_ENTRY_SAVED: "오늘의 둥지 일기가 저장됐어요.",
+  DIARY_ENTRY_UPDATED: "둥지 일기가 수정됐어요.",
+  DIARY_ENTRY_DELETED: "둥지 일기가 삭제됐어요.",
   DIARY_ALREADY_EXISTS: "오늘은 이미 기록했어요.",
   DIARY_EDIT_CTA: "수정하기",
   DIARY_ADD_CTA: "오늘 기록하기",
@@ -218,15 +218,15 @@ export const COPY = {
   DIARY_MEMO_LABEL: "메모",
   DIARY_MEMO_PLACEHOLDER: "오늘 두피 상태나 느낌을 자유롭게 적어보세요...",
   DIARY_PUBLIC_LABEL: "모두에게 공개",
-  DIARY_PHOTO_PUBLIC_LABEL: "사진도 공개",
+  DIARY_PHOTO_PUBLIC_LABEL: "사진 원본 공개 (미선택 시 블러 처리)",
   DIARY_CHECKLIST_MEDICATION: "약물",
   DIARY_CHECKLIST_TREATMENT: "시술",
   DIARY_CHECKLIST_LIFESTYLE: "생활습관",
   DIARY_SUBMITTING: "저장 중...",
 
   // ── Diary Public Feed ──
-  DIARY_PUBLIC_TITLE: "공개 다이어리",
-  DIARY_PUBLIC_EMPTY: "아직 공개된 다이어리가 없어요.",
+  DIARY_PUBLIC_TITLE: "전체 글",
+  DIARY_PUBLIC_EMPTY: "아직 공개된 글이 없어요.",
   DIARY_PHOTO_BLURRED: "사진 비공개",
 
   // ── Diary Report (Premium) ──

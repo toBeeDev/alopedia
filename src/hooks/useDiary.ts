@@ -1,5 +1,5 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { DiaryEntry, DiaryCalendarDot } from "@/types/diary";
+import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { DiaryEntry, DiaryCalendarDot, DiaryComment } from "@/types/diary";
 
 interface DiaryEntriesResponse {
   entries: DiaryEntry[];
@@ -43,7 +43,12 @@ export function useDiaryEntry(id: string) {
     queryFn: async () => {
       const res = await fetch(`/api/diary/entries/${id}`);
       if (!res.ok) throw new Error("기록을 불러올 수 없어요.");
-      return res.json() as Promise<{ entry: DiaryEntry; analysis: Record<string, unknown> | null }>;
+      return res.json() as Promise<{
+        entry: DiaryEntry;
+        analysis: Record<string, unknown> | null;
+        liked: boolean;
+        stats: { viewCount: number; likeCount: number; commentCount: number };
+      }>;
     },
     enabled: !!id,
     staleTime: STALE_TIME,
@@ -64,6 +69,27 @@ export function usePublicDiary(page = 1) {
   });
 }
 
+/** Fetch public diary feed with infinite scroll */
+export function usePublicDiaryInfinite() {
+  return useInfiniteQuery<DiaryPublicResponse>({
+    queryKey: ["diary", "public", "infinite"],
+    queryFn: async ({ pageParam }): Promise<DiaryPublicResponse> => {
+      const res = await fetch(`/api/diary/entries?public=true&page=${pageParam}`);
+      if (!res.ok) throw new Error("공개 다이어리를 불러올 수 없어요.");
+      return res.json();
+    },
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // If we got a full page, there might be more
+      if (lastPage.entries.length >= 20) {
+        return allPages.length + 1;
+      }
+      return undefined;
+    },
+    staleTime: STALE_TIME,
+  });
+}
+
 /** Create diary entry */
 export function useCreateDiaryEntry() {
   const queryClient = useQueryClient();
@@ -71,9 +97,11 @@ export function useCreateDiaryEntry() {
     mutationFn: async (data: {
       scanId?: string;
       date: string;
+      title?: string;
       memo?: string;
       isPublic?: boolean;
       isPhotoPublic?: boolean;
+      blurLevel?: string;
       checklists?: { category: string; item: string; checked: boolean }[];
     }) => {
       const res = await fetch("/api/diary/entries", {
@@ -99,7 +127,9 @@ export function useUpdateDiaryEntry() {
   return useMutation({
     mutationFn: async ({ id, ...data }: {
       id: string;
+      title?: string;
       memo?: string;
+      blurLevel?: string;
       isPublic?: boolean;
       isPhotoPublic?: boolean;
       checklists?: { category: string; item: string; checked: boolean }[];
@@ -135,6 +165,84 @@ export function useDeleteDiaryEntry() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["diary"] });
+    },
+  });
+}
+
+/** Toggle like on diary entry */
+export function useDiaryLike() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (entryId: string) => {
+      const res = await fetch(`/api/diary/entries/${entryId}/like`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "좋아요에 실패했어요.");
+      }
+      return res.json() as Promise<{ liked: boolean }>;
+    },
+    onSuccess: (_data, entryId) => {
+      queryClient.invalidateQueries({ queryKey: ["diary", "entry", entryId] });
+    },
+  });
+}
+
+/** Fetch comments for a diary entry */
+export function useDiaryComments(entryId: string) {
+  return useQuery<{ comments: DiaryComment[] }>({
+    queryKey: ["diary", "comments", entryId],
+    queryFn: async () => {
+      const res = await fetch(`/api/diary/entries/${entryId}/comments`);
+      if (!res.ok) throw new Error("댓글을 불러올 수 없어요.");
+      return res.json();
+    },
+    enabled: !!entryId,
+    staleTime: 1000 * 60,
+  });
+}
+
+/** Create a comment on a diary entry */
+export function useCreateDiaryComment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ entryId, content }: { entryId: string; content: string }) => {
+      const res = await fetch(`/api/diary/entries/${entryId}/comments`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "댓글 작성에 실패했어요.");
+      }
+      return res.json();
+    },
+    onSuccess: (_data, { entryId }) => {
+      queryClient.invalidateQueries({ queryKey: ["diary", "comments", entryId] });
+      queryClient.invalidateQueries({ queryKey: ["diary", "entry", entryId] });
+    },
+  });
+}
+
+/** Delete a comment */
+export function useDeleteDiaryComment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ commentId }: { commentId: string; entryId: string }) => {
+      const res = await fetch(`/api/diary/comments/${commentId}`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error ?? "댓글 삭제에 실패했어요.");
+      }
+      return res.json();
+    },
+    onSuccess: (_data, { entryId }) => {
+      queryClient.invalidateQueries({ queryKey: ["diary", "comments", entryId] });
+      queryClient.invalidateQueries({ queryKey: ["diary", "entry", entryId] });
     },
   });
 }
