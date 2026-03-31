@@ -4,22 +4,15 @@ import { useEffect, useState, type ReactElement } from "react";
 import { useParams, useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { ArrowLeft } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
 import PageContainer from "@/components/layout/PageContainer";
 import ResultCard from "@/components/analysis/ResultCard";
 import FeedbackButtons from "@/components/analysis/FeedbackButtons";
 import { COPY } from "@/constants/copy";
-import { useCreatePost } from "@/hooks/useBoardPosts";
-import type { AnalysisDetail, ScanImage, BoardType } from "@/types/database";
+import type { AnalysisDetail, ScanImage } from "@/types/database";
 import type { ScanWithAnalysis } from "@/hooks/useScanHistory";
 
 const ShareButtons = dynamic(
   () => import("@/components/analysis/ShareButtons"),
-  { ssr: false },
-);
-
-const ShareAnalysisModal = dynamic(
-  () => import("@/components/board/ShareAnalysisModal"),
   { ssr: false },
 );
 
@@ -28,9 +21,7 @@ export default function ScanDetailPage(): ReactElement {
   const router = useRouter();
   const [scan, setScan] = useState<ScanWithAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [showShare, setShowShare] = useState(false);
   const [shared, setShared] = useState(false);
-  const createPost = useCreatePost();
 
   useEffect(() => {
     async function fetchScan(): Promise<void> {
@@ -74,24 +65,6 @@ export default function ScanDetailPage(): ReactElement {
   const analysis = scan.analyses?.[0];
   const images = scan.images as ScanImage[];
 
-  function handleShare(payload: {
-    board: BoardType;
-    title: string;
-    content: string;
-    tags: string[];
-    scanId: string;
-    norwoodGrade: number;
-    score: number;
-    images?: Record<string, unknown>[];
-  }): void {
-    createPost.mutate(payload, {
-      onSuccess: () => {
-        setShowShare(false);
-        setShared(true);
-      },
-    });
-  }
-
   return (
     <PageContainer className="py-6">
       {/* 뒤로가기 */}
@@ -126,7 +99,7 @@ export default function ScanDetailPage(): ReactElement {
               score={Number(analysis.score)}
               details={analysis.details as AnalysisDetail}
               createdAt={analysis.created_at}
-              onBoardShare={() => setShowShare(true)}
+              onBoardShare={() => setShared(true)}
               boardShared={shared}
             />
           </div>
@@ -141,22 +114,6 @@ export default function ScanDetailPage(): ReactElement {
         </div>
       )}
 
-      {/* 공유 모달 */}
-      <AnimatePresence>
-        {showShare && analysis && (
-          <ShareAnalysisModal
-            data={{
-              scanId: scan.id,
-              norwoodGrade: analysis.norwood_grade,
-              score: Number(analysis.score),
-              details: analysis.details as AnalysisDetail,
-              images,
-            }}
-            onClose={() => setShowShare(false)}
-            onSubmit={handleShare}
-          />
-        )}
-      </AnimatePresence>
     </PageContainer>
   );
 }

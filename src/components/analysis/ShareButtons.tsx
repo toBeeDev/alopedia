@@ -123,19 +123,19 @@ export default function ShareButtons({
           )}
         </button>
 
-        {/* 게시판 글 올리기 */}
+        {/* 다이어리 공유 */}
         {boardShared ? (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-50 px-6 py-4 text-sm font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
           >
-            <span>게시판에 공유됐어요!</span>
+            <span>다이어리에 공유됐어요!</span>
             <Link
-              href="/board"
+              href="/diary/public"
               className="underline underline-offset-2 hover:text-emerald-900 dark:hover:text-emerald-300"
             >
-              게시판으로 이동
+              다이어리 보기
             </Link>
           </motion.div>
         ) : (
@@ -144,7 +144,7 @@ export default function ShareButtons({
             className="flex w-full items-center justify-center gap-2 rounded-2xl bg-card px-6 py-4 text-sm font-semibold text-foreground shadow-sm ring-1 ring-border transition-all hover:bg-accent active:scale-[0.98]"
           >
             <MessageCircle className="h-4 w-4" strokeWidth={2} />
-            {COPY.SHARE_BOARD_CTA}
+            {COPY.SHARE_DIARY_CTA}
           </button>
         )}
       </div>

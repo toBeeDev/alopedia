@@ -53,6 +53,7 @@ export const COPY = {
   SHARE_IMAGE_CTA: "분석 결과 공유하기",
   SHARE_IMAGE_GENERATING: "이미지 생성 중...",
   SHARE_IMAGE_DOWNLOADED: "이미지가 저장됐어요",
+  SHARE_DIARY_CTA: "다이어리에 공유하기",
 
   // ── Gamification ──
   STREAK_ACHIEVED: (days: number): string =>
