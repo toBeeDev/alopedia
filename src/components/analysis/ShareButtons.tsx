@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, type ReactElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, Loader2, Download, X, Share2 } from "lucide-react";
+import { BookOpen, Loader2, Download, X, Share2 } from "lucide-react";
 import Link from "next/link";
 import { drawResultCard } from "@/lib/share/drawResultCard";
 import { downloadResultImage } from "@/lib/share/shareResult";
@@ -17,8 +17,9 @@ interface ShareButtonsProps {
   score: number;
   details: AnalysisDetail;
   createdAt: string;
-  onBoardShare: () => void;
-  boardShared: boolean;
+  scanId: string;
+  onBoardShare?: () => void;
+  boardShared?: boolean;
 }
 
 /** 카카오톡 말풍선 아이콘 (공식 가이드 기반) */
@@ -35,8 +36,7 @@ export default function ShareButtons({
   score,
   details,
   createdAt,
-  onBoardShare,
-  boardShared,
+  scanId,
 }: ShareButtonsProps): ReactElement {
   const [isGenerating, setIsGenerating] = useState(false);
   const [previewBlob, setPreviewBlob] = useState<Blob | null>(null);
@@ -123,30 +123,14 @@ export default function ShareButtons({
           )}
         </button>
 
-        {/* 다이어리 공유 */}
-        {boardShared ? (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-emerald-50 px-6 py-4 text-sm font-medium text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400"
-          >
-            <span>다이어리에 공유됐어요!</span>
-            <Link
-              href="/diary/public"
-              className="underline underline-offset-2 hover:text-emerald-900 dark:hover:text-emerald-300"
-            >
-              다이어리 보기
-            </Link>
-          </motion.div>
-        ) : (
-          <button
-            onClick={onBoardShare}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl bg-card px-6 py-4 text-sm font-semibold text-foreground shadow-sm ring-1 ring-border transition-all hover:bg-accent active:scale-[0.98]"
-          >
-            <MessageCircle className="h-4 w-4" strokeWidth={2} />
-            {COPY.SHARE_DIARY_CTA}
-          </button>
-        )}
+        {/* 다이어리 쓰러가기 */}
+        <Link
+          href={`/diary/new?scanId=${scanId}`}
+          className="flex w-full items-center justify-center gap-2 rounded-2xl bg-card px-6 py-4 text-sm font-semibold text-foreground shadow-sm ring-1 ring-border transition-all hover:bg-accent active:scale-[0.98]"
+        >
+          <BookOpen className="h-4 w-4" strokeWidth={2} />
+          다이어리 쓰러가기
+        </Link>
       </div>
 
       {/* 이미지 미리보기 모달 */}

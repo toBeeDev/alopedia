@@ -146,8 +146,6 @@ export default function UploadingPage(): ReactElement {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const [shareSuccess, setShareSuccess] = useState(false);
-
   // 분석 완료 — 결과 카드 표시
   if (state === "done" && analysis) {
     const quickLinks = [
@@ -179,8 +177,7 @@ export default function UploadingPage(): ReactElement {
             score={analysis.score}
             details={analysis.details}
             createdAt={analysis.createdAt}
-            onBoardShare={() => setShareSuccess(true)}
-            boardShared={shareSuccess}
+            scanId={analysis.scanId}
           />
         </div>
 

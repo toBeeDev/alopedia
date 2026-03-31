@@ -1,90 +1,102 @@
 "use client";
 
-import { useState, type ReactElement } from "react";
-import { useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
+import { useState, useEffect, type ReactElement } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Camera, CheckCircle2 } from "lucide-react";
+import { Camera, CheckCircle2, ExternalLink } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
 import { COPY } from "@/constants/copy";
 import { useCreateDiaryEntry } from "@/hooks/useDiary";
-import { useScanSessionStore } from "@/stores/scanSession";
-import { compressImage } from "@/lib/image/compressClient";
+import { useAuth } from "@/hooks/useAuth";
 import DiaryEntryForm from "@/components/diary/DiaryEntryForm";
 import PageContainer from "@/components/layout/PageContainer";
 import { fadeSlideUp, staggerContainer } from "@/lib/motion";
+import type { ScanImage } from "@/types/database";
 
-const ScanSession = dynamic(
-  () => import("@/components/scan/ScanSession"),
-  { ssr: false },
-);
-
-/** Vercel Serverless Function body 제한 (4.5MB) */
-const VERCEL_BODY_LIMIT = 4.5 * 1024 * 1024;
+interface TodayScan {
+  id: string;
+  images: ScanImage[];
+  grade: number | null;
+  score: number | null;
+}
 
 export default function DiaryNewPage(): ReactElement {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { user, isLoading: authLoading } = useAuth();
   const { mutateAsync, isPending } = useCreateDiaryEntry();
-  const { images } = useScanSessionStore();
 
-  const [scanId, setScanId] = useState<string | undefined>(undefined);
-  const [scanUploading, setScanUploading] = useState(false);
-  const [showScanner, setShowScanner] = useState(false);
-
+  const scanIdFromUrl = searchParams.get("scanId");
   const today = new Date().toISOString().slice(0, 10);
-  const hasPhotos = images.length > 0;
 
-  /** Upload captured photos to /api/scans and return the scan id */
-  async function uploadScanPhotos(): Promise<string | undefined> {
-    if (images.length === 0) return undefined;
-    if (scanId) return scanId;
+  const [todayScan, setTodayScan] = useState<TodayScan | null>(null);
+  const [scanLoading, setScanLoading] = useState(true);
+  const [linkedScanId, setLinkedScanId] = useState<string | undefined>(
+    scanIdFromUrl ?? undefined,
+  );
 
-    setScanUploading(true);
-    try {
-      const formData = new FormData();
-      const compressedBlobs: Blob[] = [];
+  // Fetch today's latest completed scan (or the one from URL)
+  useEffect(() => {
+    async function fetchTodayScan(): Promise<void> {
+      try {
+        const res = await fetch("/api/scans");
+        if (!res.ok) return;
+        const { scans } = (await res.json()) as {
+          scans: {
+            id: string;
+            created_at: string;
+            images: ScanImage[];
+            status: string;
+            analyses?: { norwood_grade: number; score: number }[];
+          }[];
+        };
 
-      await Promise.all(
-        images.map(async (img, i) => {
-          const key = `photo_${i}`;
-          const file =
-            img.blob instanceof File
-              ? img.blob
-              : new File([img.blob], `${key}.jpg`, { type: "image/jpeg" });
-          const compressed = await compressImage(file);
-          compressedBlobs.push(compressed);
-          formData.append(key, compressed, `${key}.jpg`);
-        }),
-      );
+        // If scanId from URL, find that specific scan
+        if (scanIdFromUrl) {
+          const target = scans.find((s) => s.id === scanIdFromUrl);
+          if (target) {
+            const analysis = target.analyses?.[0];
+            setTodayScan({
+              id: target.id,
+              images: target.images,
+              grade: analysis?.norwood_grade ?? null,
+              score: analysis?.score ? Number(analysis.score) : null,
+            });
+            setLinkedScanId(target.id);
+          }
+          return;
+        }
 
-      const totalSize = compressedBlobs.reduce((sum, b) => sum + b.size, 0);
-      if (totalSize > VERCEL_BODY_LIMIT) {
-        const sizeMB = (totalSize / (1024 * 1024)).toFixed(1);
-        throw new Error(
-          `압축 후에도 이미지 총 용량(${sizeMB}MB)이 너무 커요. 더 작은 사진으로 다시 시도해주세요.`,
+        // Otherwise find today's latest completed scan
+        const todayScans = scans.filter(
+          (s) =>
+            s.status === "completed" &&
+            s.created_at.startsWith(today),
         );
+
+        if (todayScans.length > 0) {
+          const latest = todayScans[0]; // already sorted desc
+          const analysis = latest.analyses?.[0];
+          setTodayScan({
+            id: latest.id,
+            images: latest.images,
+            grade: analysis?.norwood_grade ?? null,
+            score: analysis?.score ? Number(analysis.score) : null,
+          });
+          setLinkedScanId(latest.id);
+        }
+      } catch {
+        // silently fail
+      } finally {
+        setScanLoading(false);
       }
-
-      const uploadRes = await fetch("/api/scans", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!uploadRes.ok) {
-        const err = await uploadRes.json().catch(() => ({}));
-        throw new Error((err as { error?: string }).error ?? "사진 업로드에 실패했어요.");
-      }
-
-      const { scan } = (await uploadRes.json()) as { scan: { id: string } };
-      setScanId(scan.id);
-      return scan.id;
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "사진 업로드에 실패했어요.");
-      return undefined;
-    } finally {
-      setScanUploading(false);
     }
-  }
+
+    if (user) fetchTodayScan();
+    else setScanLoading(false);
+  }, [user, scanIdFromUrl, today]);
 
   async function handleSubmit(data: {
     memo: string;
@@ -92,15 +104,29 @@ export default function DiaryNewPage(): ReactElement {
     isPhotoPublic: boolean;
     checklists: { category: string; item: string; checked: boolean }[];
   }): Promise<void> {
-    // Upload photos first (if any were captured)
-    const resolvedScanId = await uploadScanPhotos();
-
-    await mutateAsync({ ...data, date: today, scanId: resolvedScanId });
+    const result = await mutateAsync({
+      ...data,
+      date: today,
+      scanId: linkedScanId,
+    });
     toast.success(COPY.DIARY_ENTRY_SAVED);
-    router.push("/diary");
+    const entryId = (result as { entry?: { id?: string } })?.entry?.id;
+    router.push(entryId ? `/diary/${entryId}` : "/diary");
   }
 
-  const isSubmitting = isPending || scanUploading;
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/login");
+    }
+  }, [authLoading, user, router]);
+
+  if (authLoading || !user) {
+    return (
+      <PageContainer>
+        <p className="text-sm text-muted-foreground py-10 text-center">로딩 중...</p>
+      </PageContainer>
+    );
+  }
 
   return (
     <PageContainer>
@@ -110,7 +136,6 @@ export default function DiaryNewPage(): ReactElement {
         animate="visible"
         className="flex flex-col gap-6 py-6"
       >
-        {/* Header */}
         <motion.h1
           variants={fadeSlideUp}
           className="text-xl font-bold text-foreground"
@@ -119,46 +144,58 @@ export default function DiaryNewPage(): ReactElement {
         </motion.h1>
 
         {/* Scan section */}
-        <motion.div variants={fadeSlideUp} className="flex flex-col gap-3">
-          {/* Toggle button */}
-          <button
-            type="button"
-            onClick={() => setShowScanner((prev) => !prev)}
-            className="flex items-center justify-between rounded-2xl border border-border bg-card px-5 py-4 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-muted/50"
-          >
-            <span className="flex items-center gap-2">
-              <Camera className="h-4 w-4 text-muted-foreground" />
-              두피 사진 첨부 (선택)
-            </span>
-            <span className="flex items-center gap-1.5">
-              {hasPhotos ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4 text-green-500" />
-                  <span className="text-xs font-semibold text-green-600">
-                    {images.length}장 선택됨
-                  </span>
-                </>
-              ) : (
-                <span className="text-xs text-muted-foreground">
-                  {showScanner ? "접기" : "열기"}
+        <motion.div variants={fadeSlideUp}>
+          {scanLoading ? (
+            <div className="rounded-2xl border border-border bg-card p-6 text-center">
+              <p className="text-sm text-muted-foreground">스캔 기록 확인 중...</p>
+            </div>
+          ) : todayScan ? (
+            /* Today's scan exists — show preview */
+            <div className="rounded-2xl border border-border bg-card p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
+                <span className="text-sm font-semibold text-foreground">
+                  오늘의 AI 분석 연결됨
                 </span>
-              )}
-            </span>
-          </button>
-
-          {/* ScanSession panel */}
-          {showScanner && (
-            <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
-              {/* Contextual note */}
-              <div className="border-b border-border bg-muted/40 px-4 py-2.5">
-                <p className="text-xs text-muted-foreground">
-                  사진을 선택하면 일기 저장 시 함께 업로드됩니다.{" "}
-                  <span className="font-medium text-foreground/70">
-                    AI 분석은 별도 스캔 메뉴에서 진행할 수 있어요.
+                {todayScan.grade && (
+                  <span className="text-xs text-muted-foreground">
+                    · {COPY.GRADE_HEADLINE[todayScan.grade]} {todayScan.score}점
                   </span>
-                </p>
+                )}
               </div>
-              <ScanSession />
+              <div className="grid grid-cols-3 gap-2">
+                {todayScan.images.slice(0, 3).map((img, i) => (
+                  <div
+                    key={i}
+                    className="relative aspect-square overflow-hidden rounded-xl bg-muted"
+                  >
+                    <Image
+                      src={img.thumbnailUrl}
+                      alt={`두피 사진 ${i + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            /* No scan today — prompt to upload */
+            <div className="rounded-2xl border-2 border-dashed border-border bg-muted/30 p-6 text-center">
+              <Camera className="mx-auto h-8 w-8 text-muted-foreground/50 mb-2" />
+              <p className="text-sm text-muted-foreground mb-3">
+                오늘 촬영한 두피 사진이 없어요
+              </p>
+              <Link
+                href="/scan"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                두피사진 업로드하러가기
+                <ExternalLink className="h-3.5 w-3.5" />
+              </Link>
+              <p className="mt-2 text-xs text-muted-foreground">
+                사진 없이도 다이어리를 작성할 수 있어요
+              </p>
             </div>
           )}
         </motion.div>
@@ -166,8 +203,8 @@ export default function DiaryNewPage(): ReactElement {
         {/* Form */}
         <DiaryEntryForm
           onSubmit={handleSubmit}
-          isSubmitting={isSubmitting}
-          submitLabel={COPY.DIARY_ADD_CTA}
+          isSubmitting={isPending}
+          submitLabel="다이어리 저장"
         />
       </motion.div>
     </PageContainer>

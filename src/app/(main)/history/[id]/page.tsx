@@ -21,7 +21,6 @@ export default function ScanDetailPage(): ReactElement {
   const router = useRouter();
   const [scan, setScan] = useState<ScanWithAnalysis | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [shared, setShared] = useState(false);
 
   useEffect(() => {
     async function fetchScan(): Promise<void> {
@@ -99,8 +98,7 @@ export default function ScanDetailPage(): ReactElement {
               score={Number(analysis.score)}
               details={analysis.details as AnalysisDetail}
               createdAt={analysis.created_at}
-              onBoardShare={() => setShared(true)}
-              boardShared={shared}
+              scanId={scan.id}
             />
           </div>
         </>

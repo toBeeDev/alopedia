@@ -1,5 +1,13 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { Resend } from "resend";
 import { createClient } from "@/lib/supabase/server";
+
+const CONTACT_FROM = "noreply@alopedia.app";
+const CONTACT_TO = "pediaalo@gmail.com";
+
+function getResend(): Resend {
+  return new Resend(process.env.RESEND_API_KEY);
+}
 
 interface ContactBody {
   subject: string;
@@ -9,7 +17,6 @@ interface ContactBody {
 
 /** POST /api/contact — 문의 접수 */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  // Auth is optional — get user if logged in
   const supabase = await createClient();
   const {
     data: { user },
@@ -24,7 +31,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   const { subject, content, email } = body as ContactBody;
 
-  // Validate required fields
   if (!subject || !content || !email) {
     return NextResponse.json({ error: "제목, 내용, 이메일은 필수입니다." }, { status: 400 });
   }
@@ -45,13 +51,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "내용은 5000자 이하로 입력해주세요." }, { status: 400 });
   }
 
-  // TODO: Resend integration
-  console.log("[POST /api/contact]", {
-    userId: user?.id ?? "anonymous",
-    email: email.trim(),
-    subject: subject.trim(),
-    contentLength: content.length,
+  const { error } = await getResend().emails.send({
+    from: `Alopedia 문의 <${CONTACT_FROM}>`,
+    to: CONTACT_TO,
+    replyTo: email.trim(),
+    subject: `[문의] ${subject.trim()}`,
+    text: [
+      `보낸 사람: ${email.trim()}`,
+      `유저 ID: ${user?.id ?? "비회원"}`,
+      "",
+      content.trim(),
+    ].join("\n"),
   });
+
+  if (error) {
+    console.error("[POST /api/contact] Resend error:", error);
+    return NextResponse.json({ error: "문의 전송에 실패했어요. 잠시 후 다시 시도해주세요." }, { status: 500 });
+  }
 
   return NextResponse.json({ ok: true }, { status: 201 });
 }
