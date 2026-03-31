@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import FloatingMenu from "@/components/layout/FloatingMenu";
 import CheckInProvider from "@/components/layout/CheckInProvider";
+import LightFooter from "@/components/layout/LightFooter";
 import type { ReactElement, ReactNode } from "react";
 
 interface MainLayoutProps {
@@ -24,6 +25,7 @@ export default async function MainLayout({
     <CheckInProvider>
       <div className="min-h-screen bg-background">
         <main className="pt-14 lg:pt-0">{children}</main>
+        <LightFooter />
         <FloatingMenu />
       </div>
     </CheckInProvider>
