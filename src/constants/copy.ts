@@ -214,12 +214,14 @@ export const COPY = {
   DIARY_EDIT_CTA: "수정하기",
   DIARY_ADD_CTA: "오늘 기록하기",
   DIARY_STREAK: (days: number): string => `연속 ${days}일 기록 중!`,
+  DIARY_MEMO_LABEL: "메모",
   DIARY_MEMO_PLACEHOLDER: "오늘 두피 상태나 느낌을 자유롭게 적어보세요...",
   DIARY_PUBLIC_LABEL: "모두에게 공개",
   DIARY_PHOTO_PUBLIC_LABEL: "사진도 공개",
   DIARY_CHECKLIST_MEDICATION: "약물",
   DIARY_CHECKLIST_TREATMENT: "시술",
   DIARY_CHECKLIST_LIFESTYLE: "생활습관",
+  DIARY_SUBMITTING: "저장 중...",
 
   // ── Diary Public Feed ──
   DIARY_PUBLIC_TITLE: "공개 다이어리",
