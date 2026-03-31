@@ -21,9 +21,17 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   if (code) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
+      const user = sessionData.user;
+      if (user) {
+        await supabase
+          .from("profiles")
+          .update({ terms_agreed_at: new Date().toISOString() })
+          .eq("id", user.id)
+          .is("terms_agreed_at", null);
+      }
       const forwardedHost = request.headers.get("x-forwarded-host");
       const isLocalEnv = process.env.NODE_ENV === "development";
 
