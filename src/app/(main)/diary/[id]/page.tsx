@@ -235,31 +235,28 @@ export default function DiaryDetailPage({ params }: Props): ReactElement {
         {/* Meta row */}
         <motion.div
           variants={fadeSlideUp}
-          className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground mb-2"
+          className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground mb-2"
         >
           {entry.isPublic ? (
-            <span className="inline-flex items-center gap-1">
-              <Globe className="h-3 w-3" /> 공개
+            <span className="inline-flex items-center gap-1 whitespace-nowrap">
+              <Globe className="h-3 w-3 shrink-0" /> 공개
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1">
-              <Lock className="h-3 w-3" /> 나만 보기
+            <span className="inline-flex items-center gap-1 whitespace-nowrap">
+              <Lock className="h-3 w-3 shrink-0" /> 나만 보기
             </span>
           )}
           <span className="text-muted-foreground/30">·</span>
-          <span>{entry.profile?.nickname ?? "나"}</span>
+          <span className="whitespace-nowrap">{entry.profile?.nickname ?? "나"}</span>
           <span className="text-muted-foreground/30">·</span>
-          <span className="inline-flex items-center gap-1">
-            <Clock className="h-3 w-3" />
+          <span className="inline-flex items-center gap-1 whitespace-nowrap">
+            <Clock className="h-3 w-3 shrink-0" />
             {formattedDate}
           </span>
           {grade !== null && (
-            <>
-              <span className="text-muted-foreground/30">·</span>
-              <span className={`font-bold rounded-md px-1.5 py-0.5 ${GRADE_BADGE[grade]}`}>
-                {GRADE_LABELS[grade]} {score !== null ? `${score.toFixed(1)}점` : ""}
-              </span>
-            </>
+            <span className={`font-bold rounded-md px-1.5 py-0.5 whitespace-nowrap ${GRADE_BADGE[grade]}`}>
+              {GRADE_LABELS[grade]} {score !== null ? `${score.toFixed(1)}점` : ""}
+            </span>
           )}
         </motion.div>
 
