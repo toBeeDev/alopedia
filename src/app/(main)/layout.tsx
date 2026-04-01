@@ -24,7 +24,9 @@ export default async function MainLayout({
   return (
     <CheckInProvider>
       <div className="flex min-h-screen flex-col bg-background">
-        <main className="flex-1 flex flex-col pt-14 lg:pt-0">{children}</main>
+        <main className="flex-1 flex flex-col pt-[calc(3.5rem+env(safe-area-inset-top,0px))] lg:pt-0">
+          {children}
+        </main>
         <LightFooter />
         <FloatingMenu />
       </div>
