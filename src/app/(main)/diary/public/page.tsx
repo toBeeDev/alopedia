@@ -61,7 +61,7 @@ export default function DiaryPublicPage(): ReactElement {
                   entry={entry}
                   isOwner={user?.id === entry.userId}
                   showAuthor
-                  onClick={() => router.push(`/diary/${entry.id}`)}
+                  onClick={() => router.push(`/diary/${entry.slug ?? entry.id}`)}
                 />
               </motion.div>
             ))}

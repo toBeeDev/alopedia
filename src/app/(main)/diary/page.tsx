@@ -12,6 +12,11 @@ import DiaryEntryCard from "@/components/diary/DiaryEntryCard";
 import DiaryFeedCard from "@/components/diary/DiaryFeedCard";
 import PageContainer from "@/components/layout/PageContainer";
 import { fadeSlideUp, staggerContainer } from "@/lib/motion";
+import type { DiaryEntry } from "@/types/diary";
+
+function diaryPath(entry: DiaryEntry): string {
+  return `/diary/${entry.slug ?? entry.id}`;
+}
 
 type DiaryFilter = "public" | "mine";
 
@@ -133,7 +138,7 @@ export default function DiaryPage(): ReactElement {
     setFilter("mine");
     const entry = entries.find((e) => e.date === date);
     if (entry && window.innerWidth < 1024) {
-      router.push(`/diary/${entry.id}`);
+      router.push(diaryPath(entry));
     }
   }
 
@@ -324,7 +329,7 @@ export default function DiaryPage(): ReactElement {
                           <DiaryEntryCard
                             entry={selectedEntry}
                             isOwner
-                            onClick={() => router.push(`/diary/${selectedEntry.id}`)}
+                            onClick={() => router.push(diaryPath(selectedEntry))}
                           />
                         ) : (
                           <div className="flex flex-col items-center gap-2 py-8 rounded-xl border border-dashed border-border">
@@ -355,7 +360,7 @@ export default function DiaryPage(): ReactElement {
                               key={entry.id}
                               entry={entry}
                               isOwner
-                              onClick={() => router.push(`/diary/${entry.id}`)}
+                              onClick={() => router.push(diaryPath(entry))}
                             />
                           ))}
                         </div>
@@ -392,7 +397,7 @@ export default function DiaryPage(): ReactElement {
                         key={entry.id}
                         entry={entry}
                         isOwner={user?.id === entry.userId}
-                        onClick={() => router.push(`/diary/${entry.id}`)}
+                        onClick={() => router.push(diaryPath(entry))}
                       />
                     ))}
                   </div>

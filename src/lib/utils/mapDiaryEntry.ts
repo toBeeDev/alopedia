@@ -15,6 +15,7 @@ export function mapDiaryEntry(row: Record<string, unknown>): DiaryEntry {
     scanId: (row.scan_id as string) ?? null,
     date: row.date as string,
     title: (row.title as string) ?? null,
+    slug: (row.slug as string) ?? null,
     memo: (row.memo as string) ?? null,
     isPublic: row.is_public as boolean,
     isPhotoPublic: row.is_photo_public as boolean,

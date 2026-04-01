@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { mapDiaryEntry, mapAnalysis } from "@/lib/utils/mapDiaryEntry";
+import { slugify } from "@/lib/utils/slugify";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -14,13 +15,15 @@ export async function GET(
   const { id } = await params;
   const supabase = await createClient();
 
-  const { data: entry, error } = await supabase
+  // Support lookup by UUID or slug
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  let query = supabase
     .from("diary_entries")
     .select(
       "*, scans(images, status), profiles!diary_entries_user_id_fkey(nickname, avatar_seed), diary_checklists(*)",
-    )
-    .eq("id", id)
-    .single();
+    );
+  query = isUuid ? query.eq("id", id) : query.eq("slug", id);
+  const { data: entry, error } = await query.single();
 
   if (error || !entry) {
     return NextResponse.json({ error: "일기를 찾을 수 없어요." }, { status: 404 });
@@ -119,7 +122,10 @@ export async function PATCH(
   const { title, memo, isPublic, isPhotoPublic, blurLevel, checklists } = body;
 
   const updates: Record<string, unknown> = {};
-  if (title !== undefined) updates.title = title;
+  if (title !== undefined) {
+    updates.title = title;
+    if (title) updates.slug = slugify(title, id);
+  }
   if (memo !== undefined) updates.memo = memo;
   if (isPublic !== undefined) updates.is_public = isPublic;
   if (isPhotoPublic !== undefined) updates.is_photo_public = isPhotoPublic;

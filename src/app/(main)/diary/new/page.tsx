@@ -117,8 +117,9 @@ export default function DiaryNewPage(): ReactElement {
       scanId: linkedScanId,
     });
     toast.success(COPY.DIARY_ENTRY_SAVED);
-    const entryId = (result as { entry?: { id?: string } })?.entry?.id;
-    router.push(entryId ? `/diary/${entryId}` : "/diary");
+    const created = (result as { entry?: { slug?: string; id?: string } })?.entry;
+    const path = created?.slug ?? created?.id;
+    router.push(path ? `/diary/${path}` : "/diary");
   }
 
   // If today's entry already exists, redirect to edit

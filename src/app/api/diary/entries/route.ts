@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { mapDiaryEntry } from "@/lib/utils/mapDiaryEntry";
+import { slugify } from "@/lib/utils/slugify";
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const PAGE_SIZE = 20;
@@ -144,6 +145,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (insertError || !entry) {
     console.error("[POST /api/diary/entries] insert error:", insertError);
     return NextResponse.json({ error: "일기 저장에 실패했어요." }, { status: 500 });
+  }
+
+  // Generate and save slug from title
+  if (title) {
+    const slug = slugify(title, entry.id);
+    await supabase
+      .from("diary_entries")
+      .update({ slug })
+      .eq("id", entry.id);
+    entry.slug = slug;
   }
 
   if (checklists && checklists.length > 0) {

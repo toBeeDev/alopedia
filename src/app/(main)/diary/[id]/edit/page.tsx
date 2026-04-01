@@ -50,9 +50,10 @@ export default function DiaryEditPage({ params }: Props): ReactElement {
     blurLevel: "none" | "low" | "medium" | "high";
     checklists: { category: string; item: string; checked: boolean }[];
   }): Promise<void> {
-    await mutateAsync({ id, ...data });
+    const result = await mutateAsync({ id, ...data });
     toast.success(COPY.DIARY_ENTRY_UPDATED);
-    router.push(`/diary/${id}`);
+    const updated = (result as { entry?: { slug?: string } })?.entry;
+    router.push(`/diary/${updated?.slug ?? id}`);
   }
 
   if (authLoading || isLoading || !user) {

@@ -28,7 +28,7 @@ export const metadata: Metadata = {
     locale: "ko_KR",
     images: [
       {
-        url: "/og-default.png",
+        url: "/og-image.png",
         width: 1200,
         height: 630,
         alt: PAGE.metaTitle,

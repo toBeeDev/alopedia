@@ -42,6 +42,7 @@ export interface DiaryEntry {
   scanId: string | null;
   date: string;
   title: string | null;
+  slug: string | null;
   memo: string | null;
   isPublic: boolean;
   isPhotoPublic: boolean;
